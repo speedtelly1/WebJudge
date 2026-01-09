@@ -1,0 +1,1095 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Платформа для публикации и просмотра отзывов на различные веб-сайты. Оставляйте оценки и делитесь мнениями о разных ресурсах.">
+    <meta name="keywords" content="отзывы, оценка сайтов, рейтинг, веб-разработка, пользовательские отзывы">
+    <title>SiteReview | Отзывы на веб-сайты</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --primary-color: #3498db;
+            --primary-dark: #2980b9;
+            --primary-light: #5dade2;
+            --secondary-color: #2c3e50;
+            --accent-color: #1abc9c;
+            --text-color: #333;
+            --light-text: #f8f9fa;
+            --bg-color: rgba(255, 255, 255, 0.1);
+            --glass-bg: rgba(255, 255, 255, 0.85);
+            --glass-border: rgba(255, 255, 255, 0.2);
+            --shadow: 0 8px 32px rgba(31, 38, 135, 0.15);
+            --transition: all 0.3s ease;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            color: var(--text-color);
+            min-height: 100vh;
+            padding: 20px;
+            background-attachment: fixed;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        /* Стиль матового стекла */
+        .glass-effect {
+            background: var(--glass-bg);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            border-radius: 16px;
+            border: 1px solid var(--glass-border);
+            box-shadow: var(--shadow);
+        }
+
+        /* Header */
+        header {
+            padding: 20px 0;
+            margin-bottom: 30px;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            margin-bottom: 15px;
+        }
+
+        .logo i {
+            font-size: 2.5rem;
+            color: var(--primary-color);
+        }
+
+        .logo h1 {
+            font-size: 2.2rem;
+            color: var(--secondary-color);
+        }
+
+        .logo span {
+            color: var(--primary-color);
+        }
+
+        .tagline {
+            font-size: 1.1rem;
+            color: var(--secondary-color);
+            opacity: 0.8;
+            margin-left: 55px;
+        }
+
+        /* Navigation */
+        nav {
+            margin: 20px 0;
+        }
+
+        .nav-links {
+            display: flex;
+            list-style: none;
+            gap: 20px;
+            flex-wrap: wrap;
+        }
+
+        .nav-links a {
+            text-decoration: none;
+            color: var(--secondary-color);
+            font-weight: 600;
+            padding: 10px 20px;
+            border-radius: 50px;
+            transition: var(--transition);
+            background: var(--glass-bg);
+            backdrop-filter: blur(5px);
+        }
+
+        .nav-links a:hover,
+        .nav-links a.active {
+            background-color: var(--primary-color);
+            color: white;
+        }
+
+        /* Main content */
+        main {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 30px;
+            margin-bottom: 40px;
+        }
+
+        .page {
+            display: none;
+            animation: fadeIn 0.5s ease;
+        }
+
+        .page.active {
+            display: block;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* Карточки отзывов */
+        .reviews-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+            gap: 25px;
+            margin-top: 20px;
+        }
+
+        .review-card {
+            padding: 25px;
+            transition: var(--transition);
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .review-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 12px 40px rgba(31, 38, 135, 0.2);
+        }
+
+        .review-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 15px;
+            border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+            padding-bottom: 10px;
+        }
+
+        .reviewer-info h3 {
+            font-size: 1.2rem;
+            color: var(--secondary-color);
+            margin-bottom: 5px;
+        }
+
+        .reviewer-email {
+            font-size: 0.9rem;
+            color: var(--primary-dark);
+        }
+
+        .review-site {
+            margin: 10px 0;
+            font-weight: 600;
+            color: var(--primary-color);
+            word-break: break-all;
+        }
+
+        .review-site a {
+            color: inherit;
+            text-decoration: none;
+        }
+
+        .review-site a:hover {
+            text-decoration: underline;
+        }
+
+        .review-text {
+            line-height: 1.6;
+            flex-grow: 1;
+            margin-bottom: 15px;
+        }
+
+        /* Рейтинг звездами */
+        .rating {
+            display: flex;
+            align-items: center;
+            margin: 15px 0;
+        }
+
+        .stars {
+            display: flex;
+            gap: 5px;
+        }
+
+        .star {
+            color: #ddd;
+            font-size: 1.3rem;
+        }
+
+        .star.filled {
+            color: #FFD700;
+        }
+
+        .rating-value {
+            margin-left: 10px;
+            font-weight: 600;
+            color: var(--secondary-color);
+            background: rgba(255, 215, 0, 0.1);
+            padding: 3px 8px;
+            border-radius: 20px;
+        }
+
+        .review-date {
+            font-size: 0.85rem;
+            color: #777;
+            text-align: right;
+            margin-top: auto;
+        }
+
+        /* Поиск и фильтры */
+        .search-section {
+            margin-bottom: 30px;
+        }
+
+        .search-box {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+
+        .search-box input {
+            flex-grow: 1;
+            padding: 15px 20px;
+            border: none;
+            border-radius: 50px;
+            font-size: 1rem;
+            background: var(--glass-bg);
+            backdrop-filter: blur(5px);
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+        }
+
+        .search-box button {
+            padding: 15px 25px;
+            border: none;
+            border-radius: 50px;
+            background-color: var(--primary-color);
+            color: white;
+            font-weight: 600;
+            cursor: pointer;
+            transition: var(--transition);
+        }
+
+        .search-box button:hover {
+            background-color: var(--primary-dark);
+        }
+
+        .filters {
+            display: flex;
+            gap: 15px;
+            flex-wrap: wrap;
+        }
+
+        .filter-btn {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 50px;
+            background: var(--glass-bg);
+            backdrop-filter: blur(5px);
+            color: var(--secondary-color);
+            font-weight: 600;
+            cursor: pointer;
+            transition: var(--transition);
+        }
+
+        .filter-btn:hover,
+        .filter-btn.active {
+            background-color: var(--primary-color);
+            color: white;
+        }
+
+        /* Форма через iframe */
+        .form-container {
+            padding: 30px;
+            margin-top: 20px;
+        }
+
+        .form-container h2 {
+            margin-bottom: 20px;
+            color: var(--secondary-color);
+            border-bottom: 2px solid var(--primary-light);
+            padding-bottom: 10px;
+        }
+
+        .form-note {
+            margin-bottom: 20px;
+            padding: 15px;
+            background: rgba(52, 152, 219, 0.1);
+            border-radius: 10px;
+            border-left: 4px solid var(--primary-color);
+        }
+
+        .iframe-container {
+            position: relative;
+            width: 100%;
+            overflow: hidden;
+            border-radius: 10px;
+            margin-top: 20px;
+        }
+
+        .iframe-container iframe {
+            width: 100%;
+            height: 1100px;
+            border: none;
+        }
+
+        /* Статистика */
+        .stats-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin-top: 20px;
+        }
+
+        .stat-card {
+            padding: 25px;
+            text-align: center;
+            transition: var(--transition);
+        }
+
+        .stat-card:hover {
+            transform: translateY(-5px);
+        }
+
+        .stat-card i {
+            font-size: 2.5rem;
+            color: var(--primary-color);
+            margin-bottom: 15px;
+        }
+
+        .stat-value {
+            font-size: 2.2rem;
+            font-weight: 700;
+            color: var(--secondary-color);
+            margin-bottom: 5px;
+        }
+
+        .stat-label {
+            font-size: 1rem;
+            color: #666;
+        }
+
+        /* О сайте */
+        .about-content {
+            padding: 30px;
+            line-height: 1.7;
+        }
+
+        .about-content h2 {
+            margin-bottom: 20px;
+            color: var(--secondary-color);
+        }
+
+        .about-content p {
+            margin-bottom: 15px;
+        }
+
+        .features {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin-top: 30px;
+        }
+
+        .feature {
+            padding: 20px;
+            text-align: center;
+            transition: var(--transition);
+        }
+
+        .feature:hover {
+            transform: translateY(-5px);
+        }
+
+        .feature i {
+            font-size: 2rem;
+            color: var(--primary-color);
+            margin-bottom: 15px;
+        }
+
+        /* Footer */
+        footer {
+            padding: 30px 0;
+            text-align: center;
+            margin-top: 40px;
+            border-top: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .footer-content {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 20px;
+        }
+
+        .copyright {
+            color: var(--secondary-color);
+        }
+
+        .footer-links {
+            display: flex;
+            gap: 20px;
+        }
+
+        .footer-links a {
+            color: var(--secondary-color);
+            text-decoration: none;
+            transition: var(--transition);
+        }
+
+        .footer-links a:hover {
+            color: var(--primary-color);
+        }
+
+        .github-link {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            background: var(--secondary-color);
+            color: white;
+            padding: 10px 20px;
+            border-radius: 50px;
+            text-decoration: none;
+            font-weight: 600;
+            transition: var(--transition);
+        }
+
+        .github-link:hover {
+            background: var(--primary-color);
+            transform: translateY(-3px);
+        }
+
+        /* Адаптивный дизайн */
+        @media (max-width: 768px) {
+            .nav-links {
+                justify-content: center;
+            }
+            
+            .nav-links a {
+                padding: 8px 16px;
+                font-size: 0.9rem;
+            }
+            
+            .reviews-container {
+                grid-template-columns: 1fr;
+            }
+            
+            .search-box {
+                flex-direction: column;
+            }
+            
+            .footer-content {
+                flex-direction: column;
+                text-align: center;
+            }
+            
+            .iframe-container iframe {
+                height: 1200px;
+            }
+            
+            .logo h1 {
+                font-size: 1.8rem;
+            }
+            
+            .tagline {
+                margin-left: 0;
+                text-align: center;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .glass-effect {
+                border-radius: 12px;
+            }
+            
+            .review-card, .form-container, .about-content {
+                padding: 20px;
+            }
+            
+            .stat-card {
+                padding: 20px 15px;
+            }
+            
+            .stat-value {
+                font-size: 1.8rem;
+            }
+        }
+
+        /* Утилиты */
+        .section-title {
+            font-size: 1.8rem;
+            color: var(--secondary-color);
+            margin-bottom: 20px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid var(--primary-light);
+        }
+
+        .no-results {
+            text-align: center;
+            padding: 40px;
+            grid-column: 1 / -1;
+            color: #666;
+        }
+
+        .no-results i {
+            font-size: 3rem;
+            margin-bottom: 20px;
+            color: #ddd;
+        }
+
+        .loading {
+            text-align: center;
+            padding: 40px;
+            grid-column: 1 / -1;
+        }
+
+        .loading-spinner {
+            border: 5px solid rgba(52, 152, 219, 0.2);
+            border-radius: 50%;
+            border-top: 5px solid var(--primary-color);
+            width: 50px;
+            height: 50px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 20px;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Header -->
+        <header class="glass-effect">
+            <div class="logo">
+                <i class="fas fa-globe-americas"></i>
+                <div>
+                    <h1>Site<span>Review</span></h1>
+                    <p class="tagline">Объективные отзывы на веб-сайты от реальных пользователей</p>
+                </div>
+            </div>
+            
+            <!-- Navigation -->
+            <nav>
+                <ul class="nav-links">
+                    <li><a href="#home" class="nav-link active" data-page="home">Главная</a></li>
+                    <li><a href="#reviews" class="nav-link" data-page="reviews">Все отзывы</a></li>
+                    <li><a href="#add-review" class="nav-link" data-page="add-review">Добавить отзыв</a></li>
+                    <li><a href="#stats" class="nav-link" data-page="stats">Статистика</a></li>
+                    <li><a href="#about" class="nav-link" data-page="about">О проекте</a></li>
+                </ul>
+            </nav>
+        </header>
+
+        <!-- Main Content -->
+        <main>
+            <!-- Главная страница -->
+            <section id="home-page" class="page active">
+                <div class="glass-effect" style="padding: 30px;">
+                    <h2 class="section-title">Добро пожаловать на SiteReview</h2>
+                    <p style="margin-bottom: 20px; line-height: 1.7;">Платформа для публикации и просмотра отзывов на различные веб-сайты. Здесь вы можете поделиться своим опытом использования разных ресурсов и помочь другим пользователям выбрать лучшие сайты.</p>
+                    
+                    <div class="stats-container">
+                        <div class="stat-card glass-effect">
+                            <i class="fas fa-star"></i>
+                            <div class="stat-value" id="total-reviews">0</div>
+                            <div class="stat-label">Всего отзывов</div>
+                        </div>
+                        <div class="stat-card glass-effect">
+                            <i class="fas fa-globe"></i>
+                            <div class="stat-value" id="unique-sites">0</div>
+                            <div class="stat-label">Оценено сайтов</div>
+                        </div>
+                        <div class="stat-card glass-effect">
+                            <i class="fas fa-user-friends"></i>
+                            <div class="stat-value" id="total-reviewers">0</div>
+                            <div class="stat-label">Участников</div>
+                        </div>
+                        <div class="stat-card glass-effect">
+                            <i class="fas fa-chart-line"></i>
+                            <div class="stat-value" id="avg-rating">0.0</div>
+                            <div class="stat-label">Средний рейтинг</div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div style="margin-top: 30px;">
+                    <h2 class="section-title">Последние отзывы</h2>
+                    <div class="reviews-container" id="featured-reviews">
+                        <!-- Здесь будут отображаться последние отзывы -->
+                        <div class="loading">
+                            <div class="loading-spinner"></div>
+                            <p>Загрузка отзывов...</p>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Все отзывы -->
+            <section id="reviews-page" class="page">
+                <div class="search-section glass-effect" style="padding: 25px;">
+                    <h2 class="section-title">Поиск отзывов</h2>
+                    <div class="search-box">
+                        <input type="text" id="search-input" placeholder="Введите название сайта, email или текст отзыва...">
+                        <button id="search-btn"><i class="fas fa-search"></i> Поиск</button>
+                    </div>
+                    <div class="filters">
+                        <button class="filter-btn active" data-filter="all">Все отзывы</button>
+                        <button class="filter-btn" data-filter="rating-5">5 звезд</button>
+                        <button class="filter-btn" data-filter="rating-4">4+ звезды</button>
+                        <button class="filter-btn" data-filter="rating-3">3+ звезды</button>
+                        <button class="filter-btn" data-filter="recent">Сначала новые</button>
+                        <button class="filter-btn" data-filter="oldest">Сначала старые</button>
+                    </div>
+                </div>
+                
+                <h2 class="section-title">Все отзывы</h2>
+                <div class="reviews-container" id="all-reviews">
+                    <!-- Все отзывы будут загружены сюда -->
+                </div>
+            </section>
+
+            <!-- Добавить отзыв -->
+            <section id="add-review-page" class="page">
+                <div class="form-container glass-effect">
+                    <h2 class="section-title">Добавить отзыв о сайте</h2>
+                    <div class="form-note">
+                        <p><strong>Внимание:</strong> Эта форма интегрирована через Google Forms. После отправки отзыва, он будет проверен и добавлен в общий список на сайте в течение 24 часов.</p>
+                        <p>Все поля обязательны для заполнения. Убедитесь, что URL сайта указан корректно.</p>
+                    </div>
+                    
+                    <div class="iframe-container glass-effect">
+                        <iframe src="https://docs.google.com/forms/d/e/1FAIpQLScnJgoAtfAcGdH8HljAYEoEKfJ_f7uqNaL4el8g8rC6OsmJnw/viewform?embedded=true" width="100%" height="1124" frameborder="0" marginheight="0" marginwidth="0">Загрузка…</iframe>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Статистика -->
+            <section id="stats-page" class="page">
+                <div class="glass-effect" style="padding: 30px;">
+                    <h2 class="section-title">Статистика отзывов</h2>
+                    <p style="margin-bottom: 25px;">Анализ всех отзывов, опубликованных на платформе SiteReview.</p>
+                    
+                    <div class="stats-container">
+                        <div class="stat-card glass-effect">
+                            <i class="fas fa-chart-pie"></i>
+                            <div class="stat-value" id="stats-total-reviews">0</div>
+                            <div class="stat-label">Всего отзывов</div>
+                        </div>
+                        <div class="stat-card glass-effect">
+                            <i class="fas fa-star-half-alt"></i>
+                            <div class="stat-value" id="stats-avg-rating">0.0</div>
+                            <div class="stat-label">Средняя оценка</div>
+                        </div>
+                        <div class="stat-card glass-effect">
+                            <i class="fas fa-users"></i>
+                            <div class="stat-value" id="stats-reviewers">0</div>
+                            <div class="stat-label">Уникальных авторов</div>
+                        </div>
+                        <div class="stat-card glass-effect">
+                            <i class="fas fa-sitemap"></i>
+                            <div class="stat-value" id="stats-sites">0</div>
+                            <div class="stat-label">Оцененных сайтов</div>
+                        </div>
+                    </div>
+                    
+                    <div style="margin-top: 40px;">
+                        <h3 style="margin-bottom: 20px; color: var(--secondary-color);">Распределение по рейтингам</h3>
+                        <div id="rating-distribution" style="display: grid; gap: 15px;">
+                            <!-- Распределение рейтингов будет сгенерировано скриптом -->
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- О проекте -->
+            <section id="about-page" class="page">
+                <div class="about-content glass-effect">
+                    <h2 class="section-title">О проекте SiteReview</h2>
+                    <p>SiteReview - это независимая платформа для публикации отзывов о различных веб-сайтах. Наша цель - помочь пользователям находить качественные ресурсы в интернете и делиться своим опытом использования.</p>
+                    
+                    <p>Проект создан с использованием современных веб-технологий и размещен на GitHub Pages. Все отзывы проходят проверку перед публикацией для обеспечения достоверности информации.</p>
+                    
+                    <h3 style="margin: 25px 0 15px; color: var(--secondary-color);">Основные возможности:</h3>
+                    
+                    <div class="features">
+                        <div class="feature glass-effect">
+                            <i class="fas fa-search"></i>
+                            <h4>Поиск отзывов</h4>
+                            <p>Мощная система поиска по сайтам, авторам и содержанию отзывов.</p>
+                        </div>
+                        <div class="feature glass-effect">
+                            <i class="fas fa-filter"></i>
+                            <h4>Фильтрация</h4>
+                            <p>Фильтры по рейтингу, дате и другим параметрам для быстрого поиска нужных отзывов.</p>
+                        </div>
+                        <div class="feature glass-effect">
+                            <i class="fas fa-chart-bar"></i>
+                            <h4>Статистика</h4>
+                            <p>Детальная статистика по всем отзывам и рейтингам на платформе.</p>
+                        </div>
+                        <div class="feature glass-effect">
+                            <i class="fas fa-mobile-alt"></i>
+                            <h4>Адаптивность</h4>
+                            <p>Полностью адаптивный дизайн для комфортного использования на любых устройствах.</p>
+                        </div>
+                    </div>
+                    
+                    <div style="margin-top: 30px; padding: 20px; background: rgba(52, 152, 219, 0.1); border-radius: 10px;">
+                        <h4 style="color: var(--secondary-color); margin-bottom: 10px;">Техническая информация</h4>
+                        <p>Проект разработан с использованием HTML5, CSS3 и JavaScript. Стиль интерфейса выполнен в технике "матовое стекло" (glassmorphism). Данные отзывов хранятся в массиве JavaScript и могут быть легко интегрированы с внешним API или базой данных.</p>
+                    </div>
+                </div>
+            </section>
+        </main>
+
+        <!-- Footer -->
+        <footer class="glass-effect">
+            <div class="footer-content">
+                <div class="copyright">
+                    <p>© SiteReview <span id="current-year">2024</span>. Все права защищены.</p>
+                    <p>Проект размещен на <a href="https://pages.github.com/" target="_blank" class="github-link" style="margin-top: 10px; display: inline-block;"><i class="fab fa-github"></i> GitHub Pages</a></p>
+                </div>
+                
+                <div class="footer-links">
+                    <a href="#home">Главная</a>
+                    <a href="#reviews">Отзывы</a>
+                    <a href="#add-review">Добавить отзыв</a>
+                    <a href="#about">О проекте</a>
+                </div>
+            </div>
+        </footer>
+    </div>
+
+    <script>
+        // Массив с отзывами (имитация базы данных)
+        const reviews = [
+            {
+                id: 1,
+                name: "Сергей Васильев",
+                email: "sergey.v@example.com",
+                siteUrl: "https://www.freecodecamp.org",
+                siteName: "freeCodeCamp",
+                rating: 5,
+                comment: "Бесплатный и качественный ресурс для обучения программированию. Структурированные курсы, практические задания и сертификаты.",
+                date: "2024-02-10"
+            },
+            {
+                id: 2,
+                name: "Анна Федорова",
+                email: "anna.f@example.com",
+                siteUrl: "https://www.w3schools.com",
+                siteName: "W3Schools",
+                rating: 1,
+                comment: "Хороший справочник по веб-технологиям. Примеры кода понятные и работающие. Дизайн сайта немного устарел, но информация актуальная.",
+                date: "2024-02-05"
+            }
+        ];
+
+        // DOM элементы
+        const pages = document.querySelectorAll('.page');
+        const navLinks = document.querySelectorAll('.nav-link');
+        const searchInput = document.getElementById('search-input');
+        const searchBtn = document.getElementById('search-btn');
+        const filterBtns = document.querySelectorAll('.filter-btn');
+        const featuredReviewsContainer = document.getElementById('featured-reviews');
+        const allReviewsContainer = document.getElementById('all-reviews');
+        const ratingDistribution = document.getElementById('rating-distribution');
+        
+        // Элементы для статистики
+        const totalReviewsEl = document.getElementById('total-reviews');
+        const uniqueSitesEl = document.getElementById('unique-sites');
+        const totalReviewersEl = document.getElementById('total-reviewers');
+        const avgRatingEl = document.getElementById('avg-rating');
+        
+        const statsTotalReviewsEl = document.getElementById('stats-total-reviews');
+        const statsAvgRatingEl = document.getElementById('stats-avg-rating');
+        const statsReviewersEl = document.getElementById('stats-reviewers');
+        const statsSitesEl = document.getElementById('stats-sites');
+        
+        // Текущий год в футере
+        document.getElementById('current-year').textContent = new Date().getFullYear();
+
+        // Инициализация приложения
+        document.addEventListener('DOMContentLoaded', function() {
+            initNavigation();
+            loadReviews();
+            updateStatistics();
+            setupSearchAndFilters();
+        });
+
+        // Навигация между страницами
+        function initNavigation() {
+            navLinks.forEach(link => {
+                link.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    
+                    // Удаляем активный класс у всех ссылок
+                    navLinks.forEach(item => item.classList.remove('active'));
+                    // Добавляем активный класс текущей ссылке
+                    this.classList.add('active');
+                    
+                    // Скрываем все страницы
+                    pages.forEach(page => page.classList.remove('active'));
+                    
+                    // Показываем целевую страницу
+                    const pageId = this.getAttribute('data-page');
+                    document.getElementById(`${pageId}-page`).classList.add('active');
+                    
+                    // Если переходим на страницу со всеми отзывами, обновляем их
+                    if (pageId === 'reviews') {
+                        displayAllReviews(reviews);
+                    }
+                    
+                    // Обновляем статистику при переходе на страницу статистики
+                    if (pageId === 'stats') {
+                        updateStatistics();
+                        displayRatingDistribution();
+                    }
+                });
+            });
+        }
+
+        // Загрузка и отображение отзывов
+        function loadReviews() {
+            // Отображаем последние 3 отзыва на главной
+            displayFeaturedReviews();
+            
+            // Отображаем все отзывы на странице отзывов
+            displayAllReviews(reviews);
+        }
+
+        // Отображение избранных отзывов (последние 3)
+        function displayFeaturedReviews() {
+            if (!featuredReviewsContainer) return;
+            
+            // Сортируем по дате (сначала новые)
+            const sortedReviews = [...reviews].sort((a, b) => new Date(b.date) - new Date(a.date));
+            const featured = sortedReviews.slice(0, 3);
+            
+            featuredReviewsContainer.innerHTML = '';
+            
+            if (featured.length === 0) {
+                featuredReviewsContainer.innerHTML = '<div class="no-results"><i class="fas fa-comment-slash"></i><h3>Отзывов пока нет</h3><p>Будьте первым, кто оставит отзыв!</p></div>';
+                return;
+            }
+            
+            featured.forEach(review => {
+                featuredReviewsContainer.appendChild(createReviewCard(review));
+            });
+        }
+
+        // Отображение всех отзывов
+        function displayAllReviews(reviewsArray) {
+            if (!allReviewsContainer) return;
+            
+            allReviewsContainer.innerHTML = '';
+            
+            if (reviewsArray.length === 0) {
+                allReviewsContainer.innerHTML = '<div class="no-results"><i class="fas fa-search"></i><h3>Ничего не найдено</h3><p>Попробуйте изменить параметры поиска</p></div>';
+                return;
+            }
+            
+            reviewsArray.forEach(review => {
+                allReviewsContainer.appendChild(createReviewCard(review));
+            });
+        }
+
+        // Создание карточки отзыва
+        function createReviewCard(review) {
+            const card = document.createElement('div');
+            card.className = 'review-card glass-effect';
+            
+            // Форматирование даты
+            const date = new Date(review.date);
+            const formattedDate = date.toLocaleDateString('ru-RU', {
+                year: 'numeric',
+                month: 'long',
+                day: 'numeric'
+            });
+            
+            // Создание звезд рейтинга
+            let starsHTML = '';
+            for (let i = 1; i <= 5; i++) {
+                if (i <= review.rating) {
+                    starsHTML += '<i class="fas fa-star star filled"></i>';
+                } else {
+                    starsHTML += '<i class="far fa-star star"></i>';
+                }
+            }
+            
+            // Извлечение домена из URL для отображения
+            const domain = new URL(review.siteUrl).hostname.replace('www.', '');
+            
+            card.innerHTML = `
+                <div class="review-header">
+                    <div class="reviewer-info">
+                        <h3>${review.name}</h3>
+                        <div class="reviewer-email">${review.email}</div>
+                    </div>
+                    <div class="rating-value">${review.rating}.0</div>
+                </div>
+                
+                <div class="review-site">
+                    <i class="fas fa-link"></i> 
+                    <a href="${review.siteUrl}" target="_blank" rel="noopener">${review.siteName} (${domain})</a>
+                </div>
+                
+                <div class="rating">
+                    <div class="stars">${starsHTML}</div>
+                </div>
+                
+                <div class="review-text">${review.comment}</div>
+                
+                <div class="review-date">${formattedDate}</div>
+            `;
+            
+            return card;
+        }
+
+        // Настройка поиска и фильтров
+        function setupSearchAndFilters() {
+            // Поиск
+            if (searchBtn && searchInput) {
+                searchBtn.addEventListener('click', performSearch);
+                searchInput.addEventListener('keyup', function(e) {
+                    if (e.key === 'Enter') performSearch();
+                });
+            }
+            
+            // Фильтры
+            filterBtns.forEach(btn => {
+                btn.addEventListener('click', function() {
+                    // Удаляем активный класс у всех кнопок фильтра
+                    filterBtns.forEach(b => b.classList.remove('active'));
+                    // Добавляем активный класс текущей кнопке
+                    this.classList.add('active');
+                    
+                    applyFilters();
+                });
+            });
+        }
+
+        // Выполнение поиска
+        function performSearch() {
+            const searchTerm = searchInput.value.toLowerCase().trim();
+            
+            if (searchTerm === '') {
+                displayAllReviews(reviews);
+                return;
+            }
+            
+            const filteredReviews = reviews.filter(review => {
+                return (
+                    review.name.toLowerCase().includes(searchTerm) ||
+                    review.email.toLowerCase().includes(searchTerm) ||
+                    review.siteName.toLowerCase().includes(searchTerm) ||
+                    review.siteUrl.toLowerCase().includes(searchTerm) ||
+                    review.comment.toLowerCase().includes(searchTerm)
+                );
+            });
+            
+            displayAllReviews(filteredReviews);
+        }
+
+        // Применение фильтров
+        function applyFilters() {
+            const activeFilter = document.querySelector('.filter-btn.active').getAttribute('data-filter');
+            let filteredReviews = [...reviews];
+            
+            switch (activeFilter) {
+                case 'rating-5':
+                    filteredReviews = reviews.filter(review => review.rating === 5);
+                    break;
+                case 'rating-4':
+                    filteredReviews = reviews.filter(review => review.rating >= 4);
+                    break;
+                case 'rating-3':
+                    filteredReviews = reviews.filter(review => review.rating >= 3);
+                    break;
+                case 'recent':
+                    filteredReviews = [...reviews].sort((a, b) => new Date(b.date) - new Date(a.date));
+                    break;
+                case 'oldest':
+                    filteredReviews = [...reviews].sort((a, b) => new Date(a.date) - new Date(b.date));
+                    break;
+                // 'all' и другие - без фильтрации
+            }
+            
+            displayAllReviews(filteredReviews);
+        }
+
+        // Обновление статистики
+        function updateStatistics() {
+            // Общая статистика
+            const totalReviews = reviews.length;
+            const avgRating = (reviews.reduce((sum, review) => sum + review.rating, 0) / totalReviews).toFixed(1);
+            
+            // Уникальные сайты
+            const uniqueSites = [...new Set(reviews.map(review => review.siteUrl))].length;
+            
+            // Уникальные авторы
+            const uniqueAuthors = [...new Set(reviews.map(review => review.email))].length;
+            
+            // Обновляем элементы на главной
+            if (totalReviewsEl) totalReviewsEl.textContent = totalReviews;
+            if (uniqueSitesEl) uniqueSitesEl.textContent = uniqueSites;
+            if (totalReviewersEl) totalReviewersEl.textContent = uniqueAuthors;
+            if (avgRatingEl) avgRatingEl.textContent = avgRating;
+            
+            // Обновляем элементы на странице статистики
+            if (statsTotalReviewsEl) statsTotalReviewsEl.textContent = totalReviews;
+            if (statsAvgRatingEl) statsAvgRatingEl.textContent = avgRating;
+            if (statsReviewersEl) statsReviewersEl.textContent = uniqueAuthors;
+            if (statsSitesEl) statsSitesEl.textContent = uniqueSites;
+        }
+
+        // Отображение распределения рейтингов
+        function displayRatingDistribution() {
+            if (!ratingDistribution) return;
+            
+            // Подсчет отзывов по рейтингам
+            const ratingCounts = {5: 0, 4: 0, 3: 0, 2: 0, 1: 0};
+            
+            reviews.forEach(review => {
+                ratingCounts[review.rating]++;
+            });
+            
+            // Создание визуализации
+            ratingDistribution.innerHTML = '';
+            
+            for (let rating = 5; rating >= 1; rating--) {
+                const count = ratingCounts[rating];
+                const percentage = reviews.length > 0 ? Math.round((count / reviews.length) * 100) : 0;
+                
+                const bar = document.createElement('div');
+                bar.style.cssText = 'display: flex; align-items: center; gap: 15px;';
+                
+                // Создание звезд для рейтинга
+                let starsHTML = '';
+                for (let i = 1; i <= 5; i++) {
+                    if (i <= rating) {
+                        starsHTML += '<i class="fas fa-star" style="color: #FFD700;"></i>';
+                    } else {
+                        starsHTML += '<i class="far fa-star" style="color: #ddd;"></i>';
+                    }
+                }
+                
+                bar.innerHTML = `
+                    <div style="width: 100px; text-align: center;">${starsHTML}</div>
+                    <div style="flex-grow: 1; height: 20px; background: rgba(0,0,0,0.1); border-radius: 10px; overflow: hidden;">
+                        <div style="width: ${percentage}%; height: 100%; background: linear-gradient(90deg, var(--primary-light), var(--primary-color)); border-radius: 10px;"></div>
+                    </div>
+                    <div style="width: 80px; text-align: right; font-weight: 600;">${count} (${percentage}%)</div>
+                `;
+                
+                ratingDistribution.appendChild(bar);
+            }
+        }
+    </script>
+</body>
+</html>
