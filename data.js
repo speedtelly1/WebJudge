@@ -2,23 +2,23 @@
 const reviews = [
     {
         id: 1,
-        name: "Александр Иванов",
-        email: "alex.ivanov@example.com",
-        siteUrl: "https://github.com",
-        siteName: "GitHub",
+        name: "Тимофей",
+        email: "roll3ogurec0@gmail.com",
+        siteUrl: "https://timoshamoscow.github.io/taiprompts.github.io/",
+        siteName: "TAIPrompts",
         rating: 5,
-        comment: "Отличная платформа для хостинга кода и совместной работы над проектами.",
-        date: "2024-03-15"
+        comment: "Лучший сайт с генератором промптов! Экономит по 16 часов в месяц.",
+        date: "2026-01-09"
     },
     {
         id: 2,
-        name: "Дмитрий Петров",
-        email: "dmitry.p@example.com",
-        siteUrl: "https://css-tricks.com",
-        siteName: "CSS-Tricks",
+        name: "Тимофей",
+        email: "roll3ogurec0@gmail.com",
+        siteUrl: "https://timoshamoscow.github.io/hranilishe.github.io/",
+        siteName: "Хранилище",
         rating: 5,
-        comment: "Лучший ресурс по CSS.",
-        date: "2024-03-05"
+        comment: "Хороший вебсайт, отлично подходит для пиара своих ресурсов. На мой сайт перешло 100 человек, хотя было 2!",
+        date: "2026-01-09"
     }
 ];
 
