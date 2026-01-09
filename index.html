@@ -593,6 +593,19 @@
                 <div class="glass-effect" style="padding: 30px;">
                     <h2 class="section-title">Добро пожаловать на SiteReview</h2>
                     <p style="margin-bottom: 20px; line-height: 1.7;">Платформа для публикации и просмотра отзывов на различные веб-сайты. Здесь вы можете поделиться своим опытом использования разных ресурсов и помочь другим пользователям выбрать лучшие сайты.</p>
+
+        <!-- ВСТАВЬ ЗДЕСЬ, после описания: -->
+        <div class="progress-goal glass-effect" style="padding: 20px; margin: 20px 0;">
+            <h4 style="margin-bottom: 10px;">Цель: 50 отзывов на разные сайты</h4>
+            <div style="height: 10px; background: rgba(0,0,0,0.1); border-radius: 5px; overflow: hidden;">
+                <div id="progress-bar" style="height: 100%; background: var(--primary-color); width: 8%; 
+                                             transition: width 0.5s;"></div>
+            </div>
+            <div style="display: flex; justify-content: space-between; margin-top: 5px;">
+                <span>Собрано: <span id="current-count">4</span> отзывов</span>
+                <span>Цель: 50</span>
+            </div>
+        </div>
                     
                     <div class="stats-container">
                         <div class="stat-card glass-effect">
@@ -617,6 +630,30 @@
                         </div>
                     </div>
                 </div>
+
+                <!-- ВСТАВЬ ПЕРЕД НИМ: -->
+<div class="expected-sites glass-effect" style="padding: 20px; margin-top: 30px;">
+    <h4 style="margin-bottom: 15px; color: var(--secondary-color);">
+        <i class="fas fa-hourglass-half"></i> Ждем отзывы на:
+    </h4>
+    <div style="display: flex; flex-wrap: wrap; gap: 10px;">
+        <span style="background: rgba(52, 152, 219, 0.1); padding: 8px 15px; border-radius: 20px;">
+            YouTube
+        </span>
+        <span style="background: rgba(52, 152, 219, 0.1); padding: 8px 15px; border-radius: 20px;">
+            Google Docs
+        </span>
+        <span style="background: rgba(52, 152, 219, 0.1); padding: 8px 15px; border-radius: 20px;">
+            TAIPrompts
+        </span>
+        <span style="background: rgba(52, 152, 219, 0.1); padding: 8px 15px; border-radius: 20px;">
+            Spotify
+        </span>
+        <span style="background: rgba(52, 152, 219, 0.1); padding: 8px 15px; border-radius: 20px;">
+            Netflix
+        </span>
+    </div>
+</div>
                 
                 <div style="margin-top: 30px;">
                     <h2 class="section-title">Последние отзывы</h2>
@@ -662,6 +699,25 @@
                         <p><strong>Внимание:</strong> Эта форма интегрирована через Google Forms. После отправки отзыва, он будет проверен и добавлен в общий список на сайте в течение 24 часов.</p>
                         <p>Все поля обязательны для заполнения. Убедитесь, что URL сайта указан корректно.</p>
                     </div>
+
+                            <!-- ВСТАВЬ ЗДЕСЬ, перед iframe: -->
+        <div class="site-suggestions" style="margin-bottom: 20px;">
+            <p><strong>Не знаете о чем писать?</strong> Предлагаем оценить:</p>
+            <div style="display: flex; gap: 10px; flex-wrap: wrap; margin-top: 10px;">
+                <button onclick="suggestSite('YouTube', 'https://youtube.com')" 
+                        style="padding: 8px 15px; background: #FF0000; color: white; border: none; border-radius: 5px;">
+                    YouTube
+                </button>
+                <button onclick="suggestSite('TAIPrompts', 'https://timoshamoscow.github.io/taiprompts.github.io/')" 
+                        style="padding: 8px 15px; background: #000000; color: white; border: none; border-radius: 5px;">
+                    TAIPrompts
+                </button>
+                <button onclick="suggestSite('Telegram', 'https://web.telegram.org')" 
+                        style="padding: 8px 15px; background: #0088cc; color: white; border: none; border-radius: 5px;">
+                    Telegram Web
+                </button>
+            </div>
+        </div>
                     
                     <div class="iframe-container glass-effect">
                         <iframe src="https://docs.google.com/forms/d/e/1FAIpQLScnJgoAtfAcGdH8HljAYEoEKfJ_f7uqNaL4el8g8rC6OsmJnw/viewform?embedded=true" width="100%" height="1124" frameborder="0" marginheight="0" marginwidth="0">Загрузка…</iframe>
@@ -836,6 +892,24 @@ document.addEventListener('DOMContentLoaded', function() {
             });
         }
 
+        // Функция для подсказок сайтов
+function suggestSite(siteName, siteUrl) {
+    alert(`Предлагаем оценить: ${siteName}\n\nURL: ${siteUrl}\n\nПри переходе в форму, вставьте этот URL в поле "URL сайта"`);
+}
+
+// Функция обновления прогресс-бара
+function updateProgress() {
+    const currentCount = reviews.length;
+    const percentage = (currentCount / 50) * 100;
+    const progressBar = document.getElementById('progress-bar');
+    const currentCountEl = document.getElementById('current-count');
+    
+    if (progressBar && currentCountEl) {
+        progressBar.style.width = percentage + '%';
+        currentCountEl.textContent = currentCount;
+    }
+}
+
         // Загрузка и отображение отзывов
         function loadReviews() {
             // Отображаем последние 3 отзыва на главной
@@ -843,6 +917,8 @@ document.addEventListener('DOMContentLoaded', function() {
             
             // Отображаем все отзывы на странице отзывов
             displayAllReviews(reviews);
+
+            updateProgress();
         }
 
         // Отображение избранных отзывов (последние 3)
