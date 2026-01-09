@@ -981,7 +981,18 @@ function updateProgress() {
             }
             
             // Извлечение домена из URL для отображения
-            const domain = new URL(review.siteUrl).hostname.replace('www.', '');
+    let displayUrl = review.siteUrl;
+    try {
+        const url = new URL(review.siteUrl);
+        // Если это тот же домен, показываем путь
+        if (url.hostname === 'timoshamoscow.github.io') {
+            displayUrl = url.pathname || url.hostname;
+        } else {
+            displayUrl = url.hostname.replace('www.', '');
+        }
+    } catch (e) {
+        displayUrl = review.siteUrl;
+    }
             
             card.innerHTML = `
                 <div class="review-header">
