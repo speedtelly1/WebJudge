@@ -19,6 +19,46 @@ const reviews = [
         rating: 5,
         comment: "Хороший вебсайт, отлично подходит для пиара своих ресурсов. На мой сайт перешло 100 человек, хотя было 2!",
         date: "2026-01-09"
+    },
+    {
+        id: 3,
+        name: "Алёна",
+        email: "akkumulator950@gmail.com",
+        siteUrl: "https://www.youtube.com/",
+        siteName: "YouTube",
+        rating: 4,
+        comment: "Лучший видеохостинг! Но у меня не получается стать популярной...",
+        date: "2026-01-09"
+    },
+    {
+        id: 4,
+        name: "Алёна",
+        email: "akkumulator950@gmail.com",
+        siteUrl: "https://timoshamoscow.github.io/taiprompts.github.io/",
+        siteName: "TAIPrompts",
+        rating: 2,
+        comment: "Ставлю 2 звезды, потому что сначала думала, что идея и реализация хорошие, но сгенерированный промпт уступает тому, что я делаю вручную, а будущие платные тарифы для школьников не всегда доступны. (Раньше было 3 звезды). Но теперь, я пересмотрела свою позицию, и из-за включения цензуры, отказа добавления 18+ режима. Также, автор оказался грубым, и глупым.",
+        date: "2026-01-09"
+    },
+    {
+        id: 5,
+        name: "Алёна",
+        email: "akkumulator950@gmail.com",
+        siteUrl: "https://xn--d1ah4a.com/feed",
+        siteName: "итд.com",
+        rating: 5,
+        comment: "Соцсеть имба. КУЛЬТ ПЛАМЕННОГО СЕРДЦА ВПЕРЁД! ❤️‍🔥❤️‍🔥❤️‍🔥",
+        date: "2026-01-09"
+    },
+    {
+        id: 6,
+        name: "Роман",
+        email: "morfiks689@gmail.com",
+        siteUrl: "https://tlauncher.ru/",
+        siteName: "TLauncher",
+        rating: 3,
+        comment: "Хороший лаунчер, но если есть лицензия, советую Modrinth",
+        date: "2026-01-09"
     }
 ];
 
