@@ -614,6 +614,33 @@
             0% { transform: rotate(0deg); }
             100% { transform: rotate(360deg); }
         }
+
+.review-card.critical {
+    position: relative;
+    overflow: hidden;
+}
+
+.review-card.critical::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 3px;
+    background: linear-gradient(90deg, 
+        transparent, 
+        #e74c3c, 
+        #ff4757, 
+        #e74c3c, 
+        transparent
+    );
+    animation: slideBorder 3s infinite linear;
+}
+
+@keyframes slideBorder {
+    0% { transform: translateX(-100%); }
+    100% { transform: translateX(100%); }
+}
     </style>
 </head>
 <body>
