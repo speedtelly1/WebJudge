@@ -88,6 +88,20 @@
             margin-left: 55px;
         }
 
+.reviewer-username {
+    font-size: 0.9rem;
+    color: var(--primary-dark);
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    margin-top: 3px;
+}
+
+.reviewer-username i {
+    font-size: 0.8rem;
+    opacity: 0.7;
+}
+
         /* Navigation */
         nav {
             margin: 20px 0;
@@ -984,7 +998,9 @@ function updateProgress() {
                 <div class="review-header">
                     <div class="reviewer-info">
                         <h3>${review.name}</h3>
-                        <div class="reviewer-email">${review.email}</div>
+                        <div class="reviewer-username">
+                            <i class="fas fa-at"></i> ${extractUsername(review.email)}
+                        </div>
                     </div>
                     <div class="rating-value">${review.rating}.0</div>
                 </div>
@@ -1005,6 +1021,15 @@ function updateProgress() {
             
             return card;
         }
+
+        // Добавляем функцию извлечения юзернейма
+function extractUsername(email) {
+    if (!email) return 'пользователь';
+    // Берём часть до @
+    const username = email.split('@')[0];
+    // Ограничиваем длину
+    return username.length > 15 ? username.substring(0, 15) + '...' : username;
+}
 
         // Настройка поиска и фильтров
         function setupSearchAndFilters() {
