@@ -88,19 +88,19 @@
             margin-left: 55px;
         }
 
-.reviewer-username {
-    font-size: 0.9rem;
-    color: var(--primary-dark);
-    display: flex;
-    align-items: center;
-    gap: 5px;
-    margin-top: 3px;
-}
+        .reviewer-username {
+            font-size: 0.9rem;
+            color: var(--primary-dark);
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            margin-top: 3px;
+        }
 
-.reviewer-username i {
-    font-size: 0.8rem;
-    opacity: 0.7;
-}
+        .reviewer-username i {
+            font-size: 0.8rem;
+            opacity: 0.7;
+        }
 
         /* Navigation */
         nav {
@@ -187,11 +187,6 @@
             font-size: 1.2rem;
             color: var(--secondary-color);
             margin-bottom: 5px;
-        }
-
-        .reviewer-email {
-            font-size: 0.9rem;
-            color: var(--primary-dark);
         }
 
         .review-site {
@@ -476,6 +471,51 @@
             transform: translateY(-3px);
         }
 
+        /* Категории */
+        .category-btn {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 25px;
+            background: rgba(52, 152, 219, 0.1);
+            color: var(--secondary-color);
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .category-btn:hover {
+            background: rgba(52, 152, 219, 0.2);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(52, 152, 219, 0.15);
+        }
+
+        .category-btn.active {
+            background-color: var(--primary-color);
+            color: white;
+        }
+
+        .category-count {
+            background: rgba(255, 255, 255, 0.2);
+            padding: 2px 8px;
+            border-radius: 10px;
+            font-size: 0.9rem;
+        }
+
+        .category-btn.active .category-count {
+            background: rgba(255, 255, 255, 0.3);
+        }
+
+        .categories-filter {
+            margin-bottom: 20px;
+        }
+
+        .selected-category {
+            animation: fadeIn 0.3s ease;
+        }
+
         /* Адаптивный дизайн */
         @media (max-width: 768px) {
             .nav-links {
@@ -513,56 +553,6 @@
                 text-align: center;
             }
         }
-
-        /* Добавьте в существующий CSS */
-.category-btn {
-    padding: 10px 20px;
-    border: none;
-    border-radius: 25px;
-    background: rgba(52, 152, 219, 0.1);
-    color: var(--secondary-color);
-    font-weight: 600;
-    cursor: pointer;
-    transition: all 0.3s ease;
-    display: flex;
-    align-items: center;
-    gap: 8px;
-}
-
-.category-btn:hover {
-    background: rgba(52, 152, 219, 0.2);
-    transform: translateY(-2px);
-    box-shadow: 0 4px 12px rgba(52, 152, 219, 0.15);
-}
-
-.category-btn.active {
-    background-color: var(--primary-color);
-    color: white;
-}
-
-.category-count {
-    background: rgba(255, 255, 255, 0.2);
-    padding: 2px 8px;
-    border-radius: 10px;
-    font-size: 0.9rem;
-}
-
-.category-btn.active .category-count {
-    background: rgba(255, 255, 255, 0.3);
-}
-
-.categories-filter {
-    margin-bottom: 20px;
-}
-
-.selected-category {
-    animation: fadeIn 0.3s ease;
-}
-
-@keyframes fadeIn {
-    from { opacity: 0; transform: translateY(-10px); }
-    to { opacity: 1; transform: translateY(0); }
-}
 
         @media (max-width: 480px) {
             .glass-effect {
@@ -632,7 +622,7 @@
         <header class="glass-effect">
             <div class="logo">
                 <i class="fas fa-globe-americas"></i>
-            <div>
+                <div>
                     <h1>Site<span>Review</span></h1>
                     <p class="tagline">Объективные отзывы на веб-сайты от реальных пользователей</p>
                 </div>
@@ -658,71 +648,71 @@
                     <h2 class="section-title">Добро пожаловать на SiteReview</h2>
                     <p style="margin-bottom: 20px; line-height: 1.7;">Платформа для публикации и просмотра отзывов на различные веб-сайты. Здесь вы можете поделиться своим опытом использования разных ресурсов и помочь другим пользователям выбрать лучшие сайты.</p>
 
-        <!-- ВСТАВЬ ЗДЕСЬ, после описания: -->
-        <div class="progress-goal glass-effect" style="padding: 20px; margin: 20px 0;">
-            <h4 style="margin-bottom: 10px;">Цель: 50 уникальных отзывов</h4>
-            <div style="height: 10px; background: rgba(0,0,0,0.1); border-radius: 5px; overflow: hidden;">
-                <div id="progress-bar" style="height: 100%; background: var(--primary-color); width: 8%; 
-                                             transition: width 0.5s;"></div>
-            </div>
-            <div style="display: flex; justify-content: space-between; margin-top: 5px;">
-                <span>Собрано: <span id="current-count">4</span> отзывов</span>
-                <span>Цель: 50</span>
-            </div>
-        </div>
+                    <!-- Прогресс-бар -->
+                    <div class="progress-goal glass-effect" style="padding: 20px; margin: 20px 0;">
+                        <h4 style="margin-bottom: 10px;">Цель: 50 уникальных отзывов</h4>
+                        <div style="height: 10px; background: rgba(0,0,0,0.1); border-radius: 5px; overflow: hidden;">
+                            <div id="progress-bar" style="height: 100%; background: var(--primary-color); width: 20%; transition: width 0.5s;"></div>
+                        </div>
+                        <div style="display: flex; justify-content: space-between; margin-top: 5px;">
+                            <span>Собрано: <span id="current-count">10</span> отзывов</span>
+                            <span>Цель: 50</span>
+                        </div>
+                    </div>
                     
+                    <!-- Статистика -->
                     <div class="stats-container">
                         <div class="stat-card glass-effect">
                             <i class="fas fa-star"></i>
-                            <div class="stat-value" id="total-reviews">0</div>
+                            <div class="stat-value" id="total-reviews">10</div>
                             <div class="stat-label">Всего отзывов</div>
                         </div>
                         <div class="stat-card glass-effect">
                             <i class="fas fa-globe"></i>
-                            <div class="stat-value" id="unique-sites">0</div>
+                            <div class="stat-value" id="unique-sites">6</div>
                             <div class="stat-label">Оценено сайтов</div>
                         </div>
                         <div class="stat-card glass-effect">
                             <i class="fas fa-user-friends"></i>
-                            <div class="stat-value" id="total-reviewers">0</div>
+                            <div class="stat-value" id="total-reviewers">5</div>
                             <div class="stat-label">Участников</div>
                         </div>
                         <div class="stat-card glass-effect">
                             <i class="fas fa-chart-line"></i>
-                            <div class="stat-value" id="avg-rating">0.0</div>
+                            <div class="stat-value" id="avg-rating">3.8</div>
                             <div class="stat-label">Средний рейтинг</div>
                         </div>
                     </div>
                 </div>
 
-                <!-- ВСТАВЬ ПЕРЕД НИМ: -->
-<div class="expected-sites glass-effect" style="padding: 20px; margin-top: 30px;">
-    <h4 style="margin-bottom: 15px; color: var(--secondary-color);">
-        <i class="fas fa-hourglass-half"></i> Ждем отзывы на:
-    </h4>
-    <div style="display: flex; flex-wrap: wrap; gap: 10px;">
-        <span style="background: rgba(52, 152, 219, 0.1); padding: 8px 15px; border-radius: 20px;">
-            YouTube
-        </span>
-        <span style="background: rgba(52, 152, 219, 0.1); padding: 8px 15px; border-radius: 20px;">
-            Google Docs
-        </span>
-        <span style="background: rgba(52, 152, 219, 0.1); padding: 8px 15px; border-radius: 20px;">
-            TAIPrompts
-        </span>
-        <span style="background: rgba(52, 152, 219, 0.1); padding: 8px 15px; border-radius: 20px;">
-            Spotify
-        </span>
-        <span style="background: rgba(52, 152, 219, 0.1); padding: 8px 15px; border-radius: 20px;">
-            Netflix
-        </span>
-    </div>
-</div>
+                <!-- Ожидаемые сайты -->
+                <div class="expected-sites glass-effect" style="padding: 20px; margin-top: 30px;">
+                    <h4 style="margin-bottom: 15px; color: var(--secondary-color);">
+                        <i class="fas fa-hourglass-half"></i> Ждем отзывы на:
+                    </h4>
+                    <div style="display: flex; flex-wrap: wrap; gap: 10px;">
+                        <span style="background: rgba(52, 152, 219, 0.1); padding: 8px 15px; border-radius: 20px;">
+                            YouTube
+                        </span>
+                        <span style="background: rgba(52, 152, 219, 0.1); padding: 8px 15px; border-radius: 20px;">
+                            Google Docs
+                        </span>
+                        <span style="background: rgba(52, 152, 219, 0.1); padding: 8px 15px; border-radius: 20px;">
+                            TAIPrompts
+                        </span>
+                        <span style="background: rgba(52, 152, 219, 0.1); padding: 8px 15px; border-radius: 20px;">
+                            Spotify
+                        </span>
+                        <span style="background: rgba(52, 152, 219, 0.1); padding: 8px 15px; border-radius: 20px;">
+                            Netflix
+                        </span>
+                    </div>
+                </div>
                 
+                <!-- Последние отзывы -->
                 <div style="margin-top: 30px;">
                     <h2 class="section-title">Последние отзывы</h2>
                     <div class="reviews-container" id="featured-reviews">
-                        <!-- Здесь будут отображаться последние отзывы -->
                         <div class="loading">
                             <div class="loading-spinner"></div>
                             <p>Загрузка отзывов...</p>
@@ -733,6 +723,7 @@
 
             <!-- Все отзывы -->
             <section id="reviews-page" class="page">
+                <!-- Поиск и фильтры -->
                 <div class="search-section glass-effect" style="padding: 25px;">
                     <h2 class="section-title">Поиск отзывов</h2>
                     <div class="search-box">
@@ -746,40 +737,35 @@
                     </div>
                 </div>
 
-                <!-- Вставьте в раздел "Все отзывы" перед списком отзывов -->
-<div class="categories-section glass-effect" style="padding: 25px; margin-bottom: 30px;">
-    <h3 style="margin-bottom: 20px; color: var(--secondary-color);">
-        <i class="fas fa-filter"></i> Фильтр по категориям
-    </h3>
-    
-    <div class="categories-filter">
-        <div class="category-buttons" id="category-buttons" style="display: flex; flex-wrap: wrap; gap: 10px;">
-            <!-- Кнопки будут сгенерированы через JS -->
-        </div>
-        
-        <div class="selected-category" id="selected-category" style="margin-top: 20px; padding: 15px; 
-              background: rgba(52, 152, 219, 0.1); border-radius: 10px; display: none;">
-            <div style="display: flex; justify-content: space-between; align-items: center;">
-                <span>
-                    <strong>Выбрана категория:</strong> 
-                    <span id="current-category-name">Категория</span>
-                </span>
-                <button id="clear-filter" style="background: none; border: none; color: #e74c3c; 
-                        cursor: pointer; font-size: 1.2rem;">
-                    <i class="fas fa-times"></i>
-                </button>
-            </div>
-            <div style="margin-top: 10px; font-size: 0.9rem; color: #666;">
-                <span id="category-count">0</span> отзывов в этой категории
-            </div>
-        </div>
-    </div>
-</div>
-                
-                <h2 class="section-title">Все отзывы</h2>
-                <div class="reviews-container" id="all-reviews">
-                    <!-- Все отзывы будут загружены сюда -->
+                <!-- Категории -->
+                <div class="categories-section glass-effect" style="padding: 25px; margin-bottom: 30px;">
+                    <h3 style="margin-bottom: 20px; color: var(--secondary-color);">
+                        <i class="fas fa-filter"></i> Фильтр по категориям
+                    </h3>
+                    
+                    <div class="categories-filter">
+                        <div class="category-buttons" id="category-buttons" style="display: flex; flex-wrap: wrap; gap: 10px;"></div>
+                        
+                        <div class="selected-category" id="selected-category" style="margin-top: 20px; padding: 15px; background: rgba(52, 152, 219, 0.1); border-radius: 10px; display: none;">
+                            <div style="display: flex; justify-content: space-between; align-items: center;">
+                                <span>
+                                    <strong>Выбрана категория:</strong> 
+                                    <span id="current-category-name">Категория</span>
+                                </span>
+                                <button id="clear-filter" style="background: none; border: none; color: #e74c3c; cursor: pointer; font-size: 1.2rem;">
+                                    <i class="fas fa-times"></i>
+                                </button>
+                            </div>
+                            <div style="margin-top: 10px; font-size: 0.9rem; color: #666;">
+                                <span id="category-count">0</span> отзывов в этой категории
+                            </div>
+                        </div>
+                    </div>
                 </div>
+                
+                <!-- Все отзывы -->
+                <h2 class="section-title">Все отзывы</h2>
+                <div class="reviews-container" id="all-reviews"></div>
             </section>
 
             <!-- Добавить отзыв -->
@@ -788,28 +774,26 @@
                     <h2 class="section-title">Добавить отзыв о сайте</h2>
                     <div class="form-note">
                         <p><strong>Внимание:</strong> Эта форма интегрирована через Google Forms. После отправки отзыва, он будет проверен и добавлен в общий список на сайте в течение 24 часов.</p>
-                        <p>Все поля обязательны для заполнения. Убедитесь, что URL сайта указан корректно.</p>
+                        <p>Все поля обязательны для заполения. Убедитесь, что URL сайта указан корректно.</p>
                     </div>
 
-                            <!-- ВСТАВЬ ЗДЕСЬ, перед iframe: -->
-        <div class="site-suggestions" style="margin-bottom: 20px;">
-            <p><strong>Не знаете о чем писать?</strong> Предлагаем оценить:</p>
-            <div style="display: flex; gap: 10px; flex-wrap: wrap; margin-top: 10px;">
-                <button onclick="suggestSite('YouTube', 'https://youtube.com')" 
-                        style="padding: 8px 15px; background: #FF0000; color: white; border: none; border-radius: 5px;">
-                    YouTube
-                </button>
-                <button onclick="suggestSite('TAIPrompts', 'https://timoshamoscow.github.io/taiprompts.github.io/')" 
-                        style="padding: 8px 15px; background: #000000; color: white; border: none; border-radius: 5px;">
-                    TAIPrompts
-                </button>
-                <button onclick="suggestSite('Telegram', 'https://web.telegram.org')" 
-                        style="padding: 8px 15px; background: #0088cc; color: white; border: none; border-radius: 5px;">
-                    Telegram Web
-                </button>
-            </div>
-        </div>
+                    <!-- Подсказки по сайтам -->
+                    <div class="site-suggestions" style="margin-bottom: 20px;">
+                        <p><strong>Не знаете о чем писать?</strong> Предлагаем оценить:</p>
+                        <div style="display: flex; gap: 10px; flex-wrap: wrap; margin-top: 10px;">
+                            <button onclick="suggestSite('YouTube', 'https://youtube.com')" style="padding: 8px 15px; background: #FF0000; color: white; border: none; border-radius: 5px;">
+                                YouTube
+                            </button>
+                            <button onclick="suggestSite('TAIPrompts', 'https://timoshamoscow.github.io/taiprompts.github.io/')" style="padding: 8px 15px; background: #000000; color: white; border: none; border-radius: 5px;">
+                                TAIPrompts
+                            </button>
+                            <button onclick="suggestSite('Telegram', 'https://web.telegram.org')" style="padding: 8px 15px; background: #0088cc; color: white; border: none; border-radius: 5px;">
+                                Telegram Web
+                            </button>
+                        </div>
+                    </div>
                     
+                    <!-- Google Form -->
                     <div class="iframe-container glass-effect">
                         <iframe src="https://docs.google.com/forms/d/e/1FAIpQLScnJgoAtfAcGdH8HljAYEoEKfJ_f7uqNaL4el8g8rC6OsmJnw/viewform?embedded=true" width="100%" height="1124" frameborder="0" marginheight="0" marginwidth="0">Загрузка…</iframe>
                     </div>
@@ -825,31 +809,29 @@
                     <div class="stats-container">
                         <div class="stat-card glass-effect">
                             <i class="fas fa-chart-pie"></i>
-                            <div class="stat-value" id="stats-total-reviews">0</div>
+                            <div class="stat-value" id="stats-total-reviews">10</div>
                             <div class="stat-label">Всего отзывов</div>
                         </div>
                         <div class="stat-card glass-effect">
                             <i class="fas fa-star-half-alt"></i>
-                            <div class="stat-value" id="stats-avg-rating">0.0</div>
+                            <div class="stat-value" id="stats-avg-rating">3.8</div>
                             <div class="stat-label">Средняя оценка</div>
                         </div>
                         <div class="stat-card glass-effect">
                             <i class="fas fa-users"></i>
-                            <div class="stat-value" id="stats-reviewers">0</div>
+                            <div class="stat-value" id="stats-reviewers">5</div>
                             <div class="stat-label">Уникальных авторов</div>
                         </div>
                         <div class="stat-card glass-effect">
                             <i class="fas fa-sitemap"></i>
-                            <div class="stat-value" id="stats-sites">0</div>
+                            <div class="stat-value" id="stats-sites">6</div>
                             <div class="stat-label">Оцененных сайтов</div>
                         </div>
                     </div>
                     
                     <div style="margin-top: 40px;">
                         <h3 style="margin-bottom: 20px; color: var(--secondary-color);">Распределение по рейтингам</h3>
-                        <div id="rating-distribution" style="display: grid; gap: 15px;">
-                            <!-- Распределение рейтингов будет сгенерировано скриптом -->
-                        </div>
+                        <div id="rating-distribution" style="display: grid; gap: 15px;"></div>
                     </div>
                 </div>
             </section>
@@ -899,20 +881,21 @@
         <footer class="glass-effect">
             <div class="footer-content">
                 <div class="copyright">
-                    <p>© SiteReview <span id="current-year">Год</span>. Все права защищены.</p>
+                    <p>© SiteReview <span id="current-year">2024</span>. Все права защищены.</p>
                 </div>
                 
                 <div class="footer-links">
                     <a href="#home">Главная</a>
+                    <a href="#about">О проекте</a>
                 </div>
             </div>
         </footer>
     </div>
 
+    <!-- Подключение data.js -->
     <script src="data.js"></script>
 
     <script>
-
         // DOM элементы
         const pages = document.querySelectorAll('.page');
         const navLinks = document.querySelectorAll('.nav-link');
@@ -938,16 +921,18 @@
         document.getElementById('current-year').textContent = new Date().getFullYear();
 
         // Инициализация приложения
-document.addEventListener('DOMContentLoaded', function() {
-    // reviews уже загружен из data.js
-    console.log('Загружено отзывов:', reviews.length);
-    
-    initNavigation();
-    loadReviews(); // эта функция теперь использует глобальную переменную reviews
-    createCategoryButtons();
-    updateStatistics();
-    setupSearchAndFilters();
-});
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log('Загружено отзывов:', reviews.length);
+            
+            initNavigation();
+            loadReviews();
+            createCategoryButtons();
+            updateStatistics();
+            setupSearchAndFilters();
+            
+            // Инициализация прогресс-бара
+            updateProgress();
+        });
 
         // Навигация между страницами
         function initNavigation() {
@@ -955,24 +940,18 @@ document.addEventListener('DOMContentLoaded', function() {
                 link.addEventListener('click', function(e) {
                     e.preventDefault();
                     
-                    // Удаляем активный класс у всех ссылок
                     navLinks.forEach(item => item.classList.remove('active'));
-                    // Добавляем активный класс текущей ссылке
                     this.classList.add('active');
                     
-                    // Скрываем все страницы
                     pages.forEach(page => page.classList.remove('active'));
                     
-                    // Показываем целевую страницу
                     const pageId = this.getAttribute('data-page');
                     document.getElementById(`${pageId}-page`).classList.add('active');
                     
-                    // Если переходим на страницу со всеми отзывами, обновляем их
                     if (pageId === 'reviews') {
                         displayAllReviews(reviews);
                     }
                     
-                    // Обновляем статистику при переходе на страницу статистики
                     if (pageId === 'stats') {
                         updateStatistics();
                         displayRatingDistribution();
@@ -982,39 +961,33 @@ document.addEventListener('DOMContentLoaded', function() {
         }
 
         // Функция для подсказок сайтов
-function suggestSite(siteName, siteUrl) {
-    alert(`Предлагаем оценить: ${siteName}\n\nURL: ${siteUrl}\n\nПри переходе в форму, вставьте этот URL в поле "URL сайта"`);
-}
+        function suggestSite(siteName, siteUrl) {
+            alert(`Предлагаем оценить: ${siteName}\n\nURL: ${siteUrl}\n\nПри переходе в форму, вставьте этот URL в поле "URL сайта"`);
+        }
 
-// Функция обновления прогресс-бара
-function updateProgress() {
-    const currentCount = reviews.length;
-    const percentage = (currentCount / 50) * 100;
-    const progressBar = document.getElementById('progress-bar');
-    const currentCountEl = document.getElementById('current-count');
-    
-    if (progressBar && currentCountEl) {
-        progressBar.style.width = percentage + '%';
-        currentCountEl.textContent = currentCount;
-    }
-}
+        // Функция обновления прогресс-бара
+        function updateProgress() {
+            const currentCount = reviews.length;
+            const percentage = (currentCount / 50) * 100;
+            const progressBar = document.getElementById('progress-bar');
+            const currentCountEl = document.getElementById('current-count');
+            
+            if (progressBar && currentCountEl) {
+                progressBar.style.width = percentage + '%';
+                currentCountEl.textContent = currentCount;
+            }
+        }
 
         // Загрузка и отображение отзывов
         function loadReviews() {
-            // Отображаем последние 3 отзыва на главной
             displayFeaturedReviews();
-            
-            // Отображаем все отзывы на странице отзывов
             displayAllReviews(reviews);
-
-            updateProgress();
         }
 
         // Отображение избранных отзывов (последние 3)
         function displayFeaturedReviews() {
             if (!featuredReviewsContainer) return;
             
-            // Сортируем по дате (сначала новые)
             const sortedReviews = [...reviews].sort((a, b) => new Date(b.date) - new Date(a.date));
             const featured = sortedReviews.slice(0, 3);
             
@@ -1046,6 +1019,43 @@ function updateProgress() {
             });
         }
 
+        // Функция определения категорий для конкретного отзыва
+        function getReviewCategories(review) {
+            const cats = [];
+            
+            // Определяем по названию и комментарию
+            const text = (review.siteName + ' ' + review.comment).toLowerCase();
+            
+            // Проверяем все категории из data.js
+            Object.entries(categories).forEach(([catName, filterFunc]) => {
+                if (catName !== 'Все') {
+                    try {
+                        if (filterFunc(review)) {
+                            cats.push(catName);
+                        }
+                    } catch (e) {
+                        console.warn('Ошибка в категории', catName, e);
+                    }
+                }
+            });
+            
+            return cats;
+        }
+
+        // Цвета для категорий
+        function getCategoryColor(category) {
+            const colors = {
+                'Соцсети': '#3498db',
+                'Игры': '#9b59b6',
+                'Инструменты': '#2ecc71',
+                'Магазины': '#e74c3c',
+                'Критические': '#f39c12',
+                'Авторские': '#1abc9c',
+                'Все': '#95a5a6'
+            };
+            return colors[category] || '#95a5a6';
+        }
+
         // Создание карточки отзыва
         function createReviewCard(review) {
             const card = document.createElement('div');
@@ -1070,7 +1080,13 @@ function updateProgress() {
             }
             
             // Извлечение домена из URL для отображения
-            const domain = new URL(review.siteUrl).hostname.replace('www.', '');
+            let domain = review.siteUrl;
+            try {
+                const url = new URL(review.siteUrl);
+                domain = url.hostname.replace('www.', '');
+            } catch (e) {
+                // Если URL некорректный, оставляем как есть
+            }
             
             card.innerHTML = `
                 <div class="review-header">
@@ -1097,128 +1113,127 @@ function updateProgress() {
                 <div class="review-date">${formattedDate}</div>
             `;
 
+            // Добавляем предупреждения
             setTimeout(() => addWarningLabels(card, review), 0);
 
-    // Добавляем категории как теги
-    const reviewCategories = getReviewCategories(review);
-    if (reviewCategories.length > 0) {
-        const tagsHtml = reviewCategories.map(cat => 
-            `<span class="category-tag" style="
-                display: inline-block;
-                background: ${getCategoryColor(cat)}15;
-                color: ${getCategoryColor(cat)};
-                padding: 3px 10px;
-                border-radius: 12px;
-                font-size: 0.75rem;
-                margin-right: 5px;
-                border: 1px solid ${getCategoryColor(cat)}30;
-            ">${cat}</span>`
-        ).join('');
-        
-        // Вставляем теги после названия сайта
-        const tagsDiv = `<div class="review-tags" style="margin: 8px 0 12px 0;">${tagsHtml}</div>`;
-        
-        // Модифицируем HTML карточки
-        card.innerHTML = card.innerHTML.replace(
-            '<div class="review-text">',
-            tagsDiv + '<div class="review-text">'
-        );
-    }
+            // Добавляем категории как теги
+            const reviewCategories = getReviewCategories(review);
+            if (reviewCategories.length > 0) {
+                const tagsHtml = reviewCategories.map(cat => 
+                    `<span class="category-tag" style="
+                        display: inline-block;
+                        background: ${getCategoryColor(cat)}15;
+                        color: ${getCategoryColor(cat)};
+                        padding: 3px 10px;
+                        border-radius: 12px;
+                        font-size: 0.75rem;
+                        margin-right: 5px;
+                        border: 1px solid ${getCategoryColor(cat)}30;
+                    ">${cat}</span>`
+                ).join('');
+                
+                // Вставляем теги после названия сайта
+                const tagsDiv = `<div class="review-tags" style="margin: 8px 0 12px 0;">${tagsHtml}</div>`;
+                
+                // Модифицируем HTML карточки
+                card.innerHTML = card.innerHTML.replace(
+                    '<div class="review-text">',
+                    tagsDiv + '<div class="review-text">'
+                );
+            }
             
             return card;
         }
 
-        // Добавьте в функцию createReviewCard после создания карточки:
-function addWarningLabels(cardElement, review) {
-    const warnings = [];
-    
-    // Проверка 1: Очень низкий рейтинг
-    if (review.rating <= 2) {
-        warnings.push({
-            text: 'Низкий рейтинг',
-            icon: 'fas fa-exclamation-triangle',
-            color: '#e74c3c'
-        });
-    }
-    
-    // Проверка 2: Длинный негативный текст
-    const negativeWords = ['плохой', 'ужасный', 'кошмар', 'не советую', 'избегайте', 'мусор', 'говно', 'дерьмо', 'отстой'];
-    const hasNegative = negativeWords.some(word => 
-        review.comment.toLowerCase().includes(word)
-    );
-    if (hasNegative && review.rating <= 3) {
-        warnings.push({
-            text: 'Резко негативный',
-            icon: 'fas fa-fire',
-            color: '#f39c12'
-        });
-    }
-    
-    // Проверка 3: Конфликт интересов (автор сайта)
-    const isAuthor = review.comment.includes('мой сайт') || 
-                     review.comment.includes('я автор') ||
-                     review.name === 'Тимофей' && review.siteName === 'TAIPrompts';
-    if (isAuthor && review.rating >= 4) {
-        warnings.push({
-            text: 'Автор проекта',
-            icon: 'fas fa-user-edit',
-            color: '#3498db'
-        });
-    }
-    
-    // Проверка 4: Личная критика
-    const personalAttacks = ['дурак', 'идиот', 'тупой', 'грубый', 'глупый'];
-    const hasPersonal = personalAttacks.some(word => 
-        review.comment.toLowerCase().includes(word)
-    );
-    if (hasPersonal) {
-        warnings.push({
-            text: 'Личный конфликт',
-            icon: 'fas fa-user-times',
-            color: '#9b59b6'
-        });
-    }
-    
-    // Добавляем предупреждения в карточку
-    if (warnings.length > 0) {
-        const warningContainer = document.createElement('div');
-        warningContainer.className = 'warning-container';
-        warningContainer.style.cssText = 'display: flex; gap: 8px; flex-wrap: wrap; margin: 10px 0;';
-        
-        warnings.forEach(warning => {
-            const badge = document.createElement('span');
-            badge.className = 'warning-badge';
-            badge.style.cssText = `
-                display: inline-flex;
-                align-items: center;
-                gap: 5px;
-                background: ${warning.color}15;
-                color: ${warning.color};
-                padding: 4px 10px;
-                border-radius: 12px;
-                font-size: 0.8rem;
-                border: 1px solid ${warning.color}30;
-            `;
-            badge.innerHTML = `<i class="${warning.icon}"></i> ${warning.text}`;
-            warningContainer.appendChild(badge);
-        });
-        
-        // Вставляем после имени пользователя
-        const header = cardElement.querySelector('.review-header');
-        if (header) {
-            header.parentNode.insertBefore(warningContainer, header.nextSibling);
+        // Функция добавления предупреждений
+        function addWarningLabels(cardElement, review) {
+            const warnings = [];
+            
+            // Проверка 1: Очень низкий рейтинг
+            if (review.rating <= 2) {
+                warnings.push({
+                    text: 'Низкий рейтинг',
+                    icon: 'fas fa-exclamation-triangle',
+                    color: '#e74c3c'
+                });
+            }
+            
+            // Проверка 2: Длинный негативный текст
+            const negativeWords = ['плохой', 'ужасный', 'кошмар', 'не советую', 'избегайте', 'мусор', 'говно', 'дерьмо', 'отстой'];
+            const hasNegative = negativeWords.some(word => 
+                review.comment.toLowerCase().includes(word)
+            );
+            if (hasNegative && review.rating <= 3) {
+                warnings.push({
+                    text: 'Резко негативный',
+                    icon: 'fas fa-fire',
+                    color: '#f39c12'
+                });
+            }
+            
+            // Проверка 3: Конфликт интересов (автор сайта)
+            const isAuthor = review.comment.includes('мой сайт') || 
+                             review.comment.includes('я автор') ||
+                             review.name === 'Тимофей' && review.siteName === 'TAIPrompts';
+            if (isAuthor && review.rating >= 4) {
+                warnings.push({
+                    text: 'Автор проекта',
+                    icon: 'fas fa-user-edit',
+                    color: '#3498db'
+                });
+            }
+            
+            // Проверка 4: Личная критика
+            const personalAttacks = ['дурак', 'идиот', 'тупой', 'грубый', 'глупый'];
+            const hasPersonal = personalAttacks.some(word => 
+                review.comment.toLowerCase().includes(word)
+            );
+            if (hasPersonal) {
+                warnings.push({
+                    text: 'Личный конфликт',
+                    icon: 'fas fa-user-times',
+                    color: '#9b59b6'
+                });
+            }
+            
+            // Добавляем предупреждения в карточку
+            if (warnings.length > 0) {
+                const warningContainer = document.createElement('div');
+                warningContainer.className = 'warning-container';
+                warningContainer.style.cssText = 'display: flex; gap: 8px; flex-wrap: wrap; margin: 10px 0;';
+                
+                warnings.forEach(warning => {
+                    const badge = document.createElement('span');
+                    badge.className = 'warning-badge';
+                    badge.style.cssText = `
+                        display: inline-flex;
+                        align-items: center;
+                        gap: 5px;
+                        background: ${warning.color}15;
+                        color: ${warning.color};
+                        padding: 4px 10px;
+                        border-radius: 12px;
+                        font-size: 0.8rem;
+                        border: 1px solid ${warning.color}30;
+                    `;
+                    badge.innerHTML = `<i class="${warning.icon}"></i> ${warning.text}`;
+                    warningContainer.appendChild(badge);
+                });
+                
+                // Вставляем после имени пользователя
+                const header = cardElement.querySelector('.review-header');
+                if (header) {
+                    header.parentNode.insertBefore(warningContainer, header.nextSibling);
+                }
+            }
         }
-    }
-}
 
-        // Добавляем функцию извлечения юзернейма
-function extractUsername(email) {
-    if (!email) return 'пользователь';
-    // Берём часть до @
-    const username = email.split('@')[0];
-    // Ограничиваем длину
-    return username.length > 15 ? username.substring(0, 15) + '...' : username;
-}
+        // Функция извлечения юзернейма
+        function extractUsername(email) {
+            if (!email) return 'пользователь';
+            const username = email.split('@')[0];
+            return username.length > 15 ? username.substring(0, 15) + '...' : username;
+        }
 
         // Настройка поиска и фильтров
         function setupSearchAndFilters() {
@@ -1233,11 +1248,8 @@ function extractUsername(email) {
             // Фильтры
             filterBtns.forEach(btn => {
                 btn.addEventListener('click', function() {
-                    // Удаляем активный класс у всех кнопок фильтра
                     filterBtns.forEach(b => b.classList.remove('active'));
-                    // Добавляем активный класс текущей кнопке
                     this.classList.add('active');
-                    
                     applyFilters();
                 });
             });
@@ -1271,161 +1283,144 @@ function extractUsername(email) {
             let filteredReviews = [...reviews];
             
             switch (activeFilter) {
-                case 'rating-5':
-                    filteredReviews = reviews.filter(review => review.rating === 5);
-                    break;
-                case 'rating-4':
-                    filteredReviews = reviews.filter(review => review.rating >= 4);
-                    break;
-                case 'rating-3':
-                    filteredReviews = reviews.filter(review => review.rating >= 3);
-                    break;
                 case 'recent':
                     filteredReviews = [...reviews].sort((a, b) => new Date(b.date) - new Date(a.date));
                     break;
                 case 'oldest':
                     filteredReviews = [...reviews].sort((a, b) => new Date(a.date) - new Date(b.date));
                     break;
-                // 'all' и другие - без фильтрации
+                // 'all' - без фильтрации
             }
             
             displayAllReviews(filteredReviews);
         }
 
-       // Функция создания кнопок категорий
-function createCategoryButtons() {
-    const container = document.getElementById('category-buttons');
-    if (!container) return;
-    
-    // Считаем количество отзывов в каждой категории
-    const categoryCounts = {};
-    Object.keys(categories).forEach(category => {
-        if (category === 'Все') {
-            categoryCounts[category] = reviews.length;
-        } else {
-            categoryCounts[category] = reviews.filter(categories[category]).length;
+        // Функция создания кнопок категорий
+        function createCategoryButtons() {
+            const container = document.getElementById('category-buttons');
+            if (!container) return;
+            
+            // Считаем количество отзывов в каждой категории
+            const categoryCounts = {};
+            Object.keys(categories).forEach(category => {
+                if (category === 'Все') {
+                    categoryCounts[category] = reviews.length;
+                } else {
+                    categoryCounts[category] = reviews.filter(categories[category]).length;
+                }
+            });
+            
+            // Создаём кнопки
+            container.innerHTML = '';
+            
+            Object.entries(categoryCounts).forEach(([category, count]) => {
+                if (count === 0 && category !== 'Все') return;
+                
+                const button = document.createElement('button');
+                button.className = 'category-btn';
+                button.dataset.category = category;
+                button.innerHTML = `
+                    <span class="category-name">${category}</span>
+                    <span class="category-count">${count}</span>
+                `;
+                
+                button.style.cssText = `
+                    padding: 10px 20px;
+                    border: none;
+                    border-radius: 25px;
+                    background: rgba(52, 152, 219, 0.1);
+                    color: var(--secondary-color);
+                    font-weight: 600;
+                    cursor: pointer;
+                    transition: all 0.3s ease;
+                    display: flex;
+                    align-items: center;
+                    gap: 8px;
+                `;
+                
+                // Активная кнопка
+                if (category === 'Все') {
+                    button.classList.add('active');
+                    button.style.backgroundColor = 'var(--primary-color)';
+                    button.style.color = 'white';
+                }
+                
+                // Обработчик клика
+                button.addEventListener('click', () => {
+                    filterByCategory(category);
+                    updateActiveButton(button);
+                    updateCategoryInfo(category, count);
+                });
+                
+                container.appendChild(button);
+            });
         }
-    });
-    
-    // Создаём кнопки
-    container.innerHTML = '';
-    
-    Object.entries(categoryCounts).forEach(([category, count]) => {
-        if (count === 0 && category !== 'Все') return; // Не показываем пустые категории
-        
-        const button = document.createElement('button');
-        button.className = 'category-btn';
-        button.dataset.category = category;
-        button.innerHTML = `
-            <span class="category-name">${category}</span>
-            <span class="category-count">${count}</span>
-        `;
-        
-        // Стили кнопки
-        button.style.cssText = `
-            padding: 10px 20px;
-            border: none;
-            border-radius: 25px;
-            background: rgba(52, 152, 219, 0.1);
-            color: var(--secondary-color);
-            font-weight: 600;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            display: flex;
-            align-items: center;
-            gap: 8px;
-        `;
-        
-        // Активная кнопка
-        if (category === 'Все') {
-            button.classList.add('active');
-            button.style.backgroundColor = 'var(--primary-color)';
-            button.style.color = 'white';
+
+        // Функция фильтрации отзывов
+        function filterByCategory(category) {
+            const filteredReviews = reviews.filter(categories[category]);
+            displayAllReviews(filteredReviews);
+            
+            // Показываем информацию о выбранной категории
+            const infoPanel = document.getElementById('selected-category');
+            if (category === 'Все') {
+                infoPanel.style.display = 'none';
+            } else {
+                infoPanel.style.display = 'block';
+            }
         }
-        
-        // Обработчик клика
-        button.addEventListener('click', () => {
-            filterByCategory(category);
-            updateActiveButton(button);
-            updateCategoryInfo(category, count);
+
+        // Обновление активной кнопки
+        function updateActiveButton(clickedButton) {
+            document.querySelectorAll('.category-btn').forEach(btn => {
+                btn.classList.remove('active');
+                btn.style.backgroundColor = 'rgba(52, 152, 219, 0.1)';
+                btn.style.color = 'var(--secondary-color)';
+            });
+            
+            clickedButton.classList.add('active');
+            clickedButton.style.backgroundColor = 'var(--primary-color)';
+            clickedButton.style.color = 'white';
+        }
+
+        // Обновление информации о категории
+        function updateCategoryInfo(category, count) {
+            document.getElementById('current-category-name').textContent = category;
+            document.getElementById('category-count').textContent = count;
+        }
+
+        // Очистка фильтра
+        document.getElementById('clear-filter')?.addEventListener('click', () => {
+            filterByCategory('Все');
+            document.querySelectorAll('.category-btn').forEach(btn => {
+                btn.classList.remove('active');
+                btn.style.backgroundColor = 'rgba(52, 152, 219, 0.1)';
+                btn.style.color = 'var(--secondary-color)';
+            });
+            
+            const allButton = document.querySelector('.category-btn[data-category="Все"]');
+            if (allButton) {
+                allButton.classList.add('active');
+                allButton.style.backgroundColor = 'var(--primary-color)';
+                allButton.style.color = 'white';
+            }
+            
+            document.getElementById('selected-category').style.display = 'none';
         });
-        
-        container.appendChild(button);
-    });
-}
-
-// Функция фильтрации отзывов
-function filterByCategory(category) {
-    const filteredReviews = reviews.filter(categories[category]);
-    displayAllReviews(filteredReviews);
-    
-    // Показываем информацию о выбранной категории
-    const infoPanel = document.getElementById('selected-category');
-    if (category === 'Все') {
-        infoPanel.style.display = 'none';
-    } else {
-        infoPanel.style.display = 'block';
-    }
-}
-
-// Обновление активной кнопки
-function updateActiveButton(clickedButton) {
-    document.querySelectorAll('.category-btn').forEach(btn => {
-        btn.classList.remove('active');
-        btn.style.backgroundColor = 'rgba(52, 152, 219, 0.1)';
-        btn.style.color = 'var(--secondary-color)';
-    });
-    
-    clickedButton.classList.add('active');
-    clickedButton.style.backgroundColor = 'var(--primary-color)';
-    clickedButton.style.color = 'white';
-}
-
-// Обновление информации о категории
-function updateCategoryInfo(category, count) {
-    document.getElementById('current-category-name').textContent = category;
-    document.getElementById('category-count').textContent = count;
-}
-
-// Очистка фильтра
-document.getElementById('clear-filter')?.addEventListener('click', () => {
-    filterByCategory('Все');
-    document.querySelectorAll('.category-btn').forEach(btn => {
-        btn.classList.remove('active');
-        btn.style.backgroundColor = 'rgba(52, 152, 219, 0.1)';
-        btn.style.color = 'var(--secondary-color)';
-    });
-    
-    // Активируем кнопку "Все"
-    const allButton = document.querySelector('.category-btn[data-category="Все"]');
-    if (allButton) {
-        allButton.classList.add('active');
-        allButton.style.backgroundColor = 'var(--primary-color)';
-        allButton.style.color = 'white';
-    }
-    
-    document.getElementById('selected-category').style.display = 'none';
-});
 
         // Обновление статистики
         function updateStatistics() {
-            // Общая статистика
             const totalReviews = reviews.length;
             const avgRating = (reviews.reduce((sum, review) => sum + review.rating, 0) / totalReviews).toFixed(1);
-            
-            // Уникальные сайты
             const uniqueSites = [...new Set(reviews.map(review => review.siteUrl))].length;
-            
-            // Уникальные авторы
             const uniqueAuthors = [...new Set(reviews.map(review => review.email))].length;
             
-            // Обновляем элементы на главной
+            // Обновляем элементы
             if (totalReviewsEl) totalReviewsEl.textContent = totalReviews;
             if (uniqueSitesEl) uniqueSitesEl.textContent = uniqueSites;
             if (totalReviewersEl) totalReviewersEl.textContent = uniqueAuthors;
             if (avgRatingEl) avgRatingEl.textContent = avgRating;
             
-            // Обновляем элементы на странице статистики
             if (statsTotalReviewsEl) statsTotalReviewsEl.textContent = totalReviews;
             if (statsAvgRatingEl) statsAvgRatingEl.textContent = avgRating;
             if (statsReviewersEl) statsReviewersEl.textContent = uniqueAuthors;
@@ -1436,14 +1431,12 @@ document.getElementById('clear-filter')?.addEventListener('click', () => {
         function displayRatingDistribution() {
             if (!ratingDistribution) return;
             
-            // Подсчет отзывов по рейтингам
             const ratingCounts = {5: 0, 4: 0, 3: 0, 2: 0, 1: 0};
             
             reviews.forEach(review => {
                 ratingCounts[review.rating]++;
             });
             
-            // Создание визуализации
             ratingDistribution.innerHTML = '';
             
             for (let rating = 5; rating >= 1; rating--) {
@@ -1453,7 +1446,6 @@ document.getElementById('clear-filter')?.addEventListener('click', () => {
                 const bar = document.createElement('div');
                 bar.style.cssText = 'display: flex; align-items: center; gap: 15px;';
                 
-                // Создание звезд для рейтинга
                 let starsHTML = '';
                 for (let i = 1; i <= 5; i++) {
                     if (i <= rating) {
