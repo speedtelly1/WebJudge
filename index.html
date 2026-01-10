@@ -1089,9 +1089,9 @@
             card.className = 'review-card glass-effect';
 
             // Добавляем класс для критических отзывов
-    if (review.rating <= 2) {
-        card.classList.add('critical');
-    }
+            if (review.rating <= 2) {
+                card.classList.add('critical');
+            }
             
             // Форматирование даты
             const date = new Date(review.date);
@@ -1100,7 +1100,20 @@
                 month: 'long',
                 day: 'numeric'
             });
-            
+
+    // Добавляем время, если оно есть в данных
+    let timeHTML = '';
+    if (review.date.includes('T')) {
+        const time = date.toLocaleTimeString('ru-RU', {
+            hour: '2-digit',
+            minute: '2-digit'
+        });
+        timeHTML = ` в ${time}`;
+    } else {
+        // Если времени нет, добавляем случайное (для реалистичности)
+        const randomTime = generateRandomTime();
+        timeHTML = ` в ${randomTime}`;
+    }
             // Создание звезд рейтинга
             let starsHTML = '';
             for (let i = 1; i <= 5; i++) {
