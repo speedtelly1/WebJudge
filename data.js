@@ -102,6 +102,25 @@ const reviews = [
     }
 ];
 
+// Добавьте в data.js или основной скрипт
+const categories = {
+    'Все': () => true,
+    'Соцсети': (review) => ['YouTube', 'итд.com', 'VK', 'Telegram', 'Instagram'].some(name => 
+        review.siteName.includes(name) || review.comment.includes('соцсеть')
+    ),
+    'Игры': (review) => ['TLauncher', 'Битва за территории', 'Steam', 'Epic Games'].some(name =>
+        review.siteName.includes(name) || review.comment.includes('игр') || review.comment.includes('гейм')
+    ),
+    'Инструменты': (review) => ['TAIPrompts', 'Хранилище', 'GitHub', 'Figma', 'Notion'].some(name =>
+        review.siteName.includes(name) || review.comment.includes('инструмент') || review.comment.includes('сервис')
+    ),
+    'Магазины': (review) => ['FunPay', 'Steam', 'Epic Games'].some(name =>
+        review.siteName.includes(name) || review.comment.includes('купил') || review.comment.includes('покуп')
+    ),
+    'Критические': (review) => review.rating <= 2,
+    'Авторские': (review) => review.comment.includes('мой сайт') || review.comment.includes('я автор')
+};
+
 // Функция для добавления нового отзыва
 function addReview(newReview) {
     const maxId = reviews.length > 0 ? Math.max(...reviews.map(r => r.id)) : 0;
