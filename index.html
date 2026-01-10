@@ -1229,7 +1229,16 @@ function createReviewCard(review) {
                              review.name === 'Тимофей' && review.siteName === 'TAIPrompts';
             if (isAuthor && review.rating >= 4) {
                 warnings.push({
-                    text: 'Автор проекта',
+                    text: 'Автор сайта',
+                    icon: 'fas fa-user-edit',
+                    color: '#3498db'
+                });
+            }
+
+            const isOwner = review.name === 'Константин' && review.email === 'timosha.sibilev@gmail.com';
+            if (isAuthor && review.rating >= 4) {
+                warnings.push({
+                    text: 'Автор SiteReview',
                     icon: 'fas fa-user-edit',
                     color: '#3498db'
                 });
