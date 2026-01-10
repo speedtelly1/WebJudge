@@ -1083,25 +1083,33 @@
             return colors[category] || '#95a5a6';
         }
 
-        // Создание карточки отзыва
-        function createReviewCard(review) {
-            const card = document.createElement('div');
-            card.className = 'review-card glass-effect';
+// Функция генерации случайного времени (добавьте это выше)
+function generateRandomTime() {
+    // Рабочее время с 9 до 18 для реалистичности
+    const hour = 9 + Math.floor(Math.random() * 9); // 9-17
+    const minute = Math.floor(Math.random() * 60); // 0-59
+    return `${String(hour).padStart(2, '0')}:${String(minute).padStart(2, '0')}`;
+}
 
-            // Добавляем класс для критических отзывов
-            if (review.rating <= 2) {
-                card.classList.add('critical');
-            }
-            
-            // Форматирование даты
-            const date = new Date(review.date);
-            const formattedDate = date.toLocaleDateString('ru-RU', {
-                year: 'numeric',
-                month: 'long',
-                day: 'numeric'
-            });
+// Создание карточки отзыва
+function createReviewCard(review) {
+    const card = document.createElement('div');
+    card.className = 'review-card glass-effect';
 
-    // Добавляем время, если оно есть в данных
+    // Добавляем класс для критических отзывов
+    if (review.rating <= 2) {
+        card.classList.add('critical');
+    }
+    
+    // Форматирование даты
+    const date = new Date(review.date);
+    const formattedDate = date.toLocaleDateString('ru-RU', {
+        year: 'numeric',
+        month: 'long',
+        day: 'numeric'
+    });
+
+    // Добавляем время
     let timeHTML = '';
     if (review.date.includes('T')) {
         const time = date.toLocaleTimeString('ru-RU', {
@@ -1110,28 +1118,29 @@
         });
         timeHTML = ` в ${time}`;
     } else {
-        // Если времени нет, добавляем случайное (для реалистичности)
+        // Если времени нет, добавляем случайное
         const randomTime = generateRandomTime();
         timeHTML = ` в ${randomTime}`;
     }
-            // Создание звезд рейтинга
-            let starsHTML = '';
-            for (let i = 1; i <= 5; i++) {
-                if (i <= review.rating) {
-                    starsHTML += '<i class="fas fa-star star filled"></i>';
-                } else {
-                    starsHTML += '<i class="far fa-star star"></i>';
-                }
-            }
-            
-            // Извлечение домена из URL для отображения
-            let domain = review.siteUrl;
-            try {
-                const url = new URL(review.siteUrl);
-                domain = url.hostname.replace('www.', '');
-            } catch (e) {
-                // Если URL некорректный, оставляем как есть
-            }
+    
+    // Создание звезд рейтинга
+    let starsHTML = '';
+    for (let i = 1; i <= 5; i++) {
+        if (i <= review.rating) {
+            starsHTML += '<i class="fas fa-star star filled"></i>';
+        } else {
+            starsHTML += '<i class="far fa-star star"></i>';
+        }
+    }
+    
+    // Извлечение домена из URL для отображения
+    let domain = review.siteUrl;
+    try {
+        const url = new URL(review.siteUrl);
+        domain = url.hostname.replace('www.', '');
+    } catch (e) {
+        // Если URL некорректный, оставляем как есть
+    }
             
             card.innerHTML = `
                 <div class="review-header">
