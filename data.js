@@ -8,7 +8,7 @@ const reviews = [
         siteName: "TAIPrompts",
         rating: 5,
         comment: "Лучший сайт с генератором промптов! Экономит по 16 часов в месяц.",
-        date: "2026-01-09"
+        date: "2026-01-09T16:59:00"
     },
     {
         id: 2,
