@@ -317,7 +317,7 @@
                             review.name === 'Тимофей' && review.siteName === 'TAIPrompts';
             if (isAuthor && review.rating >= 4) {
                 warnings.push({
-                    text: 'Автор сайта',
+                    text: 'Автор оцениваемого сайта',
                     icon: 'fas fa-user-edit',
                     color: '#3CB371'
                 });
