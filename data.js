@@ -79,6 +79,26 @@ const reviews = [
         rating: 3,
         comment: "Хороший сервис, но генератор немного плох, и скуден по функционалу. Видно, писала нейронка, и плохо, просто замена переменных.",
         date: "2026-01-10"
+    },
+    {
+        id: 9,
+        name: "Федати",
+        email: "1234playergp@gmail.com",
+        siteUrl: "https://timoshamoscow.github.io/taiprompts.github.io/",
+        siteName: "TAIPrompts",
+        rating: 2,
+        comment: "Цензура не дала создать хороший промпт для песни...",
+        date: "2026-01-10"
+    },
+    {
+        id: 10,
+        name: "Тимоша",
+        email: "timi.sibi.maxi2010@gmail.com",
+        siteUrl: "https://yandex.ru/games/app/191972",
+        siteName: "Битва за территории",
+        rating: 5,
+        comment: "Лучшая игра в свое время! (2021-22 года)",
+        date: "2026-01-10"
     }
 ];
 
