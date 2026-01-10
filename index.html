@@ -1197,104 +1197,106 @@ function createReviewCard(review) {
     return card;
 }
         
-        // Функция добавления предупреждений
-        function addWarningLabels(cardElement, review) {
-            const warnings = [];
-            
-            // Проверка 1: Очень низкий рейтинг
-            if (review.rating <= 2) {
-                warnings.push({
-                    text: 'Низкий рейтинг',
-                    icon: 'fas fa-exclamation-triangle',
-                    color: '#e74c3c'
-                });
-            }
-            
-            // Проверка 2: Длинный негативный текст
-            const negativeWords = ['плохой', 'ужасный', 'кошмар', 'не советую', 'избегайте', 'мусор', 'говно', 'дерьмо', 'отстой'];
-            const hasNegative = negativeWords.some(word => 
-                review.comment.toLowerCase().includes(word)
-            );
-            if (hasNegative && review.rating <= 3) {
-                warnings.push({
-                    text: 'Резко негативный',
-                    icon: 'fas fa-fire',
-                    color: '#f39c12'
-                });
-            }
-            
-            // Проверка 3: Конфликт интересов (автор сайта)
-            const isAuthor = review.comment.includes('мой сайт') || 
-                             review.comment.includes('я автор') ||
-                             review.name === 'Тимофей' && review.siteName === 'TAIPrompts'; // Реальный случай у сайта
-            if (isAuthor && review.rating >= 4) {
-                warnings.push({
-                    text: 'Автор сайта',
-                    icon: 'fas fa-user-edit',
-                    color: '#3CB371'
-                });
-            }
+// Функция добавления предупреждений
+function addWarningLabels(cardElement, review) {
+    const warnings = [];
+    
+    // Проверка 1: Очень низкий рейтинг
+    if (review.rating <= 2) {
+        warnings.push({
+            text: 'Низкий рейтинг',
+            icon: 'fas fa-exclamation-triangle',
+            color: '#e74c3c'
+        });
+    }
+    
+    // Проверка 2: Длинный негативный текст
+    const negativeWords = ['плохой', 'ужасный', 'кошмар', 'не советую', 'избегайте', 'мусор', 'говно', 'дерьмо', 'отстой'];
+    const hasNegative = negativeWords.some(word => 
+        review.comment.toLowerCase().includes(word)
+    );
+    if (hasNegative && review.rating <= 3) {
+        warnings.push({
+            text: 'Резко негативный',
+            icon: 'fas fa-fire',
+            color: '#f39c12'
+        });
+    }
+    
+    // Проверка 3: Конфликт интересов (автор сайта)
+    const isAuthor = review.comment.includes('мой сайт') || 
+                     review.comment.includes('я автор') ||
+                     review.name === 'Тимофей' && review.siteName === 'TAIPrompts';
+    if (isAuthor && review.rating >= 4) {
+        warnings.push({
+            text: 'Автор сайта',
+            icon: 'fas fa-user-edit',
+            color: '#3CB371'
+        });
+    }
 
-            const isOwner = review.name === 'Константин' && review.email === 'timosha.sibilev@gmail.com';
-            if (isOwner) {
-                warnings.push({
-                    text: 'Автор SiteReview',
-                    icon: 'fas fa-user-edit',
-                    color: '#1E90FF'
-                });
-            }
-            
-            // Проверка 4: Личная критика
-            const personalAttacks = ['дурак', 'идиот', 'тупой', 'грубый', 'глупый'];
-            const hasPersonal = personalAttacks.some(word => 
-                review.comment.toLowerCase().includes(word)
-            );
-            if (hasPersonal) {
-                warnings.push({
-                    text: 'Личный конфликт',
-                    icon: 'fas fa-user-times',
-                    color: '#9b59b6'
-                });
-            }
-            
-            // Добавляем предупреждения в карточку
-            if (warnings.length > 0) {
-                const warningContainer = document.createElement('div');
-                warningContainer.className = 'warning-container';
-                warningContainer.style.cssText = 'display: flex; gap: 8px; flex-wrap: wrap; margin: 10px 0;';
-                
-                warnings.forEach(warning => {
-                    const badge = document.createElement('span');
-                    badge.className = 'warning-badge';
-                    badge.style.cssText = `
-                        display: inline-flex;
-                        align-items: center;
-                        gap: 5px;
-                        background: ${warning.color}15;
-                        color: ${warning.color};
-                        padding: 4px 10px;
-                        border-radius: 12px;
-                        font-size: 0.8rem;
-                        border: 1px solid ${warning.color}30;
-                    `;
-                    badge.innerHTML = `<i class="${warning.icon}"></i> ${warning.text}`;
-                    warningContainer.appendChild(badge);
-                });
-                
-                // Вставляем после имени пользователя
-                const header = cardElement.querySelector('.review-header');
-                if (header) {
-                    header.parentNode.insertBefore(warningContainer, header.nextSibling);
-                }
-            }
+    // Проверка 4: Автор SiteReview
+    const isOwner = review.name === 'Константин' && review.email === 'timosha.sibilev@gmail.com';
+    if (isOwner) {
+        warnings.push({
+            text: 'Автор SiteReview',
+            icon: 'fas fa-user-edit',
+            color: '#1E90FF'
+        });
+    }
+    
+    // Проверка 5: Личная критика
+    const personalAttacks = ['дурак', 'идиот', 'тупой', 'грубый', 'глупый'];
+    const hasPersonal = personalAttacks.some(word => 
+        review.comment.toLowerCase().includes(word)
+    );
+    if (hasPersonal) {
+        warnings.push({
+            text: 'Личный конфликт',
+            icon: 'fas fa-user-times',
+            color: '#9b59b6'
+        });
+    }
+    
+    // Добавляем предупреждения в карточку
+    if (warnings.length > 0) {
+        const warningContainer = document.createElement('div');
+        warningContainer.className = 'warning-container';
+        warningContainer.style.cssText = `
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+            margin: 10px 0;
+            align-items: center;
+        `;
+        
+        warnings.forEach(warning => {
+            const badge = document.createElement('span');
+            badge.className = 'warning-badge';
+            badge.style.cssText = `
+                display: inline-flex;
+                align-items: center;
+                gap: 5px;
+                background: ${warning.color}15;
+                color: ${warning.color};
+                padding: 4px 10px;
+                border-radius: 12px;
+                font-size: 0.8rem;
+                border: 1px solid ${warning.color}30;
+                white-space: nowrap;
+                margin: 2px 0;
+            `;
+            badge.innerHTML = `<i class="${warning.icon}"></i> ${warning.text}`;
+            warningContainer.appendChild(badge);
+        });
+        
+        // Вставляем после имени пользователя
+        const header = cardElement.querySelector('.review-header');
+        if (header) {
+            header.parentNode.insertBefore(warningContainer, header.nextSibling);
         }
-
-        // Функция извлечения юзернейма
-        function extractUsername(email) {
-            if (!email) return 'пользователь';
-            const username = email.split('@')[0];
-            return username.length > 15 ? username.substring(0, 15) + '...' : username;
-        }
+    }
+}
 
         // Настройка поиска и фильтров
         function setupSearchAndFilters() {
