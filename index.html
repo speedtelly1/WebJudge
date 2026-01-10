@@ -514,6 +514,56 @@
             }
         }
 
+        /* Добавьте в существующий CSS */
+.category-btn {
+    padding: 10px 20px;
+    border: none;
+    border-radius: 25px;
+    background: rgba(52, 152, 219, 0.1);
+    color: var(--secondary-color);
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.category-btn:hover {
+    background: rgba(52, 152, 219, 0.2);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(52, 152, 219, 0.15);
+}
+
+.category-btn.active {
+    background-color: var(--primary-color);
+    color: white;
+}
+
+.category-count {
+    background: rgba(255, 255, 255, 0.2);
+    padding: 2px 8px;
+    border-radius: 10px;
+    font-size: 0.9rem;
+}
+
+.category-btn.active .category-count {
+    background: rgba(255, 255, 255, 0.3);
+}
+
+.categories-filter {
+    margin-bottom: 20px;
+}
+
+.selected-category {
+    animation: fadeIn 0.3s ease;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(-10px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
         @media (max-width: 480px) {
             .glass-effect {
                 border-radius: 12px;
