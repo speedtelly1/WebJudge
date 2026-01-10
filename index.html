@@ -691,13 +691,40 @@
                     </div>
                     <div class="filters">
                         <button class="filter-btn active" data-filter="all">Все отзывы</button>
-                        <button class="filter-btn" data-filter="rating-5">5 звезд</button>
-                        <button class="filter-btn" data-filter="rating-4">4+ звезды</button>
-                        <button class="filter-btn" data-filter="rating-3">3+ звезды</button>
                         <button class="filter-btn" data-filter="recent">Сначала новые</button>
                         <button class="filter-btn" data-filter="oldest">Сначала старые</button>
                     </div>
                 </div>
+
+                <!-- Вставьте в раздел "Все отзывы" перед списком отзывов -->
+<div class="categories-section glass-effect" style="padding: 25px; margin-bottom: 30px;">
+    <h3 style="margin-bottom: 20px; color: var(--secondary-color);">
+        <i class="fas fa-filter"></i> Фильтр по категориям
+    </h3>
+    
+    <div class="categories-filter">
+        <div class="category-buttons" id="category-buttons" style="display: flex; flex-wrap: wrap; gap: 10px;">
+            <!-- Кнопки будут сгенерированы через JS -->
+        </div>
+        
+        <div class="selected-category" id="selected-category" style="margin-top: 20px; padding: 15px; 
+              background: rgba(52, 152, 219, 0.1); border-radius: 10px; display: none;">
+            <div style="display: flex; justify-content: space-between; align-items: center;">
+                <span>
+                    <strong>Выбрана категория:</strong> 
+                    <span id="current-category-name">Категория</span>
+                </span>
+                <button id="clear-filter" style="background: none; border: none; color: #e74c3c; 
+                        cursor: pointer; font-size: 1.2rem;">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <div style="margin-top: 10px; font-size: 0.9rem; color: #666;">
+                <span id="category-count">0</span> отзывов в этой категории
+            </div>
+        </div>
+    </div>
+</div>
                 
                 <h2 class="section-title">Все отзывы</h2>
                 <div class="reviews-container" id="all-reviews">
@@ -867,6 +894,7 @@ document.addEventListener('DOMContentLoaded', function() {
     
     initNavigation();
     loadReviews(); // эта функция теперь использует глобальную переменную reviews
+    createCategoryButtons();
     updateStatistics();
     setupSearchAndFilters();
 });
@@ -1187,6 +1215,121 @@ function extractUsername(email) {
             
             displayAllReviews(filteredReviews);
         }
+
+       // Функция создания кнопок категорий
+function createCategoryButtons() {
+    const container = document.getElementById('category-buttons');
+    if (!container) return;
+    
+    // Считаем количество отзывов в каждой категории
+    const categoryCounts = {};
+    Object.keys(categories).forEach(category => {
+        if (category === 'Все') {
+            categoryCounts[category] = reviews.length;
+        } else {
+            categoryCounts[category] = reviews.filter(categories[category]).length;
+        }
+    });
+    
+    // Создаём кнопки
+    container.innerHTML = '';
+    
+    Object.entries(categoryCounts).forEach(([category, count]) => {
+        if (count === 0 && category !== 'Все') return; // Не показываем пустые категории
+        
+        const button = document.createElement('button');
+        button.className = 'category-btn';
+        button.dataset.category = category;
+        button.innerHTML = `
+            <span class="category-name">${category}</span>
+            <span class="category-count">${count}</span>
+        `;
+        
+        // Стили кнопки
+        button.style.cssText = `
+            padding: 10px 20px;
+            border: none;
+            border-radius: 25px;
+            background: rgba(52, 152, 219, 0.1);
+            color: var(--secondary-color);
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        `;
+        
+        // Активная кнопка
+        if (category === 'Все') {
+            button.classList.add('active');
+            button.style.backgroundColor = 'var(--primary-color)';
+            button.style.color = 'white';
+        }
+        
+        // Обработчик клика
+        button.addEventListener('click', () => {
+            filterByCategory(category);
+            updateActiveButton(button);
+            updateCategoryInfo(category, count);
+        });
+        
+        container.appendChild(button);
+    });
+}
+
+// Функция фильтрации отзывов
+function filterByCategory(category) {
+    const filteredReviews = reviews.filter(categories[category]);
+    displayAllReviews(filteredReviews);
+    
+    // Показываем информацию о выбранной категории
+    const infoPanel = document.getElementById('selected-category');
+    if (category === 'Все') {
+        infoPanel.style.display = 'none';
+    } else {
+        infoPanel.style.display = 'block';
+    }
+}
+
+// Обновление активной кнопки
+function updateActiveButton(clickedButton) {
+    document.querySelectorAll('.category-btn').forEach(btn => {
+        btn.classList.remove('active');
+        btn.style.backgroundColor = 'rgba(52, 152, 219, 0.1)';
+        btn.style.color = 'var(--secondary-color)';
+    });
+    
+    clickedButton.classList.add('active');
+    clickedButton.style.backgroundColor = 'var(--primary-color)';
+    clickedButton.style.color = 'white';
+}
+
+// Обновление информации о категории
+function updateCategoryInfo(category, count) {
+    document.getElementById('current-category-name').textContent = category;
+    document.getElementById('category-count').textContent = count;
+}
+
+// Очистка фильтра
+document.getElementById('clear-filter')?.addEventListener('click', () => {
+    filterByCategory('Все');
+    document.querySelectorAll('.category-btn').forEach(btn => {
+        btn.classList.remove('active');
+        btn.style.backgroundColor = 'rgba(52, 152, 219, 0.1)';
+        btn.style.color = 'var(--secondary-color)';
+    });
+    
+    // Активируем кнопку "Все"
+    const allButton = document.querySelector('.category-btn[data-category="Все"]');
+    if (allButton) {
+        allButton.classList.add('active');
+        allButton.style.backgroundColor = 'var(--primary-color)';
+        allButton.style.color = 'white';
+    }
+    
+    document.getElementById('selected-category').style.display = 'none';
+});
 
         // Обновление статистики
         function updateStatistics() {
