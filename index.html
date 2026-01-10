@@ -1018,9 +1018,94 @@ function updateProgress() {
                 
                 <div class="review-date">${formattedDate}</div>
             `;
+
+            setTimeout(() => addWarningLabels(card, review), 0);
             
             return card;
         }
+
+        // Добавьте в функцию createReviewCard после создания карточки:
+function addWarningLabels(cardElement, review) {
+    const warnings = [];
+    
+    // Проверка 1: Очень низкий рейтинг
+    if (review.rating <= 2) {
+        warnings.push({
+            text: 'Низкий рейтинг',
+            icon: 'fas fa-exclamation-triangle',
+            color: '#e74c3c'
+        });
+    }
+    
+    // Проверка 2: Длинный негативный текст
+    const negativeWords = ['плохой', 'ужасный', 'кошмар', 'не советую', 'избегайте', 'мусор', 'говно', 'дерьмо', 'отстой'];
+    const hasNegative = negativeWords.some(word => 
+        review.comment.toLowerCase().includes(word)
+    );
+    if (hasNegative && review.rating <= 3) {
+        warnings.push({
+            text: 'Резко негативный',
+            icon: 'fas fa-fire',
+            color: '#f39c12'
+        });
+    }
+    
+    // Проверка 3: Конфликт интересов (автор сайта)
+    const isAuthor = review.comment.includes('мой сайт') || 
+                     review.comment.includes('я автор') ||
+                     review.name === 'Тимофей' && review.siteName === 'TAIPrompts';
+    if (isAuthor && review.rating >= 4) {
+        warnings.push({
+            text: 'Автор проекта',
+            icon: 'fas fa-user-edit',
+            color: '#3498db'
+        });
+    }
+    
+    // Проверка 4: Личная критика
+    const personalAttacks = ['дурак', 'идиот', 'тупой', 'грубый', 'глупый'];
+    const hasPersonal = personalAttacks.some(word => 
+        review.comment.toLowerCase().includes(word)
+    );
+    if (hasPersonal) {
+        warnings.push({
+            text: 'Личный конфликт',
+            icon: 'fas fa-user-times',
+            color: '#9b59b6'
+        });
+    }
+    
+    // Добавляем предупреждения в карточку
+    if (warnings.length > 0) {
+        const warningContainer = document.createElement('div');
+        warningContainer.className = 'warning-container';
+        warningContainer.style.cssText = 'display: flex; gap: 8px; flex-wrap: wrap; margin: 10px 0;';
+        
+        warnings.forEach(warning => {
+            const badge = document.createElement('span');
+            badge.className = 'warning-badge';
+            badge.style.cssText = `
+                display: inline-flex;
+                align-items: center;
+                gap: 5px;
+                background: ${warning.color}15;
+                color: ${warning.color};
+                padding: 4px 10px;
+                border-radius: 12px;
+                font-size: 0.8rem;
+                border: 1px solid ${warning.color}30;
+            `;
+            badge.innerHTML = `<i class="${warning.icon}"></i> ${warning.text}`;
+            warningContainer.appendChild(badge);
+        });
+        
+        // Вставляем после имени пользователя
+        const header = cardElement.querySelector('.review-header');
+        if (header) {
+            header.parentNode.insertBefore(warningContainer, header.nextSibling);
+        }
+    }
+}
 
         // Добавляем функцию извлечения юзернейма
 function extractUsername(email) {
