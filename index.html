@@ -1087,6 +1087,11 @@
         function createReviewCard(review) {
             const card = document.createElement('div');
             card.className = 'review-card glass-effect';
+
+            // Добавляем класс для критических отзывов
+    if (review.rating <= 2) {
+        card.classList.add('critical');
+    }
             
             // Форматирование даты
             const date = new Date(review.date);
