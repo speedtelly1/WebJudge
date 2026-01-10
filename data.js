@@ -59,6 +59,26 @@ const reviews = [
         rating: 3,
         comment: "Хороший лаунчер, но если есть лицензия, советую Modrinth",
         date: "2026-01-09"
+    },
+    {
+        id: 7,
+        name: "Константин",
+        email: "timosha.sibilev@gmail.com",
+        siteUrl: "https://funpay.com/",
+        siteName: "FunPay",
+        rating: 3,
+        comment: "Пользовался FunPay несколько лет назад — купил там почту timosha.sibilev@gmail.com (история длинная 😄).",
+        date: "2026-01-10"
+    },
+    {
+        id: 8,
+        name: "Константин",
+        email: "timosha.sibilev@gmail.com",
+        siteUrl: "https://timoshamoscow.github.io/taiprompts.github.io/",
+        siteName: "TAIPrompts",
+        rating: 3,
+        comment: "Хороший сервис, но генератор немного плох, и скуден по функционалу. Видно, писала нейронка, и плохо, просто замена переменных.",
+        date: "2026-01-10"
     }
 ];
 
