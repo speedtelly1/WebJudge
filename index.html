@@ -615,32 +615,53 @@
             100% { transform: rotate(360deg); }
         }
 
-.review-card.critical {
-    position: relative;
-    overflow: hidden;
-}
+        .review-card.critical {
+            position: relative;
+            overflow: hidden;
+        }
 
-.review-card.critical::after {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    height: 3px;
-    background: linear-gradient(90deg, 
-        transparent, 
-        #e74c3c, 
-        #ff4757, 
-        #e74c3c, 
-        transparent
-    );
-    animation: slideBorder 3s infinite linear;
-}
+        .review-card.critical::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 3px;
+            background: linear-gradient(90deg, 
+                transparent, 
+                #e74c3c, 
+                #ff4757, 
+                #e74c3c, 
+                transparent
+            );
+            animation: slideBorder 3s infinite linear;
+        }
 
-@keyframes slideBorder {
-    0% { transform: translateX(-100%); }
-    100% { transform: translateX(100%); }
-}
+        @keyframes slideBorder {
+            0% { transform: translateX(-100%); }
+            100% { transform: translateX(100%); }
+        }
+
+        /* Стили для меток предупреждений */
+        .warning-container {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+            margin: 10px 0;
+            align-items: center;
+        }
+
+        .warning-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+            padding: 4px 10px;
+            border-radius: 12px;
+            font-size: 0.8rem;
+            white-space: nowrap;
+            margin: 2px 0;
+            border: 1px solid;
+        }
     </style>
 </head>
 <body>
@@ -919,6 +940,7 @@
         </footer>
     </div>
 
+    <!-- Данные отзывов и категорий -->
     <!-- Подключение data.js -->
     <script src="data.js"></script>
 
@@ -946,6 +968,11 @@
         
         // Текущий год в футере
         document.getElementById('current-year').textContent = new Date().getFullYear();
+
+        // Извлечение username из email
+        function extractUsername(email) {
+            return email.split('@')[0];
+        }
 
         // Инициализация приложения
         document.addEventListener('DOMContentLoaded', function() {
@@ -1000,7 +1027,7 @@
             const currentCountEl = document.getElementById('current-count');
             
             if (progressBar && currentCountEl) {
-                progressBar.style.width = percentage + '%';
+                progressBar.style.width = Math.min(percentage, 100) + '%';
                 currentCountEl.textContent = currentCount;
             }
         }
@@ -1055,7 +1082,7 @@
             
             // Проверяем все категории из data.js
             Object.entries(categories).forEach(([catName, filterFunc]) => {
-                if (catName !== 'Все') {
+                if (catName !== 'Все' && catName !== 'Критические' && catName !== 'Позитивные') {
                     try {
                         if (filterFunc(review)) {
                             cats.push(catName);
@@ -1065,6 +1092,15 @@
                     }
                 }
             });
+            
+            // Добавляем Критические и Позитивные в зависимости от рейтинга
+            if (review.rating <= 2 || review.comment.toLowerCase().includes('цензур') || 
+                review.comment.toLowerCase().includes('груб') || review.comment.toLowerCase().includes('глуп')) {
+                cats.push('Критические');
+            } else if (review.rating >= 4 && (review.comment.toLowerCase().includes('лучш') ||
+                review.comment.toLowerCase().includes('хорош') || review.comment.toLowerCase().includes('отличн'))) {
+                cats.push('Позитивные');
+            }
             
             return cats;
         }
@@ -1077,226 +1113,218 @@
                 'Инструменты': '#2ecc71',
                 'Магазины': '#e74c3c',
                 'Критические': '#f39c12',
+                'Позитивные': '#1abc9c',
                 'Авторские': '#1abc9c',
                 'Все': '#95a5a6'
             };
             return colors[category] || '#95a5a6';
         }
 
-// Функция генерации случайного времени
-function generateRandomTime() {
-    // Рабочее время с 9 до 18 для реалистичности
-    const hour = 9 + Math.floor(Math.random() * 9); // 9-17
-    const minute = Math.floor(Math.random() * 60); // 0-59
-    return `${String(hour).padStart(2, '0')}:${String(minute).padStart(2, '0')}`;
-}
-
-// Создание карточки отзыва
-function createReviewCard(review) {
-    const card = document.createElement('div');
-    card.className = 'review-card glass-effect';
-
-    // Добавляем класс для критических отзывов
-    if (review.rating <= 2) {
-        card.classList.add('critical');
-    }
-    
-    // Форматирование даты
-    const date = new Date(review.date);
-    const formattedDate = date.toLocaleDateString('ru-RU', {
-        year: 'numeric',
-        month: 'long',
-        day: 'numeric'
-    });
-
-    // Добавляем время
-    let formattedTime = '';
-    if (review.date.includes('T')) {
-        formattedTime = date.toLocaleTimeString('ru-RU', {
-            hour: '2-digit',
-            minute: '2-digit'
-        });
-    } else {
-        // Если времени нет, добавляем случайное
-        formattedTime = generateRandomTime();
-    }
-    
-    // Создание звезд рейтинга
-    let starsHTML = '';
-    for (let i = 1; i <= 5; i++) {
-        if (i <= review.rating) {
-            starsHTML += '<i class="fas fa-star star filled"></i>';
-        } else {
-            starsHTML += '<i class="far fa-star star"></i>';
+        // Функция генерации случайного времени
+        function generateRandomTime() {
+            // Рабочее время с 9 до 18 для реалистичности
+            const hour = 9 + Math.floor(Math.random() * 9); // 9-17
+            const minute = Math.floor(Math.random() * 60); // 0-59
+            return `${String(hour).padStart(2, '0')}:${String(minute).padStart(2, '0')}`;
         }
-    }
-    
-    // Извлечение домена из URL для отображения
-    let domain = review.siteUrl;
-    try {
-        const url = new URL(review.siteUrl);
-        domain = url.hostname.replace('www.', '');
-    } catch (e) {
-        // Если URL некорректный, оставляем как есть
-    }
+
+        // Создание карточки отзыва
+        function createReviewCard(review) {
+            const card = document.createElement('div');
+            card.className = 'review-card glass-effect';
+
+            // Добавляем класс для критических отзывов
+            if (review.rating <= 2) {
+                card.classList.add('critical');
+            }
             
-    card.innerHTML = `
-        <div class="review-header">
-            <div class="reviewer-info">
-                <h3>${review.name}</h3>
-                <div class="reviewer-username">
-                    <i class="fas fa-at"></i> ${extractUsername(review.email)}
+            // Форматирование даты
+            const date = new Date(review.date);
+            const formattedDate = date.toLocaleDateString('ru-RU', {
+                year: 'numeric',
+                month: 'long',
+                day: 'numeric'
+            });
+
+            // Добавляем время
+            let formattedTime = '';
+            if (review.date.includes('T')) {
+                const timeParts = review.date.split('T')[1];
+                formattedTime = timeParts.substring(0, 5);
+            } else {
+                // Если времени нет, добавляем случайное
+                formattedTime = generateRandomTime();
+            }
+            
+            // Создание звезд рейтинга
+            let starsHTML = '';
+            for (let i = 1; i <= 5; i++) {
+                if (i <= review.rating) {
+                    starsHTML += '<i class="fas fa-star star filled"></i>';
+                } else {
+                    starsHTML += '<i class="far fa-star star"></i>';
+                }
+            }
+            
+            // Извлечение домена из URL для отображения
+            let domain = review.siteUrl;
+            try {
+                const url = new URL(review.siteUrl);
+                domain = url.hostname.replace('www.', '');
+            } catch (e) {
+                // Если URL некорректный, оставляем как есть
+            }
+                    
+            card.innerHTML = `
+                <div class="review-header">
+                    <div class="reviewer-info">
+                        <h3>${review.name}</h3>
+                        <div class="reviewer-username">
+                            <i class="fas fa-at"></i> ${extractUsername(review.email)}
+                        </div>
+                    </div>
+                    <div class="rating-value">${review.rating}.0</div>
                 </div>
-            </div>
-            <div class="rating-value">${review.rating}.0</div>
-        </div>
-        
-        <div class="review-site">
-            <i class="fas fa-link"></i> 
-            <a href="${review.siteUrl}" target="_blank" rel="noopener">${review.siteName} (${domain})</a>
-        </div>
-        
-        <div class="rating">
-            <div class="stars">${starsHTML}</div>
-        </div>
-        
-        <div class="review-text">${review.comment}</div>
-        
-        <div class="review-date">${formattedDate} • ${formattedTime}</div>
-    `;
-
-    // Добавляем предупреждения
-    setTimeout(() => addWarningLabels(card, review), 0);
-
-    // Добавляем категории как теги
-    const reviewCategories = getReviewCategories(review);
-    if (reviewCategories.length > 0) {
-        const tagsHtml = reviewCategories.map(cat => 
-            `<span class="category-tag" style="
-                display: inline-block;
-                background: ${getCategoryColor(cat)}15;
-                color: ${getCategoryColor(cat)};
-                padding: 3px 10px;
-                border-radius: 12px;
-                font-size: 0.75rem;
-                margin-right: 5px;
-                border: 1px solid ${getCategoryColor(cat)}30;
-            ">${cat}</span>`
-        ).join('');
-        
-        // Вставляем теги после названия сайта
-        const tagsDiv = `<div class="review-tags" style="margin: 8px 0 12px 0;">${tagsHtml}</div>`;
-        
-        // Модифицируем HTML карточки
-        card.innerHTML = card.innerHTML.replace(
-            '<div class="review-text">',
-            tagsDiv + '<div class="review-text">'
-        );
-    }
-    
-    return card;
-}
-        
-// Функция добавления предупреждений
-function addWarningLabels(cardElement, review) {
-    const warnings = [];
-    
-    // Проверка 1: Очень низкий рейтинг
-    if (review.rating <= 2) {
-        warnings.push({
-            text: 'Низкий рейтинг',
-            icon: 'fas fa-exclamation-triangle',
-            color: '#e74c3c'
-        });
-    }
-    
-    // Проверка 2: Длинный негативный текст
-    const negativeWords = ['плохой', 'ужасный', 'кошмар', 'не советую', 'избегайте', 'мусор', 'говно', 'дерьмо', 'отстой'];
-    const hasNegative = negativeWords.some(word => 
-        review.comment.toLowerCase().includes(word)
-    );
-    if (hasNegative && review.rating <= 3) {
-        warnings.push({
-            text: 'Резко негативный',
-            icon: 'fas fa-fire',
-            color: '#f39c12'
-        });
-    }
-    
-    // Проверка 3: Конфликт интересов (автор сайта)
-    const isAuthor = review.comment.includes('мой сайт') || 
-                     review.comment.includes('я автор') ||
-                     review.name === 'Тимофей' && review.siteName === 'TAIPrompts';
-    if (isAuthor && review.rating >= 4) {
-        warnings.push({
-            text: 'Автор сайта',
-            icon: 'fas fa-user-edit',
-            color: '#3CB371'
-        });
-    }
-
-    // Проверка 4: Автор SiteReview
-    const isOwner = review.name === 'Константин' && review.email === 'timosha.sibilev@gmail.com';
-    if (isOwner) {
-        warnings.push({
-            text: 'Автор SiteReview',
-            icon: 'fas fa-user-edit',
-            color: '#1E90FF'
-        });
-    }
-    
-    // Проверка 5: Личная критика
-    const personalAttacks = ['дурак', 'идиот', 'тупой', 'грубый', 'глупый'];
-    const hasPersonal = personalAttacks.some(word => 
-        review.comment.toLowerCase().includes(word)
-    );
-    if (hasPersonal) {
-        warnings.push({
-            text: 'Личный конфликт',
-            icon: 'fas fa-user-times',
-            color: '#9b59b6'
-        });
-    }
-    
-    // Добавляем предупреждения в карточку
-    if (warnings.length > 0) {
-        const warningContainer = document.createElement('div');
-        warningContainer.className = 'warning-container';
-        warningContainer.style.cssText = `
-            display: flex;
-            gap: 8px;
-            flex-wrap: wrap;
-            margin: 10px 0;
-            align-items: center;
-        `;
-        
-        warnings.forEach(warning => {
-            const badge = document.createElement('span');
-            badge.className = 'warning-badge';
-            badge.style.cssText = `
-                display: inline-flex;
-                align-items: center;
-                gap: 5px;
-                background: ${warning.color}15;
-                color: ${warning.color};
-                padding: 4px 10px;
-                border-radius: 12px;
-                font-size: 0.8rem;
-                border: 1px solid ${warning.color}30;
-                white-space: nowrap;
-                margin: 2px 0;
+                
+                <div class="review-site">
+                    <i class="fas fa-link"></i> 
+                    <a href="${review.siteUrl}" target="_blank" rel="noopener">${review.siteName} (${domain})</a>
+                </div>
+                
+                <div class="rating">
+                    <div class="stars">${starsHTML}</div>
+                </div>
+                
+                <div class="review-text">${review.comment}</div>
+                
+                <div class="review-date">${formattedDate} • ${formattedTime}</div>
             `;
-            badge.innerHTML = `<i class="${warning.icon}"></i> ${warning.text}`;
-            warningContainer.appendChild(badge);
-        });
-        
-        // Вставляем после имени пользователя
-        const header = cardElement.querySelector('.review-header');
-        if (header) {
-            header.parentNode.insertBefore(warningContainer, header.nextSibling);
+
+            // Добавляем предупреждения
+            addWarningLabels(card, review);
+
+            // Добавляем категории как теги
+            const reviewCategories = getReviewCategories(review);
+            if (reviewCategories.length > 0) {
+                const tagsHtml = reviewCategories.map(cat => 
+                    `<span class="category-tag" style="
+                        display: inline-block;
+                        background: ${getCategoryColor(cat)}15;
+                        color: ${getCategoryColor(cat)};
+                        padding: 3px 10px;
+                        border-radius: 12px;
+                        font-size: 0.75rem;
+                        margin-right: 5px;
+                        border: 1px solid ${getCategoryColor(cat)}30;
+                    ">${cat}</span>`
+                ).join('');
+                
+                // Вставляем теги после названия сайта
+                const tagsDiv = `<div class="review-tags" style="margin: 8px 0 12px 0;">${tagsHtml}</div>`;
+                
+                // Модифицируем HTML карточки
+                const reviewTextDiv = card.querySelector('.review-text');
+                if (reviewTextDiv) {
+                    reviewTextDiv.insertAdjacentHTML('beforebegin', tagsDiv);
+                }
+            }
+            
+            return card;
         }
-    }
-}
+                
+        // Функция добавления предупреждений
+        function addWarningLabels(cardElement, review) {
+            const warnings = [];
+            
+            // Проверка 1: Очень низкий рейтинг
+            if (review.rating <= 2) {
+                warnings.push({
+                    text: 'Низкий рейтинг',
+                    icon: 'fas fa-exclamation-triangle',
+                    color: '#e74c3c'
+                });
+            }
+            
+            // Проверка 2: Длинный негативный текст
+            const negativeWords = ['плохой', 'ужасный', 'кошмар', 'не советую', 'избегайте', 'мусор', 'говно', 'дерьмо', 'отстой'];
+            const hasNegative = negativeWords.some(word => 
+                review.comment.toLowerCase().includes(word)
+            );
+            if (hasNegative && review.rating <= 3) {
+                warnings.push({
+                    text: 'Резко негативный',
+                    icon: 'fas fa-fire',
+                    color: '#f39c12'
+                });
+            }
+            
+            // Проверка 3: Конфликт интересов (автор сайта)
+            const isAuthor = review.comment.includes('мой сайт') || 
+                            review.comment.includes('я автор') ||
+                            review.name === 'Тимофей' && review.siteName === 'TAIPrompts';
+            if (isAuthor && review.rating >= 4) {
+                warnings.push({
+                    text: 'Автор сайта',
+                    icon: 'fas fa-user-edit',
+                    color: '#3CB371'
+                });
+            }
+
+            // Проверка 4: Автор SiteReview
+            const isOwner = review.name === 'Константин' && review.email === 'timosha.sibilev@gmail.com';
+            if (isOwner) {
+                warnings.push({
+                    text: 'Автор SiteReview',
+                    icon: 'fas fa-user-edit',
+                    color: '#1E90FF'
+                });
+            }
+            
+            // Проверка 5: Личная критика
+            const personalAttacks = ['дурак', 'идиот', 'тупой', 'грубый', 'глупый'];
+            const hasPersonal = personalAttacks.some(word => 
+                review.comment.toLowerCase().includes(word)
+            );
+            if (hasPersonal) {
+                warnings.push({
+                    text: 'Личный конфликт',
+                    icon: 'fas fa-user-times',
+                    color: '#9b59b6'
+                });
+            }
+            
+            // Добавляем предупреждения в карточку
+            if (warnings.length > 0) {
+                const warningContainer = document.createElement('div');
+                warningContainer.className = 'warning-container';
+                
+                warnings.forEach(warning => {
+                    const badge = document.createElement('span');
+                    badge.className = 'warning-badge';
+                    badge.style.cssText = `
+                        display: inline-flex;
+                        align-items: center;
+                        gap: 5px;
+                        background: ${warning.color}15;
+                        color: ${warning.color};
+                        padding: 4px 10px;
+                        border-radius: 12px;
+                        font-size: 0.8rem;
+                        border: 1px solid ${warning.color}30;
+                        white-space: nowrap;
+                        margin: 2px 0;
+                    `;
+                    badge.innerHTML = `<i class="${warning.icon}"></i> ${warning.text}`;
+                    warningContainer.appendChild(badge);
+                });
+                
+                // Вставляем после имени пользователя
+                const header = cardElement.querySelector('.review-header');
+                if (header) {
+                    header.parentNode.insertBefore(warningContainer, header.nextSibling);
+                }
+            }
+        }
 
         // Настройка поиска и фильтров
         function setupSearchAndFilters() {
@@ -1385,20 +1413,6 @@ function addWarningLabels(cardElement, review) {
                 button.innerHTML = `
                     <span class="category-name">${category}</span>
                     <span class="category-count">${count}</span>
-                `;
-                
-                button.style.cssText = `
-                    padding: 10px 20px;
-                    border: none;
-                    border-radius: 25px;
-                    background: rgba(52, 152, 219, 0.1);
-                    color: var(--secondary-color);
-                    font-weight: 600;
-                    cursor: pointer;
-                    transition: all 0.3s ease;
-                    display: flex;
-                    align-items: center;
-                    gap: 8px;
                 `;
                 
                 // Активная кнопка
