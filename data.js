@@ -118,7 +118,6 @@ const categories = {
         review.siteName.includes(name) || review.comment.includes('купил') || review.comment.includes('покуп')
     ),
     'Критические': (review) => review.rating <= 2,
-    'Негативные': (review) => review.rating <= 3,
     'Авторские': (review) => {
         // Определяем, является ли отзыв авторским
         const isAuthor = review.comment.includes('мой сайт') || 
