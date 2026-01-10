@@ -1226,12 +1226,12 @@ function createReviewCard(review) {
             // Проверка 3: Конфликт интересов (автор сайта)
             const isAuthor = review.comment.includes('мой сайт') || 
                              review.comment.includes('я автор') ||
-                             review.name === 'Тимофей' && review.siteName === 'TAIPrompts';
+                             review.name === 'Тимофей' && review.siteName === 'TAIPrompts'; // Реальный случай у сайта
             if (isAuthor && review.rating >= 4) {
                 warnings.push({
                     text: 'Автор сайта',
                     icon: 'fas fa-user-edit',
-                    color: '#3498db'
+                    color: '#3CB371'
                 });
             }
 
