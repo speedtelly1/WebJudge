@@ -1236,7 +1236,7 @@ function createReviewCard(review) {
             }
 
             const isOwner = review.name === 'Константин' && review.email === 'timosha.sibilev@gmail.com';
-            if (isAuthor && review.rating >= 4) {
+            if (isOwner) {
                 warnings.push({
                     text: 'Автор SiteReview',
                     icon: 'fas fa-user-edit',
