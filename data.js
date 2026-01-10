@@ -102,7 +102,7 @@ const reviews = [
     }
 ];
 
-// Добавьте в data.js или основной скрипт
+// Добавьте в data.js
 const categories = {
     'Все': () => true,
     'Соцсети': (review) => ['YouTube', 'итд.com', 'VK', 'Telegram', 'Instagram'].some(name => 
@@ -118,7 +118,19 @@ const categories = {
         review.siteName.includes(name) || review.comment.includes('купил') || review.comment.includes('покуп')
     ),
     'Критические': (review) => review.rating <= 2,
-    'Авторские': (review) => review.comment.includes('мой сайт') || review.comment.includes('я автор')
+    'Негативные': (review) => review.rating <= 3,
+    'Авторские': (review) => {
+        // Определяем, является ли отзыв авторским
+        const isAuthor = review.comment.includes('мой сайт') || 
+                         review.comment.includes('я автор') ||
+                         // Специфические случаи:
+                         (review.name === 'Тимофей' && review.siteName === 'TAIPrompts') ||
+                         (review.name === 'Тимофей' && review.siteName === 'Хранилище');
+        
+        // Только если это автор И рейтинг высокий
+        return isAuthor && review.rating >= 4;
+    },
+    'Позитивные': (review) => review.rating >= 4
 };
 
 // Функция для добавления нового отзыва
