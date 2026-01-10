@@ -1083,7 +1083,7 @@
             return colors[category] || '#95a5a6';
         }
 
-// Функция генерации случайного времени (добавьте это выше)
+// Функция генерации случайного времени
 function generateRandomTime() {
     // Рабочее время с 9 до 18 для реалистичности
     const hour = 9 + Math.floor(Math.random() * 9); // 9-17
@@ -1110,17 +1110,15 @@ function createReviewCard(review) {
     });
 
     // Добавляем время
-    let timeHTML = '';
+    let formattedTime = '';
     if (review.date.includes('T')) {
-        const time = date.toLocaleTimeString('ru-RU', {
+        formattedTime = date.toLocaleTimeString('ru-RU', {
             hour: '2-digit',
             minute: '2-digit'
         });
-        timeHTML = ` в ${time}`;
     } else {
         // Если времени нет, добавляем случайное
-        const randomTime = generateRandomTime();
-        timeHTML = ` в ${randomTime}`;
+        formattedTime = generateRandomTime();
     }
     
     // Создание звезд рейтинга
@@ -1142,63 +1140,63 @@ function createReviewCard(review) {
         // Если URL некорректный, оставляем как есть
     }
             
-            card.innerHTML = `
-                <div class="review-header">
-                    <div class="reviewer-info">
-                        <h3>${review.name}</h3>
-                        <div class="reviewer-username">
-                            <i class="fas fa-at"></i> ${extractUsername(review.email)}
-                        </div>
-                    </div>
-                    <div class="rating-value">${review.rating}.0</div>
+    card.innerHTML = `
+        <div class="review-header">
+            <div class="reviewer-info">
+                <h3>${review.name}</h3>
+                <div class="reviewer-username">
+                    <i class="fas fa-at"></i> ${extractUsername(review.email)}
                 </div>
-                
-                <div class="review-site">
-                    <i class="fas fa-link"></i> 
-                    <a href="${review.siteUrl}" target="_blank" rel="noopener">${review.siteName} (${domain})</a>
-                </div>
-                
-                <div class="rating">
-                    <div class="stars">${starsHTML}</div>
-                </div>
-                
-                <div class="review-text">${review.comment}</div>
-                
-                <div class="review-date">${formattedDate} • ${formattedTime}</div>
-            `;
+            </div>
+            <div class="rating-value">${review.rating}.0</div>
+        </div>
+        
+        <div class="review-site">
+            <i class="fas fa-link"></i> 
+            <a href="${review.siteUrl}" target="_blank" rel="noopener">${review.siteName} (${domain})</a>
+        </div>
+        
+        <div class="rating">
+            <div class="stars">${starsHTML}</div>
+        </div>
+        
+        <div class="review-text">${review.comment}</div>
+        
+        <div class="review-date">${formattedDate} • ${formattedTime}</div>
+    `;
 
-            // Добавляем предупреждения
-            setTimeout(() => addWarningLabels(card, review), 0);
+    // Добавляем предупреждения
+    setTimeout(() => addWarningLabels(card, review), 0);
 
-            // Добавляем категории как теги
-            const reviewCategories = getReviewCategories(review);
-            if (reviewCategories.length > 0) {
-                const tagsHtml = reviewCategories.map(cat => 
-                    `<span class="category-tag" style="
-                        display: inline-block;
-                        background: ${getCategoryColor(cat)}15;
-                        color: ${getCategoryColor(cat)};
-                        padding: 3px 10px;
-                        border-radius: 12px;
-                        font-size: 0.75rem;
-                        margin-right: 5px;
-                        border: 1px solid ${getCategoryColor(cat)}30;
-                    ">${cat}</span>`
-                ).join('');
-                
-                // Вставляем теги после названия сайта
-                const tagsDiv = `<div class="review-tags" style="margin: 8px 0 12px 0;">${tagsHtml}</div>`;
-                
-                // Модифицируем HTML карточки
-                card.innerHTML = card.innerHTML.replace(
-                    '<div class="review-text">',
-                    tagsDiv + '<div class="review-text">'
-                );
-            }
-            
-            return card;
-        }
-
+    // Добавляем категории как теги
+    const reviewCategories = getReviewCategories(review);
+    if (reviewCategories.length > 0) {
+        const tagsHtml = reviewCategories.map(cat => 
+            `<span class="category-tag" style="
+                display: inline-block;
+                background: ${getCategoryColor(cat)}15;
+                color: ${getCategoryColor(cat)};
+                padding: 3px 10px;
+                border-radius: 12px;
+                font-size: 0.75rem;
+                margin-right: 5px;
+                border: 1px solid ${getCategoryColor(cat)}30;
+            ">${cat}</span>`
+        ).join('');
+        
+        // Вставляем теги после названия сайта
+        const tagsDiv = `<div class="review-tags" style="margin: 8px 0 12px 0;">${tagsHtml}</div>`;
+        
+        // Модифицируем HTML карточки
+        card.innerHTML = card.innerHTML.replace(
+            '<div class="review-text">',
+            tagsDiv + '<div class="review-text">'
+        );
+    }
+    
+    return card;
+}
+        
         // Функция добавления предупреждений
         function addWarningLabels(cardElement, review) {
             const warnings = [];
