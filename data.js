@@ -99,6 +99,26 @@ const reviews = [
         rating: 5,
         comment: "Лучшая игра в свое время! (2021-22 года)",
         date: "2026-01-10T10:07:00"
+    },
+    {
+        id: 11,
+        name: "Тимоша",
+        email: "timi.sibi.maxi2010@gmail.com",
+        siteUrl: "https://miro.com/app/dashboard/",
+        siteName: "Miro",
+        rating: 5,
+        comment: "Хорошая доска, для уроков и презентаций подходит",
+        date: "2026-01-12T21:27:00"
+    },
+    {
+        id: 12,
+        name: "Федати",
+        email: "1234playergp@gmail.com",
+        siteUrl: "https://chat.deepseek.com/",
+        siteName: "DeepSeek",
+        rating: 5,
+        comment: "Хорошая нейросеть, но лучше купите платного Chat GPT (НЕ РЕКЛАМА!!!)",
+        date: "2026-01-12T21:28:00"
     }
 ];
 
