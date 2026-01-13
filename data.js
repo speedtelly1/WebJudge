@@ -117,7 +117,7 @@ const reviews = [
         siteUrl: "https://chat.deepseek.com/",
         siteName: "DeepSeek",
         rating: 5,
-        comment: "Хорошая нейросеть, но лучше купите платного Chat GPT (НЕ РЕКЛАМА!!!)",
+        comment: "Хорошая нейросеть, но лучше купите платного Chat GPT",
         date: "2026-01-12T21:28:00"
     }
 ];
