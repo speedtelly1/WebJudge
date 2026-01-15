@@ -151,7 +151,7 @@ const reviews = [
         date: "2026-01-15T13:19:00"
     },
     {
-        id: 15,
+        id: 16,
         name: "Тимофей",
         email: "roll3ogurec0@gmail.com",
         siteUrl: "https://speedtelly1.github.io/sitereview.github.io/",
@@ -159,6 +159,16 @@ const reviews = [
         rating: 4,
         comment: "Ну что сказать? Хороший отзовик. Но есть подозрение, что отзывы на нем - от ботов",
         date: "2026-01-15T13:21:00"
+    },
+    {
+        id: 17,
+        name: "Тимофей",
+        email: "roll3ogurec0@gmail.com",
+        siteUrl: "https://www.youtube.com/",
+        siteName: "YouTube",
+        rating: 5,
+        comment: "Лучший видеохостинг всех времен! Но у меня там походу теневой бан... (Загуглите, если интересно)",
+        date: "2026-01-15T13:22:00"
     }
 ];
 
