@@ -334,7 +334,7 @@
             }
             
             // Проверка 5: Личная критика
-            const personalAttacks = ['дурак', 'идиот', 'тупой', 'грубый', 'глупый'];
+            const personalAttacks = ['дурак', 'идиот', 'тупой', 'грубый', 'глупый', 'грубым', 'глупым', 'тупым'];
             const hasPersonal = personalAttacks.some(word => 
                 review.comment.toLowerCase().includes(word)
             );
