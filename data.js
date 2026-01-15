@@ -139,6 +139,26 @@ const reviews = [
         rating: 5,
         comment: "Кинопоиск крутой",
         date: "2026-01-15T13:16:00"
+    },
+    {
+        id: 15,
+        name: "Роман",
+        email: "morfiks689@gmail.com",
+        siteUrl: "https://timoshamoscow.github.io/taiprompts.github.io/",
+        siteName: "TAIPrompts",
+        rating: 3,
+        comment: "Вполне хороший генератор промптов, но я вижу, как он начал скатываться не в ту сторону :)",
+        date: "2026-01-15T13:19:00"
+    },
+    {
+        id: 15,
+        name: "Тимофей",
+        email: "roll3ogurec0@gmail.com",
+        siteUrl: "https://speedtelly1.github.io/sitereview.github.io/",
+        siteName: "SiteReview",
+        rating: 4,
+        comment: "Ну что сказать? Хороший отзовик. Но есть подозрение, что отзывы на нем - от ботов",
+        date: "2026-01-15T13:21:00"
     }
 ];
 
