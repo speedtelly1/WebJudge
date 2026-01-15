@@ -314,7 +314,7 @@
             // Проверка 3: Конфликт интересов (автор сайта)
             const isAuthor = review.comment.includes('мой сайт') || 
                             review.comment.includes('я автор') ||
-                            review.name === 'Тимофей' && review.siteName === 'TAIPrompts';
+                            review.siteUrl.includes('timoshamoscow.github.io') && review.email === 'roll3ogurec0@gmail.com';
             if (isAuthor && review.rating >= 4) {
                 warnings.push({
                     text: 'Автор оцениваемого сайта',
