@@ -119,6 +119,26 @@ const reviews = [
         rating: 5,
         comment: "Хорошая нейросеть, но лучше купите платного Chat GPT",
         date: "2026-01-12T21:28:00"
+    },
+    {
+        id: 13,
+        name: "Тимоша",
+        email: "timi.sibi.maxi2010@gmail.com",
+        siteUrl: "https://www.duolingo.com/",
+        siteName: "Duolingo",
+        rating: 1,
+        comment: "Решил я написать свой первый плохой отзыв, и это будет отзыв на Duolingo. Короче. Раньше, это была хорошая платформа, но знаете, почему я ушел с неё? Потому что они убрали возможность загружать фото профиля! я зол.",
+        date: "2026-01-15T13:15:00"
+    },
+    {
+        id: 14,
+        name: "Тимоша",
+        email: "timi.sibi.maxi2010@gmail.com",
+        siteUrl: "https://www.kinopoisk.ru/",
+        siteName: "Кинопоиск",
+        rating: 5,
+        comment: "Кинопоиск крутой",
+        date: "2026-01-15T13:16:00"
     }
 ];
 
