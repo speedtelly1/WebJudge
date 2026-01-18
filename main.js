@@ -429,29 +429,221 @@ function extractUsername(email) {
             });
         }
 
-        // Выполнение поиска
-        function performSearch() {
-            const searchTerm = searchInput.value.toLowerCase().trim();
+// Выполнение поиска
+function performSearch() {
+    const searchTerm = searchInput.value.toLowerCase().trim();
+    
+    // Если поисковый запрос пустой, показываем все отзывы
+    if (searchTerm === '') {
+        displayAllReviews(reviews);
+        // Убираем счетчик результатов
+        const resultsCountEl = document.getElementById('search-results-count');
+        if (resultsCountEl) resultsCountEl.remove();
+        return;
+    }
+    
+    try {
+        const filteredReviews = reviews.filter(review => {
+            // Получаем отображаемый никнейм для поиска
+            const displayNickname = getDisplayNickname(review).toLowerCase();
             
-            if (searchTerm === '') {
-                displayAllReviews(reviews);
-                return;
-            }
-            
-            const filteredReviews = reviews.filter(review => {
-                return (
-                    review.name.toLowerCase().includes(searchTerm) ||
-                    review.email.toLowerCase().includes(searchTerm) ||
-                    review.nickname.toLowerCase().includes(searchTerm) ||
-                    review.siteName.toLowerCase().includes(searchTerm) ||
-                    review.siteUrl.toLowerCase().includes(searchTerm) ||
-                    review.comment.toLowerCase().includes(searchTerm)
-                );
-            });
-            
-            displayAllReviews(filteredReviews);
-        }
+            // Проверяем все указанные поля на совпадение
+            return (
+                // Поиск по имени
+                review.name.toLowerCase().includes(searchTerm) ||
+                
+                // Поиск по никнейму (отображаемому)
+                displayNickname.includes(searchTerm) ||
+                
+                // Поиск по email (опционально)
+                (review.email && review.email.toLowerCase().includes(searchTerm)) ||
+                
+                // Поиск по названию сайта
+                review.siteName.toLowerCase().includes(searchTerm) ||
+                
+                // Поиск по URL сайта
+                review.siteUrl.toLowerCase().includes(searchTerm) ||
+                
+                // Поиск по тексту отзыва
+                review.comment.toLowerCase().includes(searchTerm)
+            );
+        });
+        
+        // Обновляем отображение отфильтрованных отзывов
+        displayAllReviews(filteredReviews);
+        
+        // Показываем количество найденных результатов
+        updateSearchResultsCount(filteredReviews.length, searchTerm);
+        
+    } catch (error) {
+        console.error('Ошибка при поиске:', error);
+        // В случае ошибки показываем все отзывы
+        displayAllReviews(reviews);
+    }
+}
 
+// Функция для обновления счетчика результатов поиска
+function updateSearchResultsCount(count, searchTerm) {
+    // Удаляем старый счетчик, если есть
+    const oldCountEl = document.getElementById('search-results-count');
+    if (oldCountEl) oldCountEl.remove();
+    
+    // Если нет результатов, не показываем счетчик
+    if (count === 0) return;
+    
+    // Создаем новый элемент с количеством результатов
+    const resultsCountEl = document.createElement('div');
+    resultsCountEl.id = 'search-results-count';
+    resultsCountEl.className = 'search-results-info';
+    resultsCountEl.style.cssText = `
+        margin: 10px 0 20px 0;
+        padding: 10px 15px;
+        background: linear-gradient(135deg, rgba(52, 152, 219, 0.1), rgba(41, 128, 185, 0.1));
+        border-radius: 10px;
+        font-size: 0.9rem;
+        border-left: 4px solid var(--primary-color);
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+    `;
+    
+    resultsCountEl.innerHTML = `
+        <i class="fas fa-search" style="color: var(--primary-color); font-size: 1rem;"></i>
+        <span>Найдено <strong style="color: var(--primary-color);">${count}</strong> отзывов по запросу "<strong style="color: #2c3e50;">${searchTerm}</strong>"</span>
+    `;
+    
+    // Добавляем кнопку сброса поиска
+    const resetBtn = document.createElement('button');
+    resetBtn.innerHTML = '<i class="fas fa-times"></i> Очистить поиск';
+    resetBtn.style.cssText = `
+        margin-left: auto;
+        background: rgba(231, 76, 60, 0.1);
+        color: #e74c3c;
+        border: none;
+        padding: 6px 12px;
+        border-radius: 6px;
+        font-size: 0.85rem;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        gap: 5px;
+        transition: all 0.2s;
+    `;
+    
+    resetBtn.addEventListener('mouseenter', function() {
+        this.style.background = 'rgba(231, 76, 60, 0.2)';
+    });
+    
+    resetBtn.addEventListener('mouseleave', function() {
+        this.style.background = 'rgba(231, 76, 60, 0.1)';
+    });
+    
+    resetBtn.addEventListener('click', function() {
+        resetSearch();
+    });
+    
+    resultsCountEl.appendChild(resetBtn);
+    
+    // Вставляем после заголовка раздела с отзывами
+    const reviewsPage = document.getElementById('reviews-page');
+    if (reviewsPage) {
+        const allReviewsHeader = reviewsPage.querySelector('.page-header h1, .section-header');
+        if (allReviewsHeader) {
+            allReviewsHeader.parentNode.insertBefore(resultsCountEl, allReviewsHeader.nextSibling);
+        } else {
+            // Если не нашли заголовок, вставляем в начало контейнера с отзывами
+            allReviewsContainer.insertBefore(resultsCountEl, allReviewsContainer.firstChild);
+        }
+    }
+}
+
+// Функция сброса поиска
+function resetSearch() {
+    if (searchInput) {
+        searchInput.value = '';
+        const resultsCountEl = document.getElementById('search-results-count');
+        if (resultsCountEl) {
+            resultsCountEl.remove();
+        }
+        displayAllReviews(reviews);
+        
+        // Также сбрасываем активную категорию на "Все"
+        const allCategoryBtn = document.querySelector('.category-btn[data-category="Все"]');
+        if (allCategoryBtn) {
+            allCategoryBtn.click();
+        }
+    }
+}
+
+// Обновленная функция setupSearchAndFilters
+function setupSearchAndFilters() {
+    // Поиск
+    if (searchBtn && searchInput) {
+        searchBtn.addEventListener('click', performSearch);
+        searchInput.addEventListener('keyup', function(e) {
+            if (e.key === 'Enter') performSearch();
+            // Если поле пустое, сбрасываем поиск
+            if (this.value.trim() === '') {
+                resetSearch();
+            }
+        });
+        
+        // Добавляем кнопку сброса поиска прямо в поле ввода
+        const resetBtn = document.createElement('button');
+        resetBtn.innerHTML = '<i class="fas fa-times"></i>';
+        resetBtn.title = 'Сбросить поиск';
+        resetBtn.id = 'search-reset-btn';
+        resetBtn.style.cssText = `
+            position: absolute;
+            right: 45px;
+            top: 50%;
+            transform: translateY(-50%);
+            background: none;
+            border: none;
+            color: #777;
+            cursor: pointer;
+            padding: 5px;
+            font-size: 1rem;
+            opacity: 0;
+            visibility: hidden;
+            transition: opacity 0.2s, visibility 0.2s;
+        `;
+        
+        resetBtn.addEventListener('click', resetSearch);
+        
+        const searchContainer = document.querySelector('.search-container');
+        if (searchContainer) {
+            searchContainer.style.position = 'relative';
+            searchContainer.appendChild(resetBtn);
+            
+            // Показывать/скрывать кнопку сброса при вводе
+            searchInput.addEventListener('input', function() {
+                const hasValue = this.value.trim() !== '';
+                resetBtn.style.opacity = hasValue ? '1' : '0';
+                resetBtn.style.visibility = hasValue ? 'visible' : 'hidden';
+            });
+        }
+    } else {
+        console.warn('Элементы поиска не найдены на странице');
+    }
+    
+    // Фильтры
+    if (filterBtns.length > 0) {
+        filterBtns.forEach(btn => {
+            btn.addEventListener('click', function() {
+                filterBtns.forEach(b => b.classList.remove('active'));
+                this.classList.add('active');
+                applyFilters();
+                
+                // При смене фильтра обновляем поиск, если есть активный поисковый запрос
+                if (searchInput && searchInput.value.trim()) {
+                    performSearch();
+                }
+            });
+        });
+    }
+}
         // Применение фильтров
         function applyFilters() {
             const activeFilter = document.querySelector('.filter-btn.active').getAttribute('data-filter');
