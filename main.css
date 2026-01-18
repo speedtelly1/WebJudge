@@ -651,3 +651,35 @@
             margin: 2px 0;
             border: 1px solid;
         }
+
+.search-results-info {
+    animation: fadeIn 0.3s ease;
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(-10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.search-results-info button:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+}
+
+.search-container {
+    position: relative;
+}
+
+.search-container input {
+    padding-right: 70px !important;
+}
+
+#search-reset-btn {
+    z-index: 10;
+}
