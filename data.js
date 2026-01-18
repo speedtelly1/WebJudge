@@ -63,6 +63,7 @@ const reviews = [
     {
         id: 7,
         name: "Константин",
+        nickname: "speedtelly1",
         email: "timosha.sibilev@gmail.com",
         siteUrl: "https://funpay.com/",
         siteName: "FunPay",
@@ -74,6 +75,7 @@ const reviews = [
         id: 8,
         name: "Константин",
         email: "timosha.sibilev@gmail.com",
+        nickname: "speedtelly1",
         siteUrl: "https://timoshamoscow.github.io/taiprompts.github.io/",
         siteName: "TAIPrompts",
         rating: 3,
