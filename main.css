@@ -683,3 +683,143 @@
 #search-reset-btn {
     z-index: 10;
 }
+
+/* Стили для нижнего баннера */
+.bottom-banner {
+    position: fixed;
+    bottom: 20px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 90%;
+    max-width: 800px;
+    background: linear-gradient(135deg, var(--primary-color), var(--primary-dark));
+    color: white;
+    padding: 15px 25px;
+    border-radius: 15px;
+    box-shadow: 0 8px 32px rgba(52, 152, 219, 0.3),
+                0 4px 12px rgba(0, 0, 0, 0.2),
+                0 0 0 1px rgba(255, 255, 255, 0.1);
+    z-index: 1000;
+    animation: slideUp 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+@keyframes slideUp {
+    from {
+        transform: translate(-50%, 100px);
+        opacity: 0;
+    }
+    to {
+        transform: translate(-50%, 0);
+        opacity: 1;
+    }
+}
+
+.banner-content {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 20px;
+}
+
+.banner-text {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    font-size: 1rem;
+    font-weight: 500;
+}
+
+.banner-text i {
+    font-size: 1.2rem;
+    color: rgba(255, 255, 255, 0.9);
+}
+
+.banner-actions {
+    display: flex;
+    gap: 10px;
+    flex-shrink: 0;
+}
+
+.banner-btn {
+    padding: 8px 16px;
+    border-radius: 8px;
+    border: none;
+    font-size: 0.9rem;
+    font-weight: 500;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    transition: all 0.2s ease;
+    white-space: nowrap;
+}
+
+.banner-btn.primary {
+    background: rgba(255, 255, 255, 0.95);
+    color: var(--primary-color);
+}
+
+.banner-btn.primary:hover {
+    background: white;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(255, 255, 255, 0.2);
+}
+
+.banner-btn.secondary {
+    background: rgba(255, 255, 255, 0.15);
+    color: white;
+    border: 1px solid rgba(255, 255, 255, 0.3);
+}
+
+.banner-btn.secondary:hover {
+    background: rgba(255, 255, 255, 0.25);
+    transform: translateY(-2px);
+}
+
+/* Адаптивность для мобильных */
+@media (max-width: 768px) {
+    .bottom-banner {
+        width: 95%;
+        bottom: 10px;
+        padding: 12px 15px;
+    }
+    
+    .banner-content {
+        flex-direction: column;
+        gap: 15px;
+        text-align: center;
+    }
+    
+    .banner-text {
+        justify-content: center;
+    }
+    
+    .banner-actions {
+        width: 100%;
+        justify-content: center;
+    }
+}
+
+/* Анимация скрытия */
+.bottom-banner.hiding {
+    animation: slideDown 0.5s ease forwards;
+}
+
+@keyframes slideDown {
+    from {
+        transform: translate(-50%, 0);
+        opacity: 1;
+    }
+    to {
+        transform: translate(-50%, 100px);
+        opacity: 0;
+    }
+}
+
+/* Для тёмной темы (если есть) */
+body.dark-theme .bottom-banner {
+    background: linear-gradient(135deg, #1a5f8a, #144a6e);
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
+}
