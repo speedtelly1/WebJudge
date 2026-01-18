@@ -55,11 +55,6 @@ function generateAnonimNickname(email) {
     }
 }
 
-        // Извлечение username из email
-        function extractUsername(email) {
-            return email.split('@')[0];
-        }
-
         // Инициализация приложения
         document.addEventListener('DOMContentLoaded', function() {
             console.log('Загружено отзывов:', reviews.length);
