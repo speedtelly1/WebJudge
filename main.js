@@ -255,6 +255,8 @@ function generateAnonimNickname(email) {
             } catch (e) {
                 // Если URL некорректный, оставляем как есть
             }
+
+            const displayNickname = getDisplayNickname(review);
                     
             card.innerHTML = `
                 <div class="review-header">
