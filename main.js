@@ -29,13 +29,8 @@ function getDisplayNickname(review) {
         return review.nickname;
     }
     
-    // 2. Если нет, используем username из email
-    return extractUsername(review.email);
-}
-
-// Извлекает username из email (уже есть в вашем коде)
-function extractUsername(email) {
-    return email.split('@')[0];
+    // 2. Если нет nickname, генерируем анонимный ник (anonim_XXXX)
+    return generateAnonimNickname(review.email);
 }
 
 // Функция создания хеша для анонимного никнейма
@@ -53,6 +48,11 @@ function generateAnonimNickname(email) {
     } catch (e) {
         return 'anonim_0000';
     }
+}
+
+// Извлекает username из email (можно оставить, если где-то ещё используется)
+function extractUsername(email) {
+    return email.split('@')[0];
 }
 
         // Инициализация приложения
