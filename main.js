@@ -442,6 +442,7 @@ function extractUsername(email) {
                 return (
                     review.name.toLowerCase().includes(searchTerm) ||
                     review.email.toLowerCase().includes(searchTerm) ||
+                    review.nickname.toLowerCase().includes(searchTerm) ||
                     review.siteName.toLowerCase().includes(searchTerm) ||
                     review.siteUrl.toLowerCase().includes(searchTerm) ||
                     review.comment.toLowerCase().includes(searchTerm)
