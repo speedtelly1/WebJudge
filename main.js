@@ -22,34 +22,20 @@
         // Текущий год в футере
         document.getElementById('current-year').textContent = new Date().getFullYear();
 
-        // Извлечение username из email
-        function extractUsername(email) {
-            return email.split('@')[0];
-        }
-
-        // Инициализация приложения
-        document.addEventListener('DOMContentLoaded', function() {
-            console.log('Загружено отзывов:', reviews.length);
-            
-            initNavigation();
-            loadReviews();
-            createCategoryButtons();
-            updateStatistics();
-            setupSearchAndFilters();
-            
-            // Инициализация прогресс-бара
-            updateProgress();
-        });
-
-// Функция для получения никнейма
+// Функция для получения отображаемого никнейма
 function getDisplayNickname(review) {
-    // 1. Проверяем поле nickname (для новых отзывов)
+    // 1. Если у отзыва есть nickname, используем его
     if (review.nickname && review.nickname.trim() !== '') {
         return review.nickname;
     }
     
-    // 2. Для старых отзывов используем name
-    return review.name;
+    // 2. Если нет, используем username из email
+    return extractUsername(review.email);
+}
+
+// Извлекает username из email (уже есть в вашем коде)
+function extractUsername(email) {
+    return email.split('@')[0];
 }
 
 // Функция создания хеша для анонимного никнейма
@@ -68,6 +54,25 @@ function generateAnonimNickname(email) {
         return 'anonim_0000';
     }
 }
+
+        // Извлечение username из email
+        function extractUsername(email) {
+            return email.split('@')[0];
+        }
+
+        // Инициализация приложения
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log('Загружено отзывов:', reviews.length);
+            
+            initNavigation();
+            loadReviews();
+            createCategoryButtons();
+            updateStatistics();
+            setupSearchAndFilters();
+            
+            // Инициализация прогресс-бара
+            updateProgress();
+        });
 
         // Навигация между страницами
         function initNavigation() {
@@ -261,7 +266,7 @@ function generateAnonimNickname(email) {
                     <div class="reviewer-info">
                         <h3>${review.name}</h3>
                         <div class="reviewer-username">
-                            <i class="fas fa-at"></i> ${extractUsername(review.email)}
+                            <i class="fas fa-at"></i> ${displayNickname}
                         </div>
                     </div>
                     <div class="rating-value">${review.rating}.0</div>
