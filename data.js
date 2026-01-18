@@ -3,6 +3,7 @@ const reviews = [
     {
         id: 1,
         name: "Тимофей",
+        nickname: "timoshamoscow",
         email: "roll3ogurec0@gmail.com",
         siteUrl: "https://timoshamoscow.github.io/taiprompts.github.io/",
         siteName: "TAIPrompts",
@@ -13,6 +14,7 @@ const reviews = [
     {
         id: 2,
         name: "Тимофей",
+        nickname: "timoshamoscow",
         email: "roll3ogurec0@gmail.com",
         siteUrl: "https://timoshamoscow.github.io/hranilishe.github.io/",
         siteName: "Хранилище",
@@ -155,6 +157,7 @@ const reviews = [
     {
         id: 16,
         name: "Тимофей",
+        nickname: "timoshamoscow",
         email: "roll3ogurec0@gmail.com",
         siteUrl: "https://speedtelly1.github.io/sitereview.github.io/",
         siteName: "SiteReview",
@@ -165,6 +168,7 @@ const reviews = [
     {
         id: 17,
         name: "Тимофей",
+        nickname: "timoshamoscow",
         email: "roll3ogurec0@gmail.com",
         siteUrl: "https://www.youtube.com/",
         siteName: "YouTube",
