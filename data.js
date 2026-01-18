@@ -202,11 +202,46 @@ const categories = {
     'Позитивные': (review) => review.rating >= 4
 };
 
-// Функция для добавления нового отзыва
+// Функция генерации анонимного никнейма
+function generateAnonimNickname(email) {
+    if (!email) return 'anonim_0000';
+    
+    try {
+        let hash = 0;
+        for (let i = 0; i < email.length; i++) {
+            hash = ((hash << 5) - hash) + email.charCodeAt(i);
+            hash = hash & hash;
+        }
+        const numericHash = Math.abs(hash % 10000).toString().padStart(4, '0');
+        return `anonim_${numericHash}`;
+    } catch (e) {
+        return 'anonim_0000';
+    }
+}
+
+// Обновлённая функция для добавления нового отзыва
 function addReview(newReview) {
     const maxId = reviews.length > 0 ? Math.max(...reviews.map(r => r.id)) : 0;
+    
+    // Генерируем никнейм для нового отзыва, если он не указан
+    let nickname = newReview.nickname || '';
+    if (!nickname.trim()) {
+        // Проверяем, хочет ли пользователь быть анонимным
+        const comment = newReview.comment || '';
+        const wantsAnonim = comment.toLowerCase().includes('аноним') ||
+                           comment.toLowerCase().includes('anonim') ||
+                           comment.toLowerCase().includes('скрыть имя');
+        
+        if (wantsAnonim) {
+            nickname = generateAnonimNickname(newReview.email);
+        } else {
+            nickname = newReview.name || generateAnonimNickname(newReview.email);
+        }
+    }
+    
     const reviewWithId = {
         id: maxId + 1,
+        nickname: nickname, // Добавляем сгенерированный никнейм
         ...newReview,
         date: new Date().toISOString().split('T')[0]
     };
