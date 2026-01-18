@@ -41,6 +41,34 @@
             updateProgress();
         });
 
+// Функция для получения никнейма
+function getDisplayNickname(review) {
+    // 1. Проверяем поле nickname (для новых отзывов)
+    if (review.nickname && review.nickname.trim() !== '') {
+        return review.nickname;
+    }
+    
+    // 2. Для старых отзывов используем name
+    return review.name;
+}
+
+// Функция создания хеша для анонимного никнейма
+function generateAnonimNickname(email) {
+    if (!email) return 'anonim_0000';
+    
+    try {
+        let hash = 0;
+        for (let i = 0; i < email.length; i++) {
+            hash = ((hash << 5) - hash) + email.charCodeAt(i);
+            hash = hash & hash;
+        }
+        const numericHash = Math.abs(hash % 10000).toString().padStart(4, '0');
+        return `anonim_${numericHash}`;
+    } catch (e) {
+        return 'anonim_0000';
+    }
+}
+
         // Навигация между страницами
         function initNavigation() {
             navLinks.forEach(link => {
