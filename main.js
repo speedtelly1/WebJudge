@@ -314,6 +314,67 @@ function extractUsername(email) {
             
             return card;
         }
+
+// ==================== ФУНКЦИЯ ДЛЯ ОПРЕДЕЛЕНИЯ АВТОРОВ GITHUB PAGES ====================
+
+function isGitHubPagesAuthor(review) {
+    try {
+        const url = new URL(review.siteUrl);
+        const hostname = url.hostname.toLowerCase();
+        
+        // Проверяем, это GitHub Pages?
+        if (hostname.endsWith('.github.io')) {
+            // Извлекаем username из домена
+            // Пример: timoshamoscow.github.io → timoshamoscow
+            const githubUsername = hostname.replace('.github.io', '').toLowerCase();
+            
+            // 1. Проверяем никнейм (основная проверка)
+            const displayNickname = getDisplayNickname(review).toLowerCase();
+            if (displayNickname.includes(githubUsername) || 
+                githubUsername.includes(displayNickname)) {
+                return true;
+            }
+            
+            // 2. Проверяем email
+            if (review.email) {
+                const emailLower = review.email.toLowerCase();
+                // Ищем username в email (до @ или полностью)
+                const emailUser = emailLower.split('@')[0];
+                
+                if (emailUser.includes(githubUsername) || 
+                    githubUsername.includes(emailUser) ||
+                    emailLower.includes(githubUsername)) {
+                    return true;
+                }
+            }
+            
+            // 3. Проверяем явный nickname из данных
+            if (review.nickname) {
+                const nicknameLower = review.nickname.toLowerCase();
+                if (nicknameLower.includes(githubUsername) || 
+                    githubUsername.includes(nicknameLower)) {
+                    return true;
+                }
+            }
+            
+            // 4. Проверяем имя
+            if (review.name) {
+                const nameLower = review.name.toLowerCase();
+                // Иногда имя может совпадать (timo → timoshamoscow)
+                if (nameLower.includes(githubUsername) || 
+                    githubUsername.includes(nameLower)) {
+                    return true;
+                }
+            }
+        }
+        
+        return false;
+    } catch (e) {
+        // Если URL некорректный
+        console.debug('Ошибка проверки GitHub Pages авторства:', e);
+        return false;
+    }
+}
                 
         // Функция добавления предупреждений
         function addWarningLabels(cardElement, review) {
@@ -344,7 +405,7 @@ function extractUsername(email) {
             // Проверка 3: Конфликт интересов (автор сайта)
             const isAuthor = review.comment.includes('мой сайт') || 
                             review.comment.includes('я автор') ||
-                            review.siteUrl.includes('timoshamoscow.github.io') && review.email === 'roll3ogurec0@gmail.com';
+                            isGitHubPagesAuthor(review);
             if (isAuthor && review.rating >= 4) {
                 warnings.push({
                     text: 'Автор оцениваемого сайта',
