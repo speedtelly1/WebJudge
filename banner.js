@@ -1,14 +1,20 @@
+// Константы для баннера
+const BANNER_VERSION = '1.1'; // Меняйте при обновлении текста
+
 // Функции для работы с баннером
 function initBanner() {
     const banner = document.getElementById('bottom-banner');
     const closeBtn = document.getElementById('banner-close');
     const hideTodayBtn = document.getElementById('banner-hide-today');
     
-    if (!banner) return;
+    if (!banner) {
+        console.warn('Баннер не найден на странице');
+        return;
+    }
     
     // Проверяем, нужно ли показывать баннер
-    const bannerHidden = localStorage.getItem('bannerHidden');
-    const bannerHiddenTime = localStorage.getItem('bannerHiddenTime');
+    const bannerHidden = localStorage.getItem(`bannerHidden_v${BANNER_VERSION}`);
+    const bannerHiddenTime = localStorage.getItem(`bannerHiddenTime_v${BANNER_VERSION}`);
     
     // Если баннер был скрыт на 24 часа, проверяем время
     if (bannerHiddenTime) {
@@ -18,8 +24,8 @@ function initBanner() {
         
         // Если прошло больше 24 часов, показываем снова
         if (hoursPassed >= 24) {
-            localStorage.removeItem('bannerHidden');
-            localStorage.removeItem('bannerHiddenTime');
+            localStorage.removeItem(`bannerHidden_v${BANNER_VERSION}`);
+            localStorage.removeItem(`bannerHiddenTime_v${BANNER_VERSION}`);
             banner.style.display = 'flex';
         } else {
             banner.style.display = 'none';
@@ -57,30 +63,21 @@ function hideBanner(type) {
     setTimeout(() => {
         if (type === 'permanent') {
             // Скрыть навсегда
-            localStorage.setItem('bannerHidden', 'true');
+            localStorage.setItem(`bannerHidden_v${BANNER_VERSION}`, 'true');
+            localStorage.removeItem(`bannerHiddenTime_v${BANNER_VERSION}`);
         } else if (type === '24hours') {
             // Скрыть на 24 часа
-            localStorage.setItem('bannerHiddenTime', Date.now().toString());
+            localStorage.setItem(`bannerHiddenTime_v${BANNER_VERSION}`, Date.now().toString());
+            localStorage.removeItem(`bannerHidden_v${BANNER_VERSION}`);
         }
         
         banner.style.display = 'none';
         banner.classList.remove('hiding');
-    }, 500); // Время должно совпадать с длительностью анимации
+    }, 500);
 }
 
-// В функцию инициализации приложения добавьте вызов initBanner
+// Инициализация баннера после загрузки DOM
 document.addEventListener('DOMContentLoaded', function() {
-    console.log('Загружено отзывов:', reviews.length);
-    
-    initNavigation();
-    loadReviews();
-    createCategoryButtons();
-    updateStatistics();
-    setupSearchAndFilters();
-    
-    // Инициализация прогресс-бара
-    updateProgress();
-    
-    // Инициализация баннера
+    // Только инициализация баннера
     initBanner();
 });
