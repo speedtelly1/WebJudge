@@ -58,6 +58,7 @@ const reviews = [
     {
         id: 6,
         name: "Роман",
+        nickname: "morfiks689",
         email: "morfiks689@gmail.com",
         siteUrl: "https://tlauncher.ru/",
         siteName: "TLauncher",
@@ -101,6 +102,7 @@ const reviews = [
         id: 10,
         name: "Тимоша",
         email: "timi.sibi.maxi2010@gmail.com",
+        nickname: "timsib",
         siteUrl: "https://yandex.ru/games/app/191972",
         siteName: "Битва за территории",
         rating: 5,
@@ -110,6 +112,7 @@ const reviews = [
     {
         id: 11,
         name: "Тимоша",
+        nickname: "timsib",
         email: "timi.sibi.maxi2010@gmail.com",
         siteUrl: "https://miro.com/app/dashboard/",
         siteName: "Miro",
@@ -130,6 +133,7 @@ const reviews = [
     {
         id: 13,
         name: "Тимоша",
+        nickname: "timsib",
         email: "timi.sibi.maxi2010@gmail.com",
         siteUrl: "https://www.duolingo.com/",
         siteName: "Duolingo",
@@ -140,6 +144,7 @@ const reviews = [
     {
         id: 14,
         name: "Тимоша",
+        nickname: "timsib",
         email: "timi.sibi.maxi2010@gmail.com",
         siteUrl: "https://www.kinopoisk.ru/",
         siteName: "Кинопоиск",
@@ -151,6 +156,7 @@ const reviews = [
         id: 15,
         name: "Роман",
         email: "morfiks689@gmail.com",
+        nickname: "morfiks689",
         siteUrl: "https://timoshamoscow.github.io/taiprompts.github.io/",
         siteName: "TAIPrompts",
         rating: 3,
