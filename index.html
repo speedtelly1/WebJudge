@@ -286,31 +286,32 @@
         </footer>
     </div>
 
-    <!-- Данные отзывов и категорий -->
     <!-- Подключение data.js -->
     <script src="data.js"></script>
 
+    <!-- Основной скрипт -->
     <script src="main.js"></script>
 
-    <script src="banner.js"></script>
-
-<!-- Баннер (добавить перед закрывающим </body>) -->
-<div id="bottom-banner" class="bottom-banner">
-    <div class="banner-content">
-        <div class="banner-text">
-            <i class="fas fa-info-circle"></i>
-            <span>🚀 SiteReview: Добавлены никнеймы! Изменить: https://forms.gle/2EXM1NTnKK1HroAfA</span>
-        </div>
-        <div class="banner-actions">
-            <button id="banner-hide-today" class="banner-btn secondary">
-                <i class="fas fa-eye-slash"></i> Скрыть на 24 часа
-            </button>
-            <button id="banner-close" class="banner-btn primary">
-                <i class="fas fa-times"></i> Закрыть
-            </button>
+    <!-- HTML баннера (после скриптов) -->
+    <div id="bottom-banner" class="bottom-banner">
+        <div class="banner-content">
+            <div class="banner-text">
+                <i class="fas fa-info-circle"></i>
+                <span>🚀 SiteReview: Добавлены никнеймы! Изменить: https://forms.gle/2EXM1NTnKK1HroAfA</span>
+            </div>
+            <div class="banner-actions">
+                <button id="banner-hide-today" class="banner-btn secondary">
+                    <i class="fas fa-eye-slash"></i> Скрыть на 24 часа
+                </button>
+                <button id="banner-close" class="banner-btn primary">
+                    <i class="fas fa-times"></i> Закрыть
+                </button>
+            </div>
         </div>
     </div>
-</div>
+
+    <!-- Скрипт баннера (после HTML баннера) -->
+    <script src="banner.js"></script>
     
 </body>
 </html>
