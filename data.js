@@ -25,6 +25,7 @@ const reviews = [
     {
         id: 3,
         name: "Алёна",
+        nickname: "fanalenki",
         email: "akkumulator950@gmail.com",
         siteUrl: "https://www.youtube.com/",
         siteName: "YouTube",
@@ -35,6 +36,7 @@ const reviews = [
     {
         id: 4,
         name: "Алёна",
+        nickname: "fanalenki",
         email: "akkumulator950@gmail.com",
         siteUrl: "https://timoshamoscow.github.io/taiprompts.github.io/",
         siteName: "TAIPrompts",
@@ -45,6 +47,7 @@ const reviews = [
     {
         id: 5,
         name: "Алёна",
+        nickname: "fanalenki",
         email: "akkumulator950@gmail.com",
         siteUrl: "https://xn--d1ah4a.com/feed",
         siteName: "итд.com",
