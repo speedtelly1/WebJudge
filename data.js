@@ -276,6 +276,90 @@ function addReview(newReview) {
     return reviewWithId;
 }
 
+// Добавьте в конец файла data.js, перед финальным комментарием:
+
+// Функция для получения рекомендованных сайтов (хороший рейтинг)
+function getRecommendedSites() {
+    // Группируем отзывы по сайтам и считаем средний рейтинг
+    const siteMap = {};
+    
+    reviews.forEach(review => {
+        if (!siteMap[review.siteUrl]) {
+            siteMap[review.siteUrl] = {
+                url: review.siteUrl,
+                name: review.siteName,
+                totalRating: 0,
+                count: 0,
+                lastReview: new Date(review.date)
+            };
+        }
+        
+        siteMap[review.siteUrl].totalRating += review.rating;
+        siteMap[review.siteUrl].count++;
+        
+        const reviewDate = new Date(review.date);
+        if (reviewDate > siteMap[review.siteUrl].lastReview) {
+            siteMap[review.siteUrl].lastReview = reviewDate;
+        }
+    });
+    
+    // Рассчитываем средний рейтинг и фильтруем
+    const sitesWithRating = Object.values(siteMap).map(site => ({
+        ...site,
+        avgRating: site.totalRating / site.count,
+        daysSinceLastReview: Math.floor((new Date() - site.lastReview) / (1000 * 60 * 60 * 24))
+    }));
+    
+    // Фильтруем сайты с хорошим рейтингом (≥ 4.0) и хотя бы 2 отзыва
+    const recommended = sitesWithRating
+        .filter(site => site.avgRating >= 4.0 && site.count >= 2)
+        .sort((a, b) => b.avgRating - a.avgRating);
+    
+    return recommended;
+}
+
+// Функция для получения сайтов, которые нуждаются в отзывах
+function getSitesNeedingReviews() {
+    const siteMap = {};
+    
+    reviews.forEach(review => {
+        if (!siteMap[review.siteUrl]) {
+            siteMap[review.siteUrl] = {
+                url: review.siteUrl,
+                name: review.siteName,
+                lastReview: new Date(review.date),
+                reviewCount: 0
+            };
+        }
+        
+        const reviewDate = new Date(review.date);
+        if (reviewDate > siteMap[review.siteUrl].lastReview) {
+            siteMap[review.siteUrl].lastReview = reviewDate;
+        }
+        
+        siteMap[review.siteUrl].reviewCount++;
+    });
+    
+    const sites = Object.values(siteMap).map(site => ({
+        ...site,
+        daysSinceLastReview: Math.floor((new Date() - site.lastReview) / (1000 * 60 * 60 * 24))
+    }));
+    
+    // Сортируем по давности отзыва и количеству отзывов
+    // Приоритет: 1) мало отзывов (1-2), 2) давно не было отзывов (>30 дней)
+    return sites
+        .filter(site => site.reviewCount <= 2 || site.daysSinceLastReview > 30)
+        .sort((a, b) => {
+            // Сначала по количеству отзывов (чем меньше, тем выше)
+            if (a.reviewCount !== b.reviewCount) {
+                return a.reviewCount - b.reviewCount;
+            }
+            // Затем по давности (чем старее, тем выше)
+            return b.daysSinceLastReview - a.daysSinceLastReview;
+        })
+        .slice(0, 10); // Ограничиваем 10 сайтами
+}
+
 /*!
  * ============================================================
  * SiteReview - Система оценки веб-сайтов
