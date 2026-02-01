@@ -233,42 +233,46 @@ function displayRecommendedSites() {
 }
 
 // Также добавьте вызов при смене страниц, если нужно обновлять данные:
-// В функции initNavigation добавьте:
 
-        // Отображение избранных отзывов (последние 3)
-        function displayFeaturedReviews() {
-            if (!featuredReviewsContainer) return;
-            
-            const sortedReviews = [...reviews].sort((a, b) => new Date(b.date) - new Date(a.date));
-            const featured = sortedReviews.slice(0, 3);
-            
-            featuredReviewsContainer.innerHTML = '';
-            
-            if (featured.length === 0) {
-                featuredReviewsContainer.innerHTML = '<div class="no-results"><i class="fas fa-comment-slash"></i><h3>Отзывов пока нет</h3><p>Будьте первым, кто оставит отзыв!</p></div>';
-                return;
-            }
-            
-            featured.forEach(review => {
-                featuredReviewsContainer.appendChild(createReviewCard(review));
-            });
-        }
+// 5. Отображение избранных отзывов (обновлено для консистентности)
+function displayFeaturedReviews() {
+    if (!featuredReviewsContainer) return;
+    
+    const sortedReviews = [...reviews].sort((a, b) => new Date(b.date) - new Date(a.date));
+    const featured = sortedReviews.slice(0, 3);
+    
+    featuredReviewsContainer.innerHTML = '';
+    
+    if (featured.length === 0) {
+        featuredReviewsContainer.innerHTML = '<div class="no-results"><i class="fas fa-comment-slash"></i><h3>Отзывов пока нет</h3><p>Будьте первым, кто оставит отзыв!</p></div>';
+        return;
+    }
+    
+    featured.forEach(review => {
+        featuredReviewsContainer.appendChild(createReviewCard(review));
+    });
+}
 
-        // Отображение всех отзывов
-        function displayAllReviews(reviewsArray) {
-            if (!allReviewsContainer) return;
-            
-            allReviewsContainer.innerHTML = '';
-            
-            if (reviewsArray.length === 0) {
-                allReviewsContainer.innerHTML = '<div class="no-results"><i class="fas fa-search"></i><h3>Ничего не найдено</h3><p>Попробуйте изменить параметры поиска</p></div>';
-                return;
-            }
-            
-            reviewsArray.forEach(review => {
-                allReviewsContainer.appendChild(createReviewCard(review));
-            });
-        }
+// 1. Отображение всех отзывов (обновлено)
+function displayAllReviews(reviewsArray) {
+    if (!allReviewsContainer) return;
+    
+    // Сортируем отзывы по дате (новые → старые)
+    const sortedReviews = [...reviewsArray].sort((a, b) => {
+        return new Date(b.date) - new Date(a.date);
+    });
+    
+    allReviewsContainer.innerHTML = '';
+    
+    if (sortedReviews.length === 0) {
+        allReviewsContainer.innerHTML = '<div class="no-results"><i class="fas fa-search"></i><h3>Ничего не найдено</h3><p>Попробуйте изменить параметры поиска</p></div>';
+        return;
+    }
+    
+    sortedReviews.forEach(review => {
+        allReviewsContainer.appendChild(createReviewCard(review));
+    });
+}
 
         // Функция определения категорий для конкретного отзыва
         function getReviewCategories(review) {
@@ -606,14 +610,12 @@ function isGitHubPagesAuthor(review) {
             });
         }
 
-// Выполнение поиска
+// 3. Выполнение поиска (обновлено)
 function performSearch() {
     const searchTerm = searchInput.value.toLowerCase().trim();
     
-    // Если поисковый запрос пустой, показываем все отзывы
     if (searchTerm === '') {
-        displayAllReviews(reviews);
-        // Убираем счетчик результатов
+        displayAllReviews(reviews); // Теперь это уже сортированные отзывы
         const resultsCountEl = document.getElementById('search-results-count');
         if (resultsCountEl) resultsCountEl.remove();
         return;
@@ -621,40 +623,28 @@ function performSearch() {
     
     try {
         const filteredReviews = reviews.filter(review => {
-            // Получаем отображаемый никнейм для поиска
             const displayNickname = getDisplayNickname(review).toLowerCase();
             
-            // Проверяем все указанные поля на совпадение
             return (
-                // Поиск по имени
                 review.name.toLowerCase().includes(searchTerm) ||
-                
-                // Поиск по никнейму (отображаемому)
                 displayNickname.includes(searchTerm) ||
-                
-                // Поиск по email (опционально)
                 (review.email && review.email.toLowerCase().includes(searchTerm)) ||
-                
-                // Поиск по названию сайта
                 review.siteName.toLowerCase().includes(searchTerm) ||
-                
-                // Поиск по URL сайта
                 review.siteUrl.toLowerCase().includes(searchTerm) ||
-                
-                // Поиск по тексту отзыва
                 review.comment.toLowerCase().includes(searchTerm)
             );
         });
         
-        // Обновляем отображение отфильтрованных отзывов
-        displayAllReviews(filteredReviews);
+        // Сортируем результаты поиска по новизне
+        const sortedSearchResults = [...filteredReviews].sort((a, b) => {
+            return new Date(b.date) - new Date(a.date);
+        });
         
-        // Показываем количество найденных результатов
+        displayAllReviews(sortedSearchResults);
         updateSearchResultsCount(filteredReviews.length, searchTerm);
         
     } catch (error) {
         console.error('Ошибка при поиске:', error);
-        // В случае ошибки показываем все отзывы
         displayAllReviews(reviews);
     }
 }
@@ -735,7 +725,7 @@ function updateSearchResultsCount(count, searchTerm) {
     }
 }
 
-// Функция сброса поиска
+// 8. Сброс поиска (обновлено для корректного отображения после сброса)
 function resetSearch() {
     if (searchInput) {
         searchInput.value = '';
@@ -749,6 +739,14 @@ function resetSearch() {
         const allCategoryBtn = document.querySelector('.category-btn[data-category="Все"]');
         if (allCategoryBtn) {
             allCategoryBtn.click();
+        }
+        
+        // Сбрасываем активный фильтр на "Сначала новые"
+        const filterBtns = document.querySelectorAll('.filter-btn');
+        filterBtns.forEach(btn => btn.classList.remove('active'));
+        const recentFilter = document.querySelector('.filter-btn[data-filter="recent"]');
+        if (recentFilter) {
+            recentFilter.classList.add('active');
         }
     }
 }
@@ -821,23 +819,27 @@ function setupSearchAndFilters() {
         });
     }
 }
-        // Применение фильтров
-        function applyFilters() {
-            const activeFilter = document.querySelector('.filter-btn.active').getAttribute('data-filter');
-            let filteredReviews = [...reviews];
-            
-            switch (activeFilter) {
-                case 'recent':
-                    filteredReviews = [...reviews].sort((a, b) => new Date(b.date) - new Date(a.date));
-                    break;
-                case 'oldest':
-                    filteredReviews = [...reviews].sort((a, b) => new Date(a.date) - new Date(b.date));
-                    break;
-                // 'all' - без фильтрации
-            }
-            
-            displayAllReviews(filteredReviews);
-        }
+
+// 2. Применение фильтров (обновлено)
+function applyFilters() {
+    const activeFilter = document.querySelector('.filter-btn.active').getAttribute('data-filter');
+    let filteredReviews = [...reviews];
+    
+    switch (activeFilter) {
+        case 'recent':
+            filteredReviews = [...reviews].sort((a, b) => new Date(b.date) - new Date(a.date));
+            break;
+        case 'oldest':
+            filteredReviews = [...reviews].sort((a, b) => new Date(a.date) - new Date(b.date));
+            break;
+        case 'all':
+            // "Все отзывы" теперь тоже сортируем по новизне
+            filteredReviews = [...reviews].sort((a, b) => new Date(b.date) - new Date(a.date));
+            break;
+    }
+    
+    displayAllReviews(filteredReviews);
+}
 
         // Функция создания кнопок категорий
         function createCategoryButtons() {
@@ -886,19 +888,25 @@ function setupSearchAndFilters() {
             });
         }
 
-        // Функция фильтрации отзывов
-        function filterByCategory(category) {
-            const filteredReviews = reviews.filter(categories[category]);
-            displayAllReviews(filteredReviews);
-            
-            // Показываем информацию о выбранной категории
-            const infoPanel = document.getElementById('selected-category');
-            if (category === 'Все') {
-                infoPanel.style.display = 'none';
-            } else {
-                infoPanel.style.display = 'block';
-            }
-        }
+// 4. Фильтрация по категориям (обновлено)
+function filterByCategory(category) {
+    const filteredReviews = reviews.filter(categories[category]);
+    
+    // Сортируем по новизне
+    const sortedReviews = [...filteredReviews].sort((a, b) => {
+        return new Date(b.date) - new Date(a.date);
+    });
+    
+    displayAllReviews(sortedReviews);
+    
+    // Показываем информацию о выбранной категории
+    const infoPanel = document.getElementById('selected-category');
+    if (category === 'Все') {
+        infoPanel.style.display = 'none';
+    } else {
+        infoPanel.style.display = 'block';
+    }
+}
 
         // Обновление активной кнопки
         function updateActiveButton(clickedButton) {
