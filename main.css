@@ -828,3 +828,94 @@ body.dark-theme .bottom-banner {
   text-decoration: none;
   color: white;
 }
+
+/* Стили для сайтов, которым нужны отзывы */
+.site-needing-review {
+    background: rgba(231, 76, 60, 0.1);
+    padding: 8px 15px;
+    border-radius: 20px;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    border: 1px solid rgba(231, 76, 60, 0.2);
+    transition: all 0.3s ease;
+}
+
+.site-needing-review:hover {
+    background: rgba(231, 76, 60, 0.15);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(231, 76, 60, 0.1);
+}
+
+.site-needing-review .site-name {
+    color: #e74c3c;
+    font-weight: 500;
+}
+
+.site-needing-review .site-info {
+    font-size: 0.8rem;
+    color: #95a5a6;
+    background: rgba(255, 255, 255, 0.5);
+    padding: 2px 6px;
+    border-radius: 10px;
+    white-space: nowrap;
+}
+
+/* Стили для рекомендованных сайтов */
+.recommended-site {
+    background: linear-gradient(135deg, rgba(39, 174, 96, 0.1), rgba(46, 204, 113, 0.1));
+    padding: 10px 18px;
+    border-radius: 20px;
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    border: 1px solid rgba(39, 174, 96, 0.2);
+    transition: all 0.3s ease;
+    position: relative;
+    overflow: hidden;
+}
+
+.recommended-site:hover {
+    background: linear-gradient(135deg, rgba(39, 174, 96, 0.15), rgba(46, 204, 113, 0.15));
+    transform: translateY(-3px);
+    box-shadow: 0 6px 12px rgba(39, 174, 96, 0.15);
+}
+
+.recommended-site .site-name {
+    color: #27ae60;
+    font-weight: 600;
+}
+
+.recommended-site .site-rating {
+    color: white;
+    background: #27ae60;
+    padding: 3px 8px;
+    border-radius: 12px;
+    font-size: 0.8rem;
+    font-weight: bold;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+}
+
+.recommended-site .site-count {
+    color: #2c3e50;
+    font-size: 0.8rem;
+    background: rgba(255, 255, 255, 0.7);
+    padding: 2px 6px;
+    border-radius: 10px;
+}
+
+/* Бейдж для "Рекомендуем" */
+.recommended-badge {
+    position: absolute;
+    top: -5px;
+    right: -5px;
+    background: #e74c3c;
+    color: white;
+    font-size: 0.6rem;
+    padding: 2px 6px;
+    border-radius: 10px;
+    transform: rotate(15deg);
+    box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+}
