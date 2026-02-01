@@ -86,6 +86,11 @@ function extractUsername(email) {
                     if (pageId === 'reviews') {
                         displayAllReviews(reviews);
                     }
+
+                    if (pageId === 'home') {
+                        displaySitesNeedingReviews();
+                        displayRecommendedSites();
+                    }
                     
                     if (pageId === 'stats') {
                         updateStatistics();
@@ -117,7 +122,118 @@ function extractUsername(email) {
         function loadReviews() {
             displayFeaturedReviews();
             displayAllReviews(reviews);
+            displaySitesNeedingReviews(); // Добавьте эту строку
+            displayRecommendedSites(); // Добавьте эту строку
         }
+
+// Функция для отображения сайтов, которым нужны отзывы
+function displaySitesNeedingReviews() {
+    const container = document.getElementById('sites-needing-reviews');
+    if (!container) return;
+    
+    const sitesNeedingReviews = getSitesNeedingReviews();
+    
+    if (sitesNeedingReviews.length === 0) {
+        container.innerHTML = '<p style="color: #666; text-align: center;">Все сайты имеют достаточно отзывов!</p>';
+        return;
+    }
+    
+    container.innerHTML = '';
+    
+    sitesNeedingReviews.forEach(site => {
+        const siteElement = document.createElement('div');
+        siteElement.className = 'site-needing-review';
+        
+        // Определяем текст в зависимости от количества отзывов
+        let infoText = '';
+        if (site.reviewCount === 1) {
+            infoText = '1 отзыв';
+        } else if (site.reviewCount === 0) {
+            infoText = 'нет отзывов';
+        } else {
+            infoText = `${site.reviewCount} отзыва`;
+        }
+        
+        // Добавляем информацию о давности, если больше 30 дней
+        if (site.daysSinceLastReview > 30) {
+            infoText += ` • ${Math.floor(site.daysSinceLastReview / 30)} мес.`;
+        }
+        
+        siteElement.innerHTML = `
+            <span class="site-name">${site.name}</span>
+            <span class="site-info">${infoText}</span>
+        `;
+        
+        // Добавляем обработчик клика для быстрой оценки
+        siteElement.addEventListener('click', () => {
+            suggestSite(site.name, site.url);
+        });
+        
+        container.appendChild(siteElement);
+    });
+}
+
+// Функция для отображения рекомендованных сайтов
+function displayRecommendedSites() {
+    const container = document.getElementById('recommended-sites');
+    if (!container) return;
+    
+    const recommendedSites = getRecommendedSites();
+    
+    if (recommendedSites.length === 0) {
+        container.innerHTML = '<p style="color: #666; text-align: center;">Пока нет сайтов с достаточно высоким рейтингом</p>';
+        return;
+    }
+    
+    container.innerHTML = '';
+    
+    // Ограничиваем 5 лучшими сайтами
+    const topSites = recommendedSites.slice(0, 5);
+    
+    topSites.forEach(site => {
+        const siteElement = document.createElement('a');
+        siteElement.className = 'recommended-site';
+        siteElement.href = site.url;
+        siteElement.target = '_blank';
+        siteElement.rel = 'noopener noreferrer';
+        
+        // Форматируем рейтинг
+        const formattedRating = site.avgRating.toFixed(1);
+        
+        // Создаем звезды для рейтинга
+        let starsHTML = '';
+        for (let i = 0; i < 5; i++) {
+            if (i < Math.floor(site.avgRating)) {
+                starsHTML += '<i class="fas fa-star" style="font-size: 0.7rem;"></i>';
+            } else if (i < site.avgRating) {
+                starsHTML += '<i class="fas fa-star-half-alt" style="font-size: 0.7rem;"></i>';
+            } else {
+                starsHTML += '<i class="far fa-star" style="font-size: 0.7rem;"></i>';
+            }
+        }
+        
+        siteElement.innerHTML = `
+            <span class="site-name">${site.name}</span>
+            <span class="site-rating" title="Средний рейтинг: ${formattedRating}">
+                ${starsHTML} ${formattedRating}
+            </span>
+            <span class="site-count">${site.count} отзыв${site.count === 1 ? '' : site.count >= 5 ? 'ов' : 'а'}</span>
+        `;
+        
+        // Добавляем бейдж для топ-1 сайта
+        if (recommendedSites.indexOf(site) === 0) {
+            const badge = document.createElement('span');
+            badge.className = 'recommended-badge';
+            badge.textContent = 'Топ';
+            siteElement.appendChild(badge);
+        }
+        
+        container.appendChild(siteElement);
+    });
+}
+
+// Также добавьте вызов при смене страниц, если нужно обновлять данные:
+// В функции initNavigation добавьте:
 
         // Отображение избранных отзывов (последние 3)
         function displayFeaturedReviews() {
