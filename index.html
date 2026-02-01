@@ -79,29 +79,18 @@
                     </div>
                 </div>
 
-                <!-- Ожидаемые сайты -->
-                <div class="expected-sites glass-effect" style="padding: 20px; margin-top: 30px;">
-                    <h4 style="margin-bottom: 15px; color: var(--secondary-color);">
-                        <i class="fas fa-hourglass-half"></i> Ждем отзывы на:
-                    </h4>
-                    <div style="display: flex; flex-wrap: wrap; gap: 10px;">
-                        <span style="background: rgba(52, 152, 219, 0.1); padding: 8px 15px; border-radius: 20px;">
-                            YouTube
-                        </span>
-                        <span style="background: rgba(52, 152, 219, 0.1); padding: 8px 15px; border-radius: 20px;">
-                            Google Docs
-                        </span>
-                        <span style="background: rgba(52, 152, 219, 0.1); padding: 8px 15px; border-radius: 20px;">
-                            TAIPrompts
-                        </span>
-                        <span style="background: rgba(52, 152, 219, 0.1); padding: 8px 15px; border-radius: 20px;">
-                            Spotify
-                        </span>
-                        <span style="background: rgba(52, 152, 219, 0.1); padding: 8px 15px; border-radius: 20px;">
-                            Netflix
-                        </span>
-                    </div>
-                </div>
+<!-- Сайты, которым нужны отзывы -->
+<div class="expected-sites glass-effect" style="padding: 20px; margin-top: 30px;">
+    <h4 style="margin-bottom: 15px; color: var(--secondary-color);">
+        <i class="fas fa-hourglass-half"></i> Сайты, которым нужны отзывы
+    </h4>
+    <div id="sites-needing-reviews" style="display: flex; flex-wrap: wrap; gap: 10px;">
+        <div class="loading-spinner" style="width: 20px; height: 20px; margin: 10px auto;"></div>
+    </div>
+    <p style="margin-top: 10px; font-size: 0.9rem; color: #666;">
+        Эти сайты имеют мало отзывов или давно не получали новых оценок
+    </p>
+</div>
                 
                 <!-- Последние отзывы -->
                 <div style="margin-top: 30px;">
@@ -113,6 +102,19 @@
                         </div>
                     </div>
                 </div>
+
+<!-- Рекомендованные сайты -->
+<div class="recommended-sites glass-effect" style="padding: 20px; margin-top: 30px;">
+    <h4 style="margin-bottom: 15px; color: #27ae60;">
+        <i class="fas fa-thumbs-up"></i> Рекомендованные сайты
+    </h4>
+    <div id="recommended-sites" style="display: flex; flex-wrap: wrap; gap: 10px;">
+        <div class="loading-spinner" style="width: 20px; height: 20px; margin: 10px auto;"></div>
+    </div>
+    <p style="margin-top: 10px; font-size: 0.9rem; color: #666;">
+        Сайты с высоким рейтингом (≥4.0) и несколькими подтверждающими отзывами
+    </p>
+</div>
             </section>
 
             <!-- Все отзывы -->
