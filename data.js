@@ -195,6 +195,39 @@ const reviews = [
         rating: 2,
         comment: "Ютуб лучше. Нееет, конечно рутьюб тоже хороший, но единственный минус в том, что там очень частая реклама. Хотелось бы сделать её реже, или вообще убрать для всех",
         date: "2026-02-01T13:42:00"
+    },
+    {
+        id: 19,
+        name: "Роман",
+        nickname: "morfiks689",
+        email: "morfiks689@gmail.com",
+        siteUrl: "https://xn--d1ah4a.com/feed",
+        siteName: "итд.com",
+        rating: 5,
+        comment: "итд топ. я в пути",
+        date: "2026-02-02T14:08:00"
+    },
+    {
+        id: 20,
+        name: "Тимоша",
+        nickname: "timsib",
+        email: "timi.sibi.maxi2010@gmail.com",
+        siteUrl: "https://timoshamoscow.github.io/taiprompts.github.io/",
+        siteName: "TAIPrompts",
+        rating: 5,
+        comment: "Я только вхожу в мир нейросетей, сайт нашел через ютуб (В ютубе ссылки не было, поэтому еле еле нашел через браузер). В общем, сайт топ, удачи ему в развитии. И да, прошу, не вводите тарифы. Пожалуйста.",
+        date: "2026-02-02T14:10:00"
+    },
+    {
+        id: 21,
+        name: "Тимоша",
+        nickname: "timsib",
+        email: "timi.sibi.maxi2010@gmail.com",
+        siteUrl: "https://speedtelly1.github.io/sitereview.github.io/",
+        siteName: "SiteReview",
+        rating: 4,
+        comment: "Отзовик прикольный, но порой приходится ждать публикации неделями! Также, некорректные даты отзывов (Конечно, если это дата одобрения отзыва, тогда ок!). И добавьте хоть какие то правила публикации",
+        date: "2026-02-02T14:11:00"
     }
 ];
 
@@ -202,16 +235,16 @@ const reviews = [
 const categories = {
     'Все': () => true,
     'Соцсети': (review) => ['YouTube', 'итд.com', 'VK', 'Telegram', 'Instagram'].some(name => 
-        review.siteName.includes(name) || review.comment.includes('соцсеть')
+        review.siteName.includes(name) || review.comment.includes('соцсе')
     ),
     'Игры': (review) => ['TLauncher', 'Битва за территории', 'Steam', 'Epic Games'].some(name =>
         review.siteName.includes(name) || review.comment.includes('игр') || review.comment.includes('гейм')
     ),
     'Инструменты': (review) => ['TAIPrompts', 'Хранилище', 'GitHub', 'Figma', 'Notion'].some(name =>
-        review.siteName.includes(name) || review.comment.includes('инструмент') || review.comment.includes('сервис')
+        review.siteName.includes(name) || review.comment.includes('инструм') || review.comment.includes('серв')
     ),
     'Магазины': (review) => ['FunPay', 'Steam', 'Epic Games'].some(name =>
-        review.siteName.includes(name) || review.comment.includes('купил') || review.comment.includes('покуп')
+        review.siteName.includes(name) || review.comment.includes('купи') || review.comment.includes('покуп')
     ),
     'Критические': (review) => review.rating <= 2,
     'Авторские': (review) => {
