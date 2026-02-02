@@ -544,23 +544,12 @@ function isGitHubPagesAuthor(review) {
                 });
             }
                
-            // Проверка : Неизвестный
-            const isAnonim = (review.name === 'Тимофей' || review.name === 'Тимоша') && 
-                 review.email !== 'roll3ogurec0@gmail.com';
-            if (isAnonim) {
-                warnings.push({
-                    text: 'Неизвестный',
-                    icon: 'fa-solid fa-user',
-                    color: '#586c8c'
-                });
-            }
-               
             // Проверка : Партнер
             const isPartner = review.name === 'Тимофей' && 
                   review.email === 'roll3ogurec0@gmail.com';
             if (isPartner) {
                 warnings.push({
-                    text: 'Партнер',
+                    text: 'Партнер SiteReview',
                     icon: 'fa-solid fa-handshake',
                     color: '#1E90FF'
                 });
@@ -1035,6 +1024,6 @@ function filterByCategory(category) {
  * ЛИЦЕНЗИЯ: ЗАПРЕЩЕНО любое использование, копирование, 
  * модификация или распространение без письменного разрешения.
  * 
- * Репозиторий: https://github.com/speedtelly1/sitereview
+ * Репозиторий: https://github.com/speedtelly1/sitereview.github.io
  * ============================================================
  */
