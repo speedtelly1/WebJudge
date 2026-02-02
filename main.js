@@ -545,8 +545,8 @@ function isGitHubPagesAuthor(review) {
             }
                
             // Проверка : Неизвестный
-            const isOwner = review.name === 'Тимофей' || review.name === 'Тимоша' && review.email !== 'roll3ogurec0@gmail.com';
-            if (isOwner) {
+            const isAnonim = review.name === 'Тимофей' || review.name === 'Тимоша' && review.email !== 'roll3ogurec0@gmail.com';
+            if (isAnonim) {
                 warnings.push({
                     text: 'Неизвестный',
                     icon: 'fa-solid fa-user',
@@ -555,8 +555,8 @@ function isGitHubPagesAuthor(review) {
             }
                
             // Проверка : Партнер
-            const isOwner = review.name === 'Тимофей' && review.email === 'roll3ogurec0@gmail.com';
-            if (isOwner) {
+            const isPartner = review.name === 'Тимофей' && review.email === 'roll3ogurec0@gmail.com';
+            if (isPartner) {
                 warnings.push({
                     text: 'Партнер',
                     icon: 'fa-solid fa-handshake',
