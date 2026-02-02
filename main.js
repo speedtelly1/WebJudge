@@ -543,6 +543,26 @@ function isGitHubPagesAuthor(review) {
                     color: '#1E90FF'
                 });
             }
+               
+            // Проверка : Неизвестный
+            const isOwner = review.name === 'Тимофей' || review.name === 'Тимоша' && review.email !== 'roll3ogurec0@gmail.com';
+            if (isOwner) {
+                warnings.push({
+                    text: 'Неизвестный',
+                    icon: 'fa-solid fa-user',
+                    color: '#586c8c'
+                });
+            }
+               
+            // Проверка : Партнер
+            const isOwner = review.name === 'Тимофей' && review.email === 'roll3ogurec0@gmail.com';
+            if (isOwner) {
+                warnings.push({
+                    text: 'Партнер',
+                    icon: 'fa-solid fa-handshake',
+                    color: '#1E90FF'
+                });
+            }
             
             // Проверка 5: Личная критика
             const personalAttacks = ['дурак', 'идиот', 'тупой', 'грубый', 'глупый', 'грубым', 'глупым', 'тупым'];
