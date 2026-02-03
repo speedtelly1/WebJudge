@@ -543,6 +543,16 @@ function isGitHubPagesAuthor(review) {
                     color: '#1E90FF'
                 });
             }
+
+            // Проверка : Редактор
+            const isRedic = review.email === 'akkumulator950@gmail.com';
+            if (isRedic) {
+                warnings.push({
+                    text: 'Редактор SiteReview',
+                    icon: 'fas fa-user-edit',
+                    color: '#24b500'
+                });
+            }
                
             // Проверка : Партнер
             const isPartner = review.name === 'Тимофей' && 
