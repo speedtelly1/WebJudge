@@ -1048,6 +1048,7 @@ function filterByCategory(category) {
             // Добавляем отображение топ-сайтов
             setTimeout(() => {
                 displayTopSites();
+                displayTopUsers();
                 displayRatingDistribution();
             }, 100);
         }
@@ -1320,6 +1321,300 @@ function createSiteRankingCard(site, position) {
                     color: white; font-size: 0.7rem; padding: 2px 8px; border-radius: 10px; 
                     transform: rotate(15deg); font-weight: bold; box-shadow: 0 2px 5px rgba(0,0,0,0.2);">
             ${position === 1 ? 'ЛУЧШИЙ' : position === 2 ? '2 МЕСТО' : '3 МЕСТО'}
+        </div>
+        ` : ''}
+    `;
+    
+    // Добавляем hover эффект
+    card.addEventListener('mouseenter', function() {
+        this.style.transform = 'translateY(-3px)';
+        this.style.boxShadow = `0 8px 25px ${position <= 3 ? rankColor + '40' : 'rgba(0,0,0,0.15)'}`;
+    });
+    
+    card.addEventListener('mouseleave', function() {
+        this.style.transform = 'translateY(0)';
+        this.style.boxShadow = position <= 3 ? `0 4px 15px ${rankColor}30` : 'var(--shadow)';
+    });
+    
+    return card;
+}
+
+// ==================== ФУНКЦИЯ ДЛЯ РЕЙТИНГА ПОЛЬЗОВАТЕЛЕЙ ====================
+
+function displayTopUsers() {
+    // Создаем контейнер если его нет
+    let topUsersContainer = document.getElementById('top-users-container');
+    
+    if (!topUsersContainer) {
+        const statsPage = document.getElementById('stats-page');
+        if (!statsPage) return;
+        
+        // Создаем новый раздел для топ-пользователей
+        const sectionHTML = `
+            <div style="margin-top: 40px;">
+                <h3 style="margin-bottom: 20px; color: var(--secondary-color);">
+                    <i class="fas fa-users"></i> Рейтинг пользователей
+                </h3>
+                <div id="top-users-container"></div>
+            </div>
+        `;
+        
+        // Вставляем после рейтинга сайтов
+        const topSitesContainer = document.getElementById('top-sites-container');
+        if (topSitesContainer && topSitesContainer.parentNode) {
+            topSitesContainer.parentNode.insertAdjacentHTML('afterend', sectionHTML);
+        } else {
+            // Или просто в конец контейнера статистики
+            const statsContainer = statsPage.querySelector('.glass-effect');
+            if (statsContainer) {
+                statsContainer.insertAdjacentHTML('beforeend', sectionHTML);
+            }
+        }
+        
+        topUsersContainer = document.getElementById('top-users-container');
+    }
+    
+    // Получаем данные о пользователях
+    const userStats = calculateUserRatings();
+    
+    if (userStats.length === 0) {
+        topUsersContainer.innerHTML = '<p style="text-align: center; color: #666;">Нет данных о пользователях</p>';
+        return;
+    }
+    
+    // Ограничиваем 10 топ-пользователями
+    const topUsers = userStats.slice(0, 10);
+    
+    // Очищаем контейнер
+    topUsersContainer.innerHTML = '';
+    
+    // Создаем таблицу
+    const table = document.createElement('div');
+    table.style.cssText = `
+        display: grid;
+        gap: 10px;
+        margin-top: 20px;
+    `;
+    
+    topUsers.forEach((user, index) => {
+        const userCard = createUserRankingCard(user, index + 1);
+        table.appendChild(userCard);
+    });
+    
+    topUsersContainer.appendChild(table);
+}
+
+// ==================== ФУНКЦИЯ ДЛЯ РАСЧЕТА РЕЙТИНГОВ ПОЛЬЗОВАТЕЛЕЙ ====================
+
+function calculateUserRatings() {
+    const userMap = {};
+    
+    // Собираем статистику по пользователям
+    reviews.forEach(review => {
+        const userKey = review.email || review.name; // Используем email как уникальный ключ
+        const displayNickname = getDisplayNickname(review);
+        
+        if (!userMap[userKey]) {
+            userMap[userKey] = {
+                name: review.name,
+                email: review.email,
+                nickname: displayNickname,
+                totalRating: 0,
+                count: 0,
+                reviews: [],
+                sitesReviewed: new Set(),
+                avgUserRating: 0, // Средняя оценка, которую ставит пользователь
+                consistency: 0 // Насколько стабильны его оценки
+            };
+        }
+        
+        userMap[userKey].totalRating += review.rating;
+        userMap[userKey].count++;
+        userMap[userKey].reviews.push({
+            rating: review.rating,
+            site: review.siteName,
+            date: review.date,
+            comment: review.comment
+        });
+        userMap[userKey].sitesReviewed.add(review.siteUrl);
+    });
+    
+    // Рассчитываем метрики для каждого пользователя
+    const users = Object.values(userMap)
+        .filter(user => user.count >= 1)
+        .map(user => {
+            // Средняя оценка, которую ставит пользователь
+            const avgUserRating = user.totalRating / user.count;
+            
+            // Консистентность оценок (стандартное отклонение)
+            const ratings = user.reviews.map(r => r.rating);
+            const mean = avgUserRating;
+            const variance = ratings.reduce((sum, rating) => sum + Math.pow(rating - mean, 2), 0) / ratings.length;
+            const consistency = 5 - Math.sqrt(variance); // Чем выше, тем консистентнее
+            
+            // "Вес" пользователя: активность + консистентность + разнообразие
+            const activityScore = Math.min(user.count / 10, 1) * 2; // Максимум 2 балла
+            const consistencyScore = consistency; // До 5 баллов
+            const diversityScore = Math.min(user.sitesReviewed.size / 5, 1); // Максимум 1 балл
+            
+            const userScore = activityScore + consistencyScore + diversityScore;
+            
+            return {
+                ...user,
+                avgUserRating: avgUserRating,
+                formattedAvgRating: avgUserRating.toFixed(1),
+                consistency: consistency,
+                consistencyFormatted: consistency.toFixed(1),
+                sitesCount: user.sitesReviewed.size,
+                userScore: userScore,
+                lastReview: user.reviews.sort((a, b) => new Date(b.date) - new Date(a.date))[0]?.date
+            };
+        })
+        // Сортируем по userScore
+        .sort((a, b) => b.userScore - a.userScore);
+    
+    return users;
+}
+
+// ==================== ФУНКЦИЯ СОЗДАНИЯ КАРТОЧКИ РЕЙТИНГА ПОЛЬЗОВАТЕЛЯ ====================
+
+function createUserRankingCard(user, position) {
+    const card = document.createElement('div');
+    card.className = 'user-rank-card glass-effect';
+    
+    // Определяем цвета и иконки для топ-3
+    let rankColor = '#3498db'; // Синий для остальных
+    let rankIcon = '';
+    
+    if (position === 1) {
+        rankColor = '#FFD700'; // Золотой
+        rankIcon = '<i class="fas fa-crown"></i>';
+    } else if (position === 2) {
+        rankColor = '#C0C0C0'; // Серебряный
+        rankIcon = '<i class="fas fa-medal"></i>';
+    } else if (position === 3) {
+        rankColor = '#CD7F32'; // Бронзовый
+        rankIcon = '<i class="fas fa-award"></i>';
+    } else {
+        rankIcon = `<span style="color: #777; font-weight: bold;">${position}</span>`;
+    }
+    
+    // Определяем тип пользователя по активности
+    let userType = '';
+    let typeColor = '#3498db';
+    
+    if (user.count >= 10) {
+        userType = 'Эксперт';
+        typeColor = '#27ae60';
+    } else if (user.count >= 5) {
+        userType = 'Активный';
+        typeColor = '#3498db';
+    } else if (user.count >= 3) {
+        userType = 'Участник';
+        typeColor = '#9b59b6';
+    } else {
+        userType = 'Новичок';
+        typeColor = '#e74c3c';
+    }
+    
+    // Определяем стиль оценок
+    let ratingStyle = '';
+    if (user.avgUserRating >= 4.5) {
+        ratingStyle = 'Добряк';
+    } else if (user.avgUserRating >= 4.0) {
+        ratingStyle = 'Позитивный';
+    } else if (user.avgUserRating >= 3.0) {
+        ratingStyle = 'Объективный';
+    } else if (user.avgUserRating >= 2.0) {
+        ratingStyle = 'Критик';
+    } else {
+        ratingStyle = 'Строгий';
+    }
+    
+    card.style.cssText = `
+        display: flex;
+        align-items: center;
+        padding: 15px 20px;
+        border-radius: 12px;
+        transition: all 0.3s ease;
+        border-left: 4px solid ${rankColor};
+        position: relative;
+        overflow: hidden;
+    `;
+    
+    // Специальные стили для топ-3
+    if (position <= 3) {
+        card.style.background = `linear-gradient(135deg, ${rankColor}15, rgba(255,255,255,0.9))`;
+        card.style.boxShadow = `0 4px 15px ${rankColor}30`;
+    }
+    
+    card.innerHTML = `
+        <div style="width: 50px; text-align: center; font-size: 1.5rem; color: ${rankColor};">
+            ${rankIcon}
+        </div>
+        
+        <div style="flex-grow: 1; margin: 0 20px;">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 5px;">
+                <div>
+                    <h4 style="margin: 0; color: var(--secondary-color); font-size: 1.1rem;">
+                        ${user.name}
+                    </h4>
+                    <div style="font-size: 0.85rem; color: #666; margin-top: 3px; display: flex; align-items: center; gap: 10px;">
+                        <span style="background: ${typeColor}15; color: ${typeColor}; padding: 2px 8px; border-radius: 10px;">
+                            ${userType}
+                        </span>
+                        <span style="color: #777;">
+                            <i class="fas fa-at"></i> ${user.nickname}
+                        </span>
+                    </div>
+                </div>
+                <div style="display: flex; align-items: center; gap: 15px;">
+                    <div style="text-align: center;">
+                        <div style="font-weight: bold; color: var(--secondary-color); font-size: 1.2rem;">
+                            ${user.avgUserRating.toFixed(1)}
+                        </div>
+                        <div style="font-size: 0.75rem; color: #666;">средняя оценка</div>
+                    </div>
+                    <div style="background: rgba(52, 152, 219, 0.1); padding: 3px 10px; border-radius: 12px; 
+                                font-size: 0.85rem; color: var(--primary-color);">
+                        ${user.count} отзыв${user.count === 1 ? '' : user.count >= 5 ? 'ов' : 'а'}
+                    </div>
+                </div>
+            </div>
+            
+            <div style="display: flex; align-items: center; gap: 15px; flex-wrap: wrap; margin-top: 10px;">
+                <div style="font-size: 0.85rem; color: #666; display: flex; align-items: center; gap: 5px;">
+                    <i class="fas fa-star" style="color: #FFD700;"></i>
+                    <span>Стиль: <strong>${ratingStyle}</strong></span>
+                </div>
+                
+                <div style="font-size: 0.85rem; color: #666; display: flex; align-items: center; gap: 5px;">
+                    <i class="fas fa-chart-line" style="color: #2ecc71;"></i>
+                    <span>Консистентность: <strong>${user.consistencyFormatted}/5</strong></span>
+                </div>
+                
+                <div style="font-size: 0.85rem; color: #666; display: flex; align-items: center; gap: 5px;">
+                    <i class="fas fa-globe" style="color: #9b59b6;"></i>
+                    <span>Сайтов: <strong>${user.sitesCount}</strong></span>
+                </div>
+            </div>
+            
+            <!-- Последние оценки -->
+            <div style="margin-top: 10px; font-size: 0.8rem; color: #888;">
+                <i class="fas fa-history"></i> Последние: 
+                ${user.reviews
+                    .sort((a, b) => new Date(b.date) - new Date(a.date))
+                    .slice(0, 2)
+                    .map(r => `${r.site} (${r.rating}.0)`)
+                    .join(', ')}
+            </div>
+        </div>
+        
+        ${position <= 3 ? `
+        <div style="position: absolute; top: -10px; right: -10px; background: ${rankColor}; 
+                    color: white; font-size: 0.7rem; padding: 2px 8px; border-radius: 10px; 
+                    transform: rotate(15deg); font-weight: bold; box-shadow: 0 2px 5px rgba(0,0,0,0.2);">
+            ${position === 1 ? 'ТОП-РЕЦЕНЗЕНТ' : position === 2 ? '2 МЕСТО' : '3 МЕСТО'}
         </div>
         ` : ''}
     `;
