@@ -270,6 +270,17 @@ const reviews = [
         rating: 4,
         comment: "Нейросеть хорошая, но минус в том, что токены очень быстро заканчиваются, плюс нельзя создавать изображения",
         date: "2026-02-05T11:48:00"
+    },
+    {
+        id: 26,
+        name: "Алёна",
+        nickname: "fanalenki",
+        email: "akkumulator950@gmail.com",
+        siteUrl: "https://timoshamoscow.github.io/hranilishe.github.io/",
+        siteName: "Хранилище",
+        rating: 2,
+        comment: "Система продвижения не работает! И оформление кринж",
+        date: "2026-02-05T11:58:00"
     }
 ];
 
