@@ -221,8 +221,23 @@ function displaySitesNeedingReviews() {
         
         siteElement.innerHTML = `
             <span class="site-name">${site.name}</span>
-            <span class="site-info">${infoText}</span>
+            <span class="site-info">${site.needsReviewsReason}</span>
         `;
+
+       // И добавим иконки в зависимости от причины
+       const reasonIcon = getReasonIcon(site.reviewCount, site.daysSinceLastReview, site.avgRating);
+       siteElement.innerHTML = `
+           <span style="margin-right: 8px; color: #666;">${reasonIcon}</span>
+           <span class="site-name">${site.name}</span>
+           <span class="site-info">${site.needsReviewsReason}</span>
+        `;
+
+         function getReasonIcon(count, days, rating) {
+             if (count <= 2) return '<i class="fas fa-exclamation-circle" style="color: #e74c3c;"></i>';
+             if (days > 30) return '<i class="fas fa-clock" style="color: #f39c12;"></i>';
+             if (rating < 3.0) return '<i class="fas fa-thermometer-empty" style="color: #e74c3c;"></i>';
+             return '<i class="fas fa-question-circle" style="color: #3498db;"></i>';
+          }
         
         // Добавляем обработчик клика для быстрой оценки
         siteElement.addEventListener('click', () => {
