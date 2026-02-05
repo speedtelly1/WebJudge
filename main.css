@@ -1042,19 +1042,6 @@ header {
     padding: 1px;
 }
 
-/* Анимация пульсации для галочки */
-@keyframes pulse {
-    0% {
-        box-shadow: 0 0 0 0 rgba(52, 152, 219, 0.4);
-    }
-    70% {
-        box-shadow: 0 0 0 5px rgba(52, 152, 219, 0);
-    }
-    100% {
-        box-shadow: 0 0 0 0 rgba(52, 152, 219, 0);
-    }
-}
-
 /* Для тёмной темы (если будет) */
 body.dark-theme .verified-badge {
     color: #5dade2; /* Более светлый голубой */
