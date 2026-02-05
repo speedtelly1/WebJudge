@@ -242,7 +242,9 @@ const reviews = [
     },
     {
         id: 23,
-        name: "Тимофей Горячев",
+        name: "Timofey",
+        nickname: "timofey_goryachev_2026",
+        email: "timofeyeng9@gmail.com",
         siteUrl: "https://timoshamoscow.github.io/taiprompts.github.io/",
         siteName: "TAIPrompts",
         rating: 5,
