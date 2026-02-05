@@ -382,6 +382,17 @@ const reviews = [
         rating: 3,
         comment: "Проверил данный генератор, и могу сказать, что прошлый отзыв прав на 50%. Генератор не так уж и плох, но верстка генератора сломана",
         date: "2026-02-05T17:54:00"
+    },
+    {
+        id: 36,
+        name: "Алёна",
+        nickname: "fanalenki",
+        email: "akkumulator950@gmail.com",
+        siteUrl: "https://akkumulator950-bit.github.io/promptflame.github.io/",
+        siteName: "PromptFlame",
+        rating: 5,
+        comment: "Заметила спорные оценки на свой сайт, и не буду скрывать, да. это мой сайт. Ну что сказать, Тимоша. Ты начал войну. А так, сайт имба, в отличии от TAIPrompts",
+        date: "2026-02-05T21:19:00"
     }
 ];
 
