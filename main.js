@@ -22,15 +22,52 @@
         // Текущий год в футере
         document.getElementById('current-year').textContent = new Date().getFullYear();
 
-// Функция для получения отображаемого никнейма
+// Функция для получения отображаемого никнейма (ОБНОВЛЕННАЯ ВЕРСИЯ)
 function getDisplayNickname(review) {
     // 1. Если у отзыва есть nickname, используем его
     if (review.nickname && review.nickname.trim() !== '') {
         return review.nickname;
     }
     
-    // 2. Если нет nickname, генерируем анонимный ник (anonim_XXXX)
-    return generateAnonimNickname(review.email);
+    // 2. Если есть email, генерируем анонимный ник из email
+    if (review.email && review.email.trim() !== '') {
+        return generateAnonimNickname(review.email);
+    }
+    
+    // 3. Если нет email, создаем ник из имени + случайных цифр
+    if (review.name && review.name.trim() !== '') {
+        return generateNicknameFromName(review.name);
+    }
+    
+    // 4. Если вообще ничего нет - дефолтный ник
+    return 'anonim_0000';
+}
+
+// Новая функция: создает никнейм из имени
+function generateNicknameFromName(name) {
+    try {
+        // Убираем пробелы и спецсимволы из имени
+        const cleanName = name.trim()
+            .toLowerCase()
+            .replace(/[^a-zа-яё0-9]/g, '') // Оставляем только буквы и цифры
+            .substring(0, 10); // Ограничиваем длину
+        
+        // Если имя осталось пустым после очистки
+        if (!cleanName) {
+            return 'user_' + Math.floor(Math.random() * 10000).toString().padStart(4, '0');
+        }
+        
+        // Добавляем случайные цифры для уникальности
+        const randomNum = Math.floor(Math.random() * 10000).toString().padStart(4, '0');
+        
+        // Формируем ник: имя_числа
+        return `${cleanName}_${randomNum}`;
+        
+    } catch (e) {
+        // В случае ошибки возвращаем дефолтный
+        console.warn('Ошибка создания ника из имени:', e);
+        return 'user_' + Math.floor(Math.random() * 10000).toString().padStart(4, '0');
+    }
 }
 
 // Функция создания хеша для анонимного никнейма
