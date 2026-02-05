@@ -1115,3 +1115,14 @@ body.dark-theme .verified-badge {
     visibility: visible;
     margin-bottom: 5px;
 }
+
+@media (max-width: 768px) {
+    .verified-badge {
+        font-size: 0.8rem;
+    }
+    
+    .verified-badge::after {
+        font-size: 0.65rem;
+        padding: 4px 8px;
+    }
+}
