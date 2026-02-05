@@ -927,6 +927,7 @@ body.dark-theme .bottom-banner {
 /* Добавьте в main.css */
 .site-rank-card {
     cursor: pointer;
+    overflow: visible;
 }
 
 .site-rank-card a:hover {
