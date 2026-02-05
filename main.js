@@ -463,10 +463,10 @@ function displayAllReviews(reviewsArray) {
                     <div class="reviewer-info">
             <div style="display: flex; align-items: center; gap: 8px;">
                 <h3 style="margin: 0;">${review.name}</h3>
+                ${review.verified ? '<i class="fas fa-check-circle verified-badge"></i>' : ''}
             </div>
             <div class="reviewer-username">
                 <i class="fas fa-at"></i> ${displayNickname}
-                ${review.verified ? '<i class="fas fa-check-circle verified-badge small"></i>' : ''}
             </div>
                     </div>
                     <div class="rating-value">${review.rating}.0</div>
