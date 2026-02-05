@@ -93,8 +93,9 @@ function extractUsername(email) {
                     }
                     
                     if (pageId === 'stats') {
-                        updateStatistics();
-                        displayRatingDistribution();
+                       updateStatistics();
+                       displayRatingDistribution();
+                       displayTopSites(); // Добавляем эту строку
                     }
                 });
             });
@@ -984,6 +985,12 @@ function filterByCategory(category) {
             if (statsAvgRatingEl) statsAvgRatingEl.textContent = avgRating;
             if (statsReviewersEl) statsReviewersEl.textContent = uniqueAuthors;
             if (statsSitesEl) statsSitesEl.textContent = uniqueSites;
+
+            // Добавляем отображение топ-сайтов
+            setTimeout(() => {
+                displayTopSites();
+                displayRatingDistribution();
+            }, 100);
         }
 
         // Отображение распределения рейтингов
@@ -1025,6 +1032,244 @@ function filterByCategory(category) {
                 ratingDistribution.appendChild(bar);
             }
         }
+
+// ==================== ФУНКЦИЯ ДЛЯ ОТОБРАЖЕНИЯ ТОП-САЙТОВ ====================
+function displayTopSites() {
+    // Создаем контейнер если его нет
+    let topSitesContainer = document.getElementById('top-sites-container');
+    
+    if (!topSitesContainer) {
+        const statsPage = document.getElementById('stats-page');
+        if (!statsPage) return;
+        
+        // Создаем новый раздел для топ-сайтов
+        const sectionHTML = `
+            <div style="margin-top: 40px;">
+                <h3 style="margin-bottom: 20px; color: var(--secondary-color);">
+                    <i class="fas fa-trophy"></i> Рейтинг сайтов
+                </h3>
+                <div id="top-sites-container"></div>
+            </div>
+        `;
+        
+        // Находим конец статистики и вставляем новый раздел
+        const statsContainer = statsPage.querySelector('.glass-effect');
+        if (statsContainer) {
+            // Вставляем после распределения рейтингов
+            const ratingDist = statsPage.querySelector('#rating-distribution');
+            if (ratingDist && ratingDist.parentNode) {
+                ratingDist.parentNode.insertAdjacentHTML('afterend', sectionHTML);
+            } else {
+                // Или просто в конец контейнера
+                statsContainer.insertAdjacentHTML('beforeend', sectionHTML);
+            }
+        }
+        
+        topSitesContainer = document.getElementById('top-sites-container');
+    }
+    
+    // Получаем данные о сайтах
+    const siteStats = calculateSiteRatings();
+    
+    if (siteStats.length === 0) {
+        topSitesContainer.innerHTML = '<p style="text-align: center; color: #666;">Недостаточно данных для рейтинга</p>';
+        return;
+    }
+    
+    // Ограничиваем 10 топ-сайтами
+    const topSites = siteStats.slice(0, 10);
+    
+    // Очищаем контейнер
+    topSitesContainer.innerHTML = '';
+    
+    // Создаем таблицу или список
+    const table = document.createElement('div');
+    table.style.cssText = `
+        display: grid;
+        gap: 10px;
+        margin-top: 20px;
+    `;
+    
+    topSites.forEach((site, index) => {
+        const siteCard = createSiteRankingCard(site, index + 1);
+        table.appendChild(siteCard);
+    });
+    
+    topSitesContainer.appendChild(table);
+}
+
+// ==================== ФУНКЦИЯ ДЛЯ РАСЧЕТА РЕЙТИНГОВ САЙТОВ ====================
+function calculateSiteRatings() {
+    const siteMap = {};
+    
+    // Собираем статистику по сайтам
+    reviews.forEach(review => {
+        if (!siteMap[review.siteUrl]) {
+            siteMap[review.siteUrl] = {
+                url: review.siteUrl,
+                name: review.siteName,
+                totalRating: 0,
+                count: 0,
+                reviews: []
+            };
+        }
+        
+        siteMap[review.siteUrl].totalRating += review.rating;
+        siteMap[review.siteUrl].count++;
+        siteMap[review.siteUrl].reviews.push({
+            rating: review.rating,
+            date: review.date
+        });
+    });
+    
+    // Рассчитываем средний рейтинг и сортируем
+    const sites = Object.values(siteMap)
+        .filter(site => site.count >= 1) // Можно изменить на 2 для более объективных результатов
+        .map(site => {
+            const avgRating = site.totalRating / site.count;
+            
+            return {
+                ...site,
+                avgRating: avgRating,
+                formattedRating: avgRating.toFixed(1),
+                lastReview: site.reviews.sort((a, b) => new Date(b.date) - new Date(a.date))[0]?.date
+            };
+        })
+        // Сортируем по рейтингу
+        .sort((a, b) => {
+            // Приоритет: сначала по рейтингу, затем по количеству отзывов
+            if (b.avgRating !== a.avgRating) {
+                return b.avgRating - a.avgRating;
+            }
+            return b.count - a.count;
+        });
+    
+    return sites;
+}
+
+// ==================== ФУНКЦИЯ СОЗДАНИЯ КАРТОЧКИ РЕЙТИНГА САЙТА ====================
+function createSiteRankingCard(site, position) {
+    const card = document.createElement('div');
+    card.className = 'site-rank-card glass-effect';
+    
+    // Определяем цвета и иконки для топ-3
+    let rankColor = '#3498db'; // Синий для остальных
+    let rankIcon = '';
+    
+    if (position === 1) {
+        rankColor = '#FFD700'; // Золотой
+        rankIcon = '<i class="fas fa-crown"></i>';
+    } else if (position === 2) {
+        rankColor = '#C0C0C0'; // Серебряный
+        rankIcon = '<i class="fas fa-medal"></i>';
+    } else if (position === 3) {
+        rankColor = '#CD7F32'; // Бронзовый
+        rankIcon = '<i class="fas fa-award"></i>';
+    } else {
+        rankIcon = `<span style="color: #777; font-weight: bold;">${position}</span>`;
+    }
+    
+    // Создаем звезды для отображения рейтинга
+    let starsHTML = '';
+    const fullStars = Math.floor(site.avgRating);
+    const hasHalfStar = site.avgRating % 1 >= 0.5;
+    
+    for (let i = 1; i <= 5; i++) {
+        if (i <= fullStars) {
+            starsHTML += '<i class="fas fa-star" style="color: #FFD700;"></i>';
+        } else if (i === fullStars + 1 && hasHalfStar) {
+            starsHTML += '<i class="fas fa-star-half-alt" style="color: #FFD700;"></i>';
+        } else {
+            starsHTML += '<i class="far fa-star" style="color: #ddd;"></i>';
+        }
+    }
+    
+    // Извлекаем домен для отображения
+    let domain = site.url;
+    try {
+        const url = new URL(site.url);
+        domain = url.hostname.replace('www.', '');
+    } catch (e) {
+        // Оставляем как есть
+    }
+    
+    card.style.cssText = `
+        display: flex;
+        align-items: center;
+        padding: 15px 20px;
+        border-radius: 12px;
+        transition: all 0.3s ease;
+        border-left: 4px solid ${rankColor};
+        position: relative;
+        overflow: hidden;
+    `;
+    
+    // Специальные стили для топ-3
+    if (position <= 3) {
+        card.style.background = `linear-gradient(135deg, ${rankColor}15, rgba(255,255,255,0.9))`;
+        card.style.boxShadow = `0 4px 15px ${rankColor}30`;
+    }
+    
+    card.innerHTML = `
+        <div style="width: 50px; text-align: center; font-size: 1.5rem; color: ${rankColor};">
+            ${rankIcon}
+        </div>
+        
+        <div style="flex-grow: 1; margin: 0 20px;">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 5px;">
+                <h4 style="margin: 0; color: var(--secondary-color); font-size: 1.1rem;">
+                    <a href="${site.url}" target="_blank" rel="noopener" 
+                       style="color: inherit; text-decoration: none;"
+                       onmouseover="this.style.textDecoration='underline'"
+                       onmouseout="this.style.textDecoration='none'">
+                        ${site.name}
+                    </a>
+                </h4>
+                <div style="display: flex; align-items: center; gap: 10px;">
+                    <div style="font-weight: bold; color: var(--secondary-color);">
+                        ${site.formattedRating}/5
+                    </div>
+                    <div style="background: rgba(52, 152, 219, 0.1); padding: 3px 10px; border-radius: 12px; 
+                                font-size: 0.85rem; color: var(--primary-color);">
+                        ${site.count} отзыв${site.count === 1 ? '' : site.count >= 5 ? 'ов' : 'а'}
+                    </div>
+                </div>
+            </div>
+            
+            <div style="display: flex; align-items: center; gap: 15px; flex-wrap: wrap;">
+                <div style="font-size: 0.9rem; color: #666; display: flex; align-items: center; gap: 5px;">
+                    <i class="fas fa-globe" style="font-size: 0.8rem;"></i>
+                    <span title="${site.url}">${domain.length > 30 ? domain.substring(0, 30) + '...' : domain}</span>
+                </div>
+                
+                <div style="display: flex; align-items: center;">
+                    ${starsHTML}
+                </div>
+            </div>
+        </div>
+        
+        ${position <= 3 ? `
+        <div style="position: absolute; top: -10px; right: -10px; background: ${rankColor}; 
+                    color: white; font-size: 0.7rem; padding: 2px 8px; border-radius: 10px; 
+                    transform: rotate(15deg); font-weight: bold; box-shadow: 0 2px 5px rgba(0,0,0,0.2);">
+            ${position === 1 ? 'ЛУЧШИЙ' : position === 2 ? '2 МЕСТО' : '3 МЕСТО'}
+        </div>
+        ` : ''}
+    `;
+    
+    // Добавляем hover эффект
+    card.addEventListener('mouseenter', function() {
+        this.style.transform = 'translateY(-3px)';
+        this.style.boxShadow = `0 8px 25px ${position <= 3 ? rankColor + '40' : 'rgba(0,0,0,0.15)'}`;
+    });
+    
+    card.addEventListener('mouseleave', function() {
+        this.style.transform = 'translateY(0)';
+        this.style.boxShadow = position <= 3 ? `0 4px 15px ${rankColor}30` : 'var(--shadow)';
+    });
+    
+    return card;
+}
 
 /*!
  * ============================================================
