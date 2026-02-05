@@ -872,6 +872,7 @@ body.dark-theme .bottom-banner {
     border: 1px solid rgba(39, 174, 96, 0.2);
     transition: all 0.3s ease;
     position: relative;
+    overflow: visible;
     text-decoration: none;
 }
 
