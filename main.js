@@ -262,8 +262,8 @@ function displayRecommendedSites() {
     
     container.innerHTML = '';
     
-    // Ограничиваем 5 лучшими сайтами
-    const topSites = recommendedSites.slice(0, 5);
+    // Ограничиваем 3 лучшими сайтами
+    const topSites = recommendedSites.slice(0, 3);
     
     topSites.forEach(site => {
         const siteElement = document.createElement('a');
