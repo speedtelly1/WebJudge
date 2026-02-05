@@ -1025,3 +1025,93 @@ header {
         width: 100%;
     }
 }
+
+/* ==================== СТИЛИ ДЛЯ ВЕРИФИКАЦИИ ==================== */
+
+.verified-badge {
+    color: #3498db; /* Голубой цвет */
+    font-size: 0.9rem;
+    background: rgba(52, 152, 219, 0.1);
+    border-radius: 50%;
+    padding: 2px;
+    animation: pulse 2s infinite;
+}
+
+.verified-badge.small {
+    font-size: 0.7rem;
+    padding: 1px;
+}
+
+/* Анимация пульсации для галочки */
+@keyframes pulse {
+    0% {
+        box-shadow: 0 0 0 0 rgba(52, 152, 219, 0.4);
+    }
+    70% {
+        box-shadow: 0 0 0 5px rgba(52, 152, 219, 0);
+    }
+    100% {
+        box-shadow: 0 0 0 0 rgba(52, 152, 219, 0);
+    }
+}
+
+/* Для тёмной темы (если будет) */
+body.dark-theme .verified-badge {
+    color: #5dade2; /* Более светлый голубой */
+    background: rgba(93, 173, 226, 0.15);
+}
+
+/* В карточке отзыва - улучшенные стили */
+.review-header .verified-badge {
+    margin-left: 5px;
+    font-size: 0.85rem;
+}
+
+.reviewer-username .verified-badge {
+    margin-left: 5px;
+    font-size: 0.7rem;
+    opacity: 0.8;
+}
+
+/* В рейтинге пользователей */
+.user-rank-card .verified-badge {
+    font-size: 0.9rem;
+    margin-left: 5px;
+}
+
+/* Эффект при наведении */
+.verified-badge:hover {
+    color: #2980b9; /* Темнее при наведении */
+    transform: scale(1.1);
+    transition: all 0.2s ease;
+}
+
+/* Информация о верификации при наведении */
+.verified-badge {
+    position: relative;
+    cursor: help;
+}
+
+.verified-badge::after {
+    content: 'Проверенный пользователь';
+    position: absolute;
+    bottom: 100%;
+    left: 50%;
+    transform: translateX(-50%);
+    background: var(--secondary-color);
+    color: white;
+    padding: 5px 10px;
+    border-radius: 6px;
+    font-size: 0.75rem;
+    white-space: nowrap;
+    opacity: 0;
+    visibility: hidden;
+    transition: all 0.2s ease;
+    z-index: 100;
+}
+
+.verified-badge:hover::after {
+    opacity: 1;
+    visibility: visible;
+    margin-bottom: 5px;
+}
