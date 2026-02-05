@@ -360,7 +360,18 @@ const reviews = [
         rating: 1,
         comment: "Просто если честно, промпты плохие, вёрстка сломана. Помню, похвалил Алёну в письме. Так вот. Я был не прав.",
         date: "2026-02-05T17:05:00"
-    }
+    },
+    {
+        id: 34,
+        name: "Константин",
+        nickname: "speedtelly1",
+        email: "timosha.sibilev@gmail.com",
+        siteUrl: "https://xn--d1ah4a.com/feed",
+        siteName: "итд.com",
+        rating: 3,
+        comment: "Не понимаю, почему все так счастливы от этой соцсети. Обычная соцсеть, не более.",
+        date: "2026-02-05T17:37:00"
+    },
 ];
 
 // Добавьте в data.js
