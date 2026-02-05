@@ -349,6 +349,17 @@ const reviews = [
         rating: 3,
         comment: "Раньше был топ, но потом появился капкут",
         date: "2026-02-05T16:40:00"
+    },
+    {
+        id: 33,
+        name: "Тимофей",
+        nickname: "timoshamoscow",
+        email: "roll3ogurec0@gmail.com",
+        siteUrl: "https://akkumulator950-bit.github.io/promptflame.github.io/",
+        siteName: "PromptFlame",
+        rating: 1,
+        comment: "Просто если честно, промпты плохие, вёрстка сломана. Помню, похвалил Алёну в письме. Так вот. Я был не прав.",
+        date: "2026-02-05T17:05:00"
     }
 ];
 
