@@ -270,7 +270,11 @@ const categories = {
     'Авторские': (review) => {
         // Определяем, является ли отзыв авторским
         const isAuthor = review.comment.includes('мой сайт') || 
-                         review.comment.includes('я автор');
+                         review.comment.includes('я автор') ||
+                         // Конкретный случай: Тимофей о TAIPrompts
+                         (review.name === 'Тимофей' && 
+                         review.email === 'roll3ogurec0@gmail.com' && 
+                         review.siteName === 'TAIPrompts');
         
         // Только если это автор И рейтинг высокий
         return isAuthor && review.rating >= 4;
