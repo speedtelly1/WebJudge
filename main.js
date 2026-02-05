@@ -18,9 +18,6 @@
         const statsAvgRatingEl = document.getElementById('stats-avg-rating');
         const statsReviewersEl = document.getElementById('stats-reviewers');
         const statsSitesEl = document.getElementById('stats-sites');
-        
-        // Текущий год в футере
-        document.getElementById('current-year').textContent = new Date().getFullYear();
 
 // Функция для получения отображаемого никнейма (ОБНОВЛЕННАЯ ВЕРСИЯ)
 function getDisplayNickname(review) {
