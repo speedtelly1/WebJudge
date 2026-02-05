@@ -289,12 +289,13 @@ function generateAnonimNickname(email) {
     }
 }
 
-// Функция для добавления нового отзыва
+// Функция для добавления нового отзыва (ОБНОВЛЕННАЯ ВЕРСИЯ)
 function addReview(newReview) {
     const maxId = reviews.length > 0 ? Math.max(...reviews.map(r => r.id)) : 0;
     
     // Генерируем никнейм для нового отзыва, если он не указан
     let nickname = newReview.nickname || '';
+    
     if (!nickname.trim()) {
         // Проверяем, хочет ли пользователь быть анонимным
         const comment = newReview.comment || '';
@@ -303,16 +304,18 @@ function addReview(newReview) {
                            comment.toLowerCase().includes('скрыть имя');
         
         if (wantsAnonim) {
+            // Если хочет быть анонимным - генерируем анонимный ник
             nickname = generateAnonimNickname(newReview.email);
         } else {
-            // Если нет nickname, оставляем пустым - будет использован username из email
+            // Если не указал nickname и не хочет быть анонимным
+            // Оставляем пустым - функция getDisplayNickname сама решит
             nickname = '';
         }
     }
     
     const reviewWithId = {
         id: maxId + 1,
-        nickname: nickname, // Может быть пустым
+        nickname: nickname, // Может быть пустым - это нормально
         ...newReview,
         date: new Date().toISOString().split('T')[0]
     };
