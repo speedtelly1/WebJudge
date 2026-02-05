@@ -923,3 +923,43 @@ body.dark-theme .bottom-banner {
     transform: rotate(15deg);
     box-shadow: 0 2px 4px rgba(0,0,0,0.2);
 }
+
+/* Добавьте в main.css */
+.site-rank-card {
+    cursor: pointer;
+}
+
+.site-rank-card a:hover {
+    text-decoration: underline !important;
+}
+
+.gold-rank {
+    background: linear-gradient(135deg, rgba(255, 215, 0, 0.1), rgba(255, 255, 255, 0.9));
+}
+
+.silver-rank {
+    background: linear-gradient(135deg, rgba(192, 192, 192, 0.1), rgba(255, 255, 255, 0.9));
+}
+
+.bronze-rank {
+    background: linear-gradient(135deg, rgba(205, 127, 50, 0.1), rgba(255, 255, 255, 0.9));
+}
+
+/* Для мобильных устройств */
+@media (max-width: 768px) {
+    .site-rank-card {
+        flex-direction: column;
+        align-items: flex-start !important;
+        gap: 15px;
+    }
+    
+    .site-rank-card > div:first-child {
+        width: 100% !important;
+        text-align: left !important;
+    }
+    
+    .site-rank-card > div:nth-child(2) {
+        margin: 0 !important;
+        width: 100%;
+    }
+}
