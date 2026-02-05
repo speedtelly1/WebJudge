@@ -1157,7 +1157,7 @@ function displayTopSites() {
     topSitesContainer.appendChild(table);
 }
 
-// ==================== ФУНКЦИЯ ДЛЯ РАСЧЕТА РЕЙТИНГОВ САЙТОВ ====================
+// ==================== ФУНКЦИЯ ДЛЯ РАСЧЕТА ВЗВЕШЕННЫХ РЕЙТИНГОВ ====================
 function calculateSiteRatings() {
     const siteMap = {};
     
@@ -1181,27 +1181,35 @@ function calculateSiteRatings() {
         });
     });
     
-    // Рассчитываем средний рейтинг и сортируем
+    // Рассчитываем взвешенный рейтинг
     const sites = Object.values(siteMap)
-        .filter(site => site.count >= 1) // Можно изменить на 2 для более объективных результатов
+        .filter(site => site.count >= 1)
         .map(site => {
             const avgRating = site.totalRating / site.count;
+            
+            // ВЗВЕШЕННЫЙ РЕЙТИНГ: учитываем количество отзывов
+            // Формула: (средний рейтинг * вес) + бонус за количество
+            const minReviewsForFullWeight = 5; // При 5+ отзывах - полный вес
+            const weight = Math.min(site.count / minReviewsForFullWeight, 1);
+            
+            // Бонус за большее количество отзывов (максимум +0.5)
+            const countBonus = Math.min(site.count / 10, 0.5);
+            
+            // Итоговый взвешенный рейтинг (максимум 5.5 для сортировки)
+            const weightedScore = (avgRating * weight) + countBonus;
             
             return {
                 ...site,
                 avgRating: avgRating,
                 formattedRating: avgRating.toFixed(1),
+                weightedScore: weightedScore, // Для сортировки
+                countBonus: countBonus.toFixed(2),
+                weight: weight.toFixed(2),
                 lastReview: site.reviews.sort((a, b) => new Date(b.date) - new Date(a.date))[0]?.date
             };
         })
-        // Сортируем по рейтингу
-        .sort((a, b) => {
-            // Приоритет: сначала по рейтингу, затем по количеству отзывов
-            if (b.avgRating !== a.avgRating) {
-                return b.avgRating - a.avgRating;
-            }
-            return b.count - a.count;
-        });
+        // Сортируем по взвешенному рейтингу
+        .sort((a, b) => b.weightedScore - a.weightedScore);
     
     return sites;
 }
