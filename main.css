@@ -963,3 +963,18 @@ body.dark-theme .bottom-banner {
         width: 100%;
     }
 }
+
+/* Бля, если дипсик наебал, УДАЛИТЬ */
+
+header {
+    padding-left: 25px !important;
+    padding-right: 25px !important;
+}
+
+.logo {
+    padding-left: 0 !important;
+}
+
+.nav-links {
+    padding-left: 0 !important;
+}
