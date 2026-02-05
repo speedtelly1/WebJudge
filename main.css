@@ -978,3 +978,7 @@ header {
 .nav-links {
     padding-left: 0 !important;
 }
+
+.footer-content p {
+        padding-left: 0 !important;
+}
