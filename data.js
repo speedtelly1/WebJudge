@@ -314,6 +314,39 @@ const reviews = [
         rating: 3,
         comment: "Кинопоиск топ, но с него постепенно удаляются многие фильмы и тд, поэтому думаю скоро уйду с него.",
         date: "2026-02-05T15:23:00"
+    },
+    {
+        id: 30,
+        name: "Timofey",
+        nickname: "timofey_goryachev_2026",
+        email: "timofeyeng9@gmail.com",
+        siteUrl: "https://www.youtube.com/",
+        siteName: "YouTube",
+        rating: 5,
+        comment: "Стрим супер!",
+        date: "2026-02-05T16:38:00"
+    },
+    {
+        id: 31,
+        name: "Тимофей",
+        nickname: "timoshamoscow",
+        email: "roll3ogurec0@gmail.com",
+        siteUrl: "https://www.duolingo.com/",
+        siteName: "Duolingo",
+        rating: 5,
+        comment: "дуолинго прикольный. благодаря новому курсу шахмат, я понял, что оскар нарцисс",
+        date: "2026-02-05T16:39:00"
+    },
+    {
+        id: 32,
+        name: "Тимофей",
+        nickname: "timoshamoscow",
+        email: "roll3ogurec0@gmail.com",
+        siteUrl: "https://www.movavi.com/",
+        siteName: "Movavi",
+        rating: 3,
+        comment: "Раньше был топ, но потом появился капкут",
+        date: "2026-02-05T16:40:00"
     }
 ];
 
