@@ -567,7 +567,7 @@ function isGitHubPagesAuthor(review) {
             }
             
             // Проверка 5: Личная критика
-            const personalAttacks = ['дурак', 'идиот', 'тупой', 'грубый', 'глупый', 'грубым', 'глупым', 'тупым'];
+            const personalAttacks = ['дурак', 'идиот', 'тупой', 'грубый', 'глупый', 'грубым', 'глупым', 'тупым', 'глуп', 'туп'];
             const hasPersonal = personalAttacks.some(word => 
                 review.comment.toLowerCase().includes(word)
             );
