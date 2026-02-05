@@ -43,25 +43,50 @@ function getDisplayNickname(review) {
     return 'anonim_0000';
 }
 
-// Новая функция: создает никнейм из имени
+// Новая функция: создает английский никнейм из имени
 function generateNicknameFromName(name) {
     try {
-        // Убираем пробелы и спецсимволы из имени
-        const cleanName = name.trim()
-            .toLowerCase()
-            .replace(/[^a-zа-яё0-9]/g, '') // Оставляем только буквы и цифры
-            .substring(0, 10); // Ограничиваем длину
+        // Транслитерация русского имени в английское
+        const translitMap = {
+            'а': 'a', 'б': 'b', 'в': 'v', 'г': 'g', 'д': 'd',
+            'е': 'e', 'ё': 'yo', 'ж': 'zh', 'з': 'z', 'и': 'i',
+            'й': 'y', 'к': 'k', 'л': 'l', 'м': 'm', 'н': 'n',
+            'о': 'o', 'п': 'p', 'р': 'r', 'с': 's', 'т': 't',
+            'у': 'u', 'ф': 'f', 'х': 'h', 'ц': 'ts', 'ч': 'ch',
+            'ш': 'sh', 'щ': 'sch', 'ъ': '', 'ы': 'y', 'ь': '',
+            'э': 'e', 'ю': 'yu', 'я': 'ya'
+        };
         
-        // Если имя осталось пустым после очистки
-        if (!cleanName) {
+        // Приводим имя к нижнему регистру
+        let cleanName = name.trim().toLowerCase();
+        
+        // Транслитерируем русские буквы в английские
+        let englishName = '';
+        for (let char of cleanName) {
+            if (translitMap[char]) {
+                englishName += translitMap[char];
+            } else if (char.match(/[a-z0-9]/)) {
+                // Оставляем английские буквы и цифры как есть
+                englishName += char;
+            }
+            // Игнорируем другие символы (пробелы, знаки препинания)
+        }
+        
+        // Если после транслитерации имя пустое
+        if (!englishName) {
             return 'user_' + Math.floor(Math.random() * 10000).toString().padStart(4, '0');
         }
         
-        // Добавляем случайные цифры для уникальности
-        const randomNum = Math.floor(Math.random() * 10000).toString().padStart(4, '0');
+        // Ограничиваем длину и убираем возможные двойные символы
+        englishName = englishName
+            .replace(/(.)\1+/g, '$1') // Убираем повторяющиеся символы
+            .substring(0, 12); // Ограничиваем длину
         
-        // Формируем ник: имя_числа
-        return `${cleanName}_${randomNum}`;
+        // Добавляем случайные цифры для уникальности
+        const randomNum = Math.floor(Math.random() * 1000).toString().padStart(3, '0');
+        
+        // Формируем ник: englishname_числа
+        return `${englishName}_${randomNum}`;
         
     } catch (e) {
         // В случае ошибки возвращаем дефолтный
