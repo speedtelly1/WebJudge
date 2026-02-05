@@ -19,6 +19,11 @@
         const statsReviewersEl = document.getElementById('stats-reviewers');
         const statsSitesEl = document.getElementById('stats-sites');
 
+function isUserVerified(email) {
+    // Проверяем, есть ли у этого пользователя хотя бы один верифицированный отзыв
+    return reviews.some(review => review.email === email && review.verified === true);
+}
+
 // Функция для получения отображаемого никнейма (ОБНОВЛЕННАЯ ВЕРСИЯ)
 function getDisplayNickname(review) {
     // 1. Если у отзыва есть nickname, используем его
@@ -456,10 +461,14 @@ function displayAllReviews(reviewsArray) {
             card.innerHTML = `
                 <div class="review-header">
                     <div class="reviewer-info">
-                        <h3>${review.name}</h3>
-                        <div class="reviewer-username">
-                            <i class="fas fa-at"></i> ${displayNickname}
-                        </div>
+            <div style="display: flex; align-items: center; gap: 8px;">
+                <h3 style="margin: 0;">${review.name}</h3>
+                ${review.verified ? '<i class="fas fa-check-circle verified-badge"></i>' : ''}
+            </div>
+            <div class="reviewer-username">
+                <i class="fas fa-at"></i> ${displayNickname}
+                ${review.verified ? '<i class="fas fa-check-circle verified-badge small"></i>' : ''}
+            </div>
                     </div>
                     <div class="rating-value">${review.rating}.0</div>
                 </div>
