@@ -487,17 +487,20 @@ function getRecommendedSites() {
     return recommended;
 }
 
-// Функция для получения сайтов, которые нуждаются в отзывах
+// Функция для получения сайтов, которые нуждаются в отзывах (ОБНОВЛЁННАЯ)
 function getSitesNeedingReviews() {
     const siteMap = {};
+    const currentDate = new Date();
     
+    // Собираем статистику по сайтам
     reviews.forEach(review => {
         if (!siteMap[review.siteUrl]) {
             siteMap[review.siteUrl] = {
                 url: review.siteUrl,
                 name: review.siteName,
                 lastReview: new Date(review.date),
-                reviewCount: 0
+                reviewCount: 0,
+                ratings: []
             };
         }
         
@@ -507,26 +510,80 @@ function getSitesNeedingReviews() {
         }
         
         siteMap[review.siteUrl].reviewCount++;
+        siteMap[review.siteUrl].ratings.push(review.rating);
     });
     
-    const sites = Object.values(siteMap).map(site => ({
-        ...site,
-        daysSinceLastReview: Math.floor((new Date() - site.lastReview) / (1000 * 60 * 60 * 24))
-    }));
+    const sites = Object.values(siteMap).map(site => {
+        // Рассчитываем сколько дней прошло с последнего отзыва
+        const daysSinceLastReview = Math.floor((currentDate - site.lastReview) / (1000 * 60 * 60 * 24));
+        
+        // Рассчитываем средний рейтинг
+        const avgRating = site.ratings.reduce((sum, r) => sum + r, 0) / site.ratings.length;
+        
+        // Определяем приоритет (чем выше, тем больше нуждается)
+        let priority = 0;
+        
+        // Критерий 1: Мало отзывов (высший приоритет)
+        if (site.reviewCount <= 2) {
+            priority += 100 - (site.reviewCount * 10); // 1 отзыв = 90, 2 отзыва = 80
+        }
+        
+        // Критерий 2: Давно не было отзывов (>30 дней)
+        if (daysSinceLastReview > 30) {
+            priority += Math.min(daysSinceLastReview / 10, 50); // Максимум +50 баллов
+        }
+        
+        // Критерий 3: Низкий рейтинг (<3.0)
+        if (avgRating < 3.0) {
+            priority += (3.0 - avgRating) * 20; // Чем ниже рейтинг, тем выше приоритет
+        }
+        
+        // Критерий 4: Противоречивые оценки (высокий разброс)
+        const ratingStd = calculateStandardDeviation(site.ratings);
+        if (ratingStd > 1.5) { // Большой разброс оценок
+            priority += ratingStd * 10;
+        }
+        
+        return {
+            ...site,
+            daysSinceLastReview: daysSinceLastReview,
+            avgRating: avgRating.toFixed(1),
+            priority: priority,
+            needsReviewsReason: getNeedsReason(site.reviewCount, daysSinceLastReview, avgRating)
+        };
+    });
     
-    // Сортируем по давности отзыва и количеству отзывов
-    // Приоритет: 1) мало отзывов (1-2), 2) давно не было отзывов (>30 дней)
+    // Сортируем по приоритету (высший приоритет = больше нуждается)
     return sites
-        .filter(site => site.reviewCount <= 2 || site.daysSinceLastReview > 30)
-        .sort((a, b) => {
-            // Сначала по количеству отзывов (чем меньше, тем выше)
-            if (a.reviewCount !== b.reviewCount) {
-                return a.reviewCount - b.reviewCount;
-            }
-            // Затем по давности (чем старее, тем выше)
-            return b.daysSinceLastReview - a.daysSinceLastReview;
-        })
+        .sort((a, b) => b.priority - a.priority)
         .slice(0, 10); // Ограничиваем 10 сайтами
+}
+
+// Вспомогательная функция: рассчитывает стандартное отклонение
+function calculateStandardDeviation(numbers) {
+    const mean = numbers.reduce((sum, num) => sum + num, 0) / numbers.length;
+    const variance = numbers.reduce((sum, num) => sum + Math.pow(num - mean, 2), 0) / numbers.length;
+    return Math.sqrt(variance);
+}
+
+// Вспомогательная функция: определяет причину
+function getNeedsReason(count, days, rating) {
+    const reasons = [];
+    
+    if (count <= 2) {
+        reasons.push(count === 1 ? '1 отзыв' : '2 отзыва');
+    }
+    
+    if (days > 30) {
+        const months = Math.floor(days / 30);
+        reasons.push(`${months} ${months === 1 ? 'месяц' : months < 5 ? 'месяца' : 'месяцев'} без отзывов`);
+    }
+    
+    if (rating < 3.0) {
+        reasons.push('низкий рейтинг');
+    }
+    
+    return reasons.join(' • ');
 }
 
 /*!
