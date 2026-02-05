@@ -248,6 +248,28 @@ const reviews = [
         rating: 5,
         comment: "Привет! Спасибо! Это Супер сайт. Я пользуюсь месяц сайтом! Спасибо!❤️",
         date: "2026-02-05T11:11:00"
+    },
+    {
+        id: 24,
+        name: "Тимофей",
+        nickname: "timoshamoscow",
+        email: "roll3ogurec0@gmail.com",
+        siteUrl: "https://yandex.ru/games/app/191972",
+        siteName: "Битва за территории",
+        rating: 3,
+        comment: "Хорошая игра, но конкретно эта хуже других. Лучше скачайте оригинальную игру в плей маркете",
+        date: "2026-02-05T11:47:00"
+    },
+    {
+        id: 25,
+        name: "Тимофей",
+        nickname: "timoshamoscow",
+        email: "roll3ogurec0@gmail.com",
+        siteUrl: "https://chat.deepseek.com/",
+        siteName: "DeepSeek",
+        rating: 4,
+        comment: "Нейросеть хорошая, но минус в том, что токены очень быстро заканчиваются, плюс нельзя создавать изображения",
+        date: "2026-02-05T11:48:00"
     }
 ];
 
