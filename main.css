@@ -981,3 +981,47 @@ header {
 .footer-content p {
         padding-left: 0 !important;
 }
+
+/* ==================== СТИЛИ ДЛЯ РЕЙТИНГА ПОЛЬЗОВАТЕЛЕЙ ==================== */
+.user-rank-card {
+    cursor: pointer;
+    margin-bottom: 10px;
+}
+
+.user-rank-card:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 8px 25px rgba(0,0,0,0.15);
+}
+
+/* Типы пользователей */
+.user-type-expert {
+    background: linear-gradient(135deg, rgba(39, 174, 96, 0.1), rgba(255, 255, 255, 0.9));
+}
+
+.user-type-active {
+    background: linear-gradient(135deg, rgba(52, 152, 219, 0.1), rgba(255, 255, 255, 0.9));
+}
+
+.user-type-newbie {
+    background: linear-gradient(135deg, rgba(231, 76, 60, 0.1), rgba(255, 255, 255, 0.9));
+}
+
+/* Для мобильных устройств */
+@media (max-width: 768px) {
+    .user-rank-card {
+        flex-direction: column;
+        align-items: flex-start !important;
+        gap: 15px;
+        padding: 20px !important;
+    }
+    
+    .user-rank-card > div:first-child {
+        width: 100% !important;
+        text-align: left !important;
+    }
+    
+    .user-rank-card > div:nth-child(2) {
+        margin: 0 !important;
+        width: 100%;
+    }
+}
