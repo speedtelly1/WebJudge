@@ -872,7 +872,6 @@ body.dark-theme .bottom-banner {
     border: 1px solid rgba(39, 174, 96, 0.2);
     transition: all 0.3s ease;
     position: relative;
-    overflow: hidden;
     text-decoration: none;
 }
 
@@ -963,8 +962,6 @@ body.dark-theme .bottom-banner {
         width: 100%;
     }
 }
-
-/* Бля, если дипсик наебал, УДАЛИТЬ */
 
 header {
     padding-left: 25px !important;
