@@ -372,6 +372,17 @@ const reviews = [
         comment: "Не понимаю, почему все так счастливы от этой соцсети. Обычная соцсеть, не более.",
         date: "2026-02-05T17:37:00"
     },
+    {
+        id: 35,
+        name: "Константин",
+        nickname: "speedtelly1",
+        email: "timosha.sibilev@gmail.com",
+        siteUrl: "https://akkumulator950-bit.github.io/promptflame.github.io/",
+        siteName: "PromptFlame",
+        rating: 3,
+        comment: "Проверил данный генератор, и могу сказать, что прошлый отзыв прав на 50%. Генератор не так уж и плох, но верстка генератора сломана",
+        date: "2026-02-05T17:54:00"
+    }
 ];
 
 // Добавьте в data.js
