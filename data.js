@@ -281,6 +281,39 @@ const reviews = [
         rating: 2,
         comment: "Система продвижения не работает! И оформление кринж",
         date: "2026-02-05T11:58:00"
+    },
+    {
+        id: 27,
+        name: "Роман",
+        nickname: "morfiks689",
+        email: "morfiks689@gmail.com",
+        siteUrl: "https://character.ai/",
+        siteName: "Character.ai",
+        rating: 5,
+        comment: "Сайт имба. Много персонажей для удовлетворения твоего пубертата. Все же мы понимаем, зачем мы туда ходим?",
+        date: "2026-02-05T15:18:00"
+    },
+    {
+        id: 28,
+        name: "Роман",
+        nickname: "morfiks689",
+        email: "morfiks689@gmail.com",
+        siteUrl: "https://miro.com/app/dashboard/",
+        siteName: "Miro",
+        rating: 2,
+        comment: "Как по мне, данная доска переоценена. Она осталась в прошлом. Где то в 2021-2023 годах (Мое мнение, не бейте)",
+        date: "2026-02-05T15:20:00"
+    },
+    {
+        id: 29,
+        name: "Тимофей",
+        nickname: "timoshamoscow",
+        email: "roll3ogurec0@gmail.com",
+        siteUrl: "https://www.kinopoisk.ru/",
+        siteName: "Кинопоиск",
+        rating: 3,
+        comment: "Кинопоиск топ, но с него постепенно удаляются многие фильмы и тд, поэтому думаю скоро уйду с него.",
+        date: "2026-02-05T15:23:00"
     }
 ];
 
