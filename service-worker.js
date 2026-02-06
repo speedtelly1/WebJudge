@@ -80,3 +80,33 @@ self.addEventListener('fetch', event => {
       })
   );
 });
+
+// ==================== ПЕРИОДИЧЕСКАЯ СИНХРОНИЗАЦИЯ ====================
+
+// Регистрируем периодическую синхронизацию
+self.addEventListener('periodicsync', (event) => {
+    if (event.tag === 'update-reviews') {
+        console.log('Периодическая синхронизация: обновление отзывов');
+        event.waitUntil(updateReviewsData());
+    }
+});
+
+// Функция обновления данных
+async function updateReviewsData() {
+    try {
+        const cache = await caches.open(CACHE_NAME);
+        const response = await fetch('/sitereview.github.io/data.js', { 
+            cache: 'no-store' 
+        });
+        
+        if (response.ok) {
+            await cache.put('/sitereview.github.io/data.js', response.clone());
+            console.log('Кэш data.js обновлён в фоне');
+        }
+        
+        return true;
+    } catch (error) {
+        console.error('Ошибка синхронизации:', error);
+        return false;
+    }
+}
