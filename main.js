@@ -2171,6 +2171,97 @@ window.addEventListener('popstate', function(event) {
     }
 });
 
+// Регистрация Service Worker для PWA
+if ('serviceWorker' in navigator) {
+  window.addEventListener('load', function() {
+    navigator.serviceWorker.register('service-worker.js')
+      .then(function(registration) {
+        console.log('ServiceWorker registration successful with scope: ', registration.scope);
+        
+        // Показываем уведомление об установке PWA
+        checkPWAInstallPrompt();
+      })
+      .catch(function(error) {
+        console.log('ServiceWorker registration failed: ', error);
+      });
+  });
+}
+
+// Проверка и предложение установки PWA
+function checkPWAInstallPrompt() {
+  let deferredPrompt;
+  const installButton = document.createElement('button');
+  
+  window.addEventListener('beforeinstallprompt', (e) => {
+    // Предотвращаем автоматическое отображение подсказки
+    e.preventDefault();
+    deferredPrompt = e;
+    
+    // Показываем свою кнопку установки
+    showInstallButton();
+  });
+  
+  function showInstallButton() {
+    installButton.innerHTML = '<i class="fas fa-download"></i> Установить приложение';
+    installButton.style.cssText = `
+      position: fixed;
+      bottom: 80px;
+      right: 20px;
+      background: linear-gradient(135deg, var(--primary-color), var(--primary-dark));
+      color: white;
+      border: none;
+      padding: 12px 20px;
+      border-radius: 25px;
+      font-weight: 600;
+      cursor: pointer;
+      box-shadow: 0 4px 15px rgba(52, 152, 219, 0.4);
+      z-index: 9999;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      transition: all 0.3s ease;
+    `;
+    
+    installButton.addEventListener('mouseenter', () => {
+      installButton.style.transform = 'translateY(-2px)';
+      installButton.style.boxShadow = '0 6px 20px rgba(52, 152, 219, 0.5)';
+    });
+    
+    installButton.addEventListener('mouseleave', () => {
+      installButton.style.transform = 'translateY(0)';
+      installButton.style.boxShadow = '0 4px 15px rgba(52, 152, 219, 0.4)';
+    });
+    
+    installButton.addEventListener('click', () => {
+      hideInstallButton();
+      deferredPrompt.prompt();
+      
+      deferredPrompt.userChoice.then((choiceResult) => {
+        if (choiceResult.outcome === 'accepted') {
+          console.log('User accepted the install prompt');
+        } else {
+          console.log('User dismissed the install prompt');
+        }
+        deferredPrompt = null;
+      });
+    });
+    
+    document.body.appendChild(installButton);
+  }
+  
+  function hideInstallButton() {
+    if (installButton.parentNode) {
+      installButton.parentNode.removeChild(installButton);
+    }
+  }
+  
+  // Скрываем кнопку после установки
+  window.addEventListener('appinstalled', () => {
+    console.log('PWA was installed');
+    hideInstallButton();
+  });
+}
+
 /*!
  * ============================================================
  * SiteReview - Система оценки веб-сайтов
