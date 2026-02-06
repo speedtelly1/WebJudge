@@ -1204,3 +1204,93 @@ body.dark-theme .verified-badge {
 .nav-link[data-page="profile"] i {
     margin-right: 8px;
 }
+
+/* Стили для викторины */
+.quiz-btn {
+    transition: all 0.3s ease;
+}
+
+.quiz-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+}
+
+.quiz-option {
+    padding: 15px;
+    background: rgba(255, 255, 255, 0.9);
+    border: 2px solid rgba(52, 152, 219, 0.2);
+    border-radius: 10px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    text-align: left;
+    font-size: 0.95rem;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.quiz-option:hover {
+    background: rgba(52, 152, 219, 0.05);
+    border-color: var(--primary-color);
+    transform: translateY(-2px);
+}
+
+.quiz-option.correct {
+    background: rgba(46, 204, 113, 0.1);
+    border-color: #27ae60;
+    color: #27ae60;
+}
+
+.quiz-option.wrong {
+    background: rgba(231, 76, 60, 0.1);
+    border-color: #e74c3c;
+    color: #e74c3c;
+}
+
+.quiz-option .option-letter {
+    width: 30px;
+    height: 30px;
+    border-radius: 50%;
+    background: var(--primary-color);
+    color: white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: bold;
+    flex-shrink: 0;
+}
+
+.quiz-option.correct .option-letter {
+    background: #27ae60;
+}
+
+.quiz-option.wrong .option-letter {
+    background: #e74c3c;
+}
+
+#quiz-feedback.correct {
+    background: rgba(46, 204, 113, 0.1);
+    border: 1px solid #27ae60;
+    color: #27ae60;
+}
+
+#quiz-feedback.wrong {
+    background: rgba(231, 76, 60, 0.1);
+    border: 1px solid #e74c3c;
+    color: #e74c3c;
+}
+
+.quiz-progress {
+    height: 6px;
+    background: rgba(0,0,0,0.1);
+    border-radius: 3px;
+    overflow: hidden;
+    margin-bottom: 20px;
+}
+
+.quiz-progress-bar {
+    height: 100%;
+    background: linear-gradient(90deg, #9b59b6, #8e44ad);
+    border-radius: 3px;
+    transition: width 0.5s ease;
+}
