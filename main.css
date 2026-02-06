@@ -1294,3 +1294,35 @@ body.dark-theme .verified-badge {
     border-radius: 3px;
     transition: width 0.5s ease;
 }
+
+/* Стили для расширенного поиска */
+.filter-group select:focus {
+    outline: none;
+    border-color: var(--primary-color);
+    box-shadow: 0 0 0 2px rgba(52, 152, 219, 0.2);
+}
+
+#search-results-info {
+    animation: fadeIn 0.3s ease;
+}
+
+#clear-all-filters:hover {
+    background: rgba(231, 76, 60, 0.2);
+    transform: translateY(-1px);
+}
+
+/* Адаптивность */
+@media (max-width: 768px) {
+    .advanced-filters > div {
+        grid-template-columns: 1fr !important;
+    }
+    
+    .search-box {
+        flex-direction: column;
+        gap: 10px;
+    }
+    
+    .search-box button {
+        width: 100%;
+    }
+}
