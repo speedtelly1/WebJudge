@@ -243,19 +243,110 @@
 
             <!-- Все отзывы -->
             <section id="reviews-page" class="page">
-                <!-- Поиск и фильтры -->
-                <div class="search-section glass-effect" style="padding: 25px;">
-                    <h2 class="section-title">Поиск отзывов</h2>
-                    <div class="search-box">
-                        <input type="text" id="search-input" placeholder="Введите название сайта, никнейм или текст отзыва...">
-                        <button id="search-btn"><i class="fas fa-search"></i> Поиск</button>
-                    </div>
-                    <div class="filters">
-                        <button class="filter-btn active" data-filter="all">Все отзывы</button>
-                        <button class="filter-btn active" data-filter="recent">Сначала новые</button>
-                        <button class="filter-btn" data-filter="oldest">Сначала старые</button>
-                    </div>
-                </div>
+<!-- Поиск и фильтры -->
+<div class="search-section glass-effect" style="padding: 25px;">
+    <h2 class="section-title">Поиск отзывов</h2>
+    
+    <!-- Основной поиск -->
+    <div class="search-box" style="margin-bottom: 20px;">
+        <input type="text" id="search-input" placeholder="Введите текст отзыва, название сайта или имя автора...">
+        <button id="search-btn"><i class="fas fa-search"></i> Поиск</button>
+        <button id="reset-search-btn" style="background: #95a5a6; margin-left: 10px;">
+            <i class="fas fa-times"></i> Сбросить
+        </button>
+    </div>
+    
+    <!-- Расширенные фильтры -->
+    <div class="advanced-filters" style="margin-top: 20px;">
+        <h4 style="margin-bottom: 15px; color: var(--secondary-color);">
+            <i class="fas fa-sliders-h"></i> Фильтры
+        </h4>
+        
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px; margin-bottom: 15px;">
+            <!-- Фильтр по рейтингу -->
+            <div class="filter-group">
+                <label style="display: block; margin-bottom: 8px; font-weight: 600; color: #555;">
+                    <i class="fas fa-star"></i> Рейтинг
+                </label>
+                <select id="rating-filter" style="width: 100%; padding: 10px; border-radius: 8px; border: 1px solid rgba(0,0,0,0.1); background: white;">
+                    <option value="all">Все рейтинги</option>
+                    <option value="5">★★★★★ (5 звёзд)</option>
+                    <option value="4">★★★★☆ (4 звезды)</option>
+                    <option value="3">★★★☆☆ (3 звезды)</option>
+                    <option value="2">★★☆☆☆ (2 звезды)</option>
+                    <option value="1">★☆☆☆☆ (1 звезда)</option>
+                </select>
+            </div>
+            
+            <!-- Фильтр по автору -->
+            <div class="filter-group">
+                <label style="display: block; margin-bottom: 8px; font-weight: 600; color: #555;">
+                    <i class="fas fa-user"></i> Автор
+                </label>
+                <select id="author-filter" style="width: 100%; padding: 10px; border-radius: 8px; border: 1px solid rgba(0,0,0,0.1); background: white;">
+                    <option value="all">Все авторы</option>
+                    <!-- Авторы заполнятся JavaScript -->
+                </select>
+            </div>
+            
+            <!-- Фильтр по сайту -->
+            <div class="filter-group">
+                <label style="display: block; margin-bottom: 8px; font-weight: 600; color: #555;">
+                    <i class="fas fa-globe"></i> Сайт
+                </label>
+                <select id="site-filter" style="width: 100%; padding: 10px; border-radius: 8px; border: 1px solid rgba(0,0,0,0.1); background: white;">
+                    <option value="all">Все сайты</option>
+                    <!-- Сайты заполнятся JavaScript -->
+                </select>
+            </div>
+        </div>
+        
+        <!-- Дополнительные фильтры -->
+        <div style="display: flex; gap: 15px; flex-wrap: wrap; margin-top: 10px;">
+            <label style="display: flex; align-items: center; gap: 8px; cursor: pointer;">
+                <input type="checkbox" id="verified-only" style="width: 18px; height: 18px;">
+                <span>Только проверенные <i class="fas fa-check-circle" style="color: #3498db;"></i></span>
+            </label>
+            
+            <label style="display: flex; align-items: center; gap: 8px; cursor: pointer;">
+                <input type="checkbox" id="critical-only" style="width: 18px; height: 18px;">
+                <span>Только критические (≤ 2★)</span>
+            </label>
+            
+            <label style="display: flex; align-items: center; gap: 8px; cursor: pointer;">
+                <input type="checkbox" id="positive-only" style="width: 18px; height: 18px;">
+                <span>Только позитивные (≥ 4★)</span>
+            </label>
+        </div>
+    </div>
+    
+    <!-- Информация о результатах -->
+    <div id="search-results-info" style="
+        margin-top: 20px;
+        padding: 15px;
+        background: rgba(52, 152, 219, 0.1);
+        border-radius: 10px;
+        border-left: 4px solid var(--primary-color);
+        display: none;
+    ">
+        <div style="display: flex; align-items: center; gap: 10px;">
+            <i class="fas fa-info-circle" style="color: var(--primary-color);"></i>
+            <span>Найдено <strong id="results-count">0</strong> отзывов</span>
+            <button id="clear-all-filters" style="
+                margin-left: auto;
+                background: rgba(231, 76, 60, 0.1);
+                color: #e74c3c;
+                border: none;
+                padding: 6px 12px;
+                border-radius: 6px;
+                cursor: pointer;
+                font-size: 0.9rem;
+            ">
+                <i class="fas fa-times"></i> Очистить все фильтры
+            </button>
+        </div>
+    </div>
+</div>
 
                 <!-- Категории -->
                 <div class="categories-section glass-effect" style="padding: 25px; margin-bottom: 30px;">
