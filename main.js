@@ -487,6 +487,9 @@ function switchToPage(pageId, userId = null) {
             displayRatingDistribution();
             displayTopSites();
             displayTopUsers();
+            setTimeout(() => {
+                analyzeTimeStats();
+            }, 100);
             break;
         case 'profile':
             if (userId) {
@@ -2286,6 +2289,168 @@ function checkPWAInstallPrompt() {
     console.log('PWA was installed');
     hideInstallButton();
   });
+}
+
+// Функция анализа активности по времени
+function analyzeTimeStats() {
+    const timeStatsContainer = document.getElementById('time-stats');
+    if (!timeStatsContainer) return;
+    
+    // Анализируем время из отзывов
+    const timeStats = {
+        byHour: Array(24).fill(0),
+        byDay: Array(7).fill(0),
+        byMonth: Array(12).fill(0),
+        peakHour: 0,
+        peakDay: 0,
+        totalReviews: reviews.length
+    };
+    
+    reviews.forEach(review => {
+        try {
+            const date = new Date(review.date);
+            
+            // По часам
+            const hour = date.getHours();
+            timeStats.byHour[hour]++;
+            
+            // По дням недели (0-воскресенье, 1-понедельник...)
+            const day = date.getDay();
+            timeStats.byDay[day]++;
+            
+            // По месяцам
+            const month = date.getMonth();
+            timeStats.byMonth[month]++;
+        } catch (e) {
+            console.warn('Ошибка парсинга даты:', e);
+        }
+    });
+    
+    // Находим пиковые значения
+    timeStats.peakHour = timeStats.byHour.indexOf(Math.max(...timeStats.byHour));
+    timeStats.peakDay = timeStats.byDay.indexOf(Math.max(...timeStats.byDay));
+    
+    // Отображаем статистику
+    displayTimeStats(timeStats);
+}
+
+// Отображение статистики
+function displayTimeStats(stats) {
+    const container = document.getElementById('time-stats');
+    
+    const daysOfWeek = ['Воскресенье', 'Понедельник', 'Вторник', 'Среда', 'Четверг', 'Пятница', 'Суббота'];
+    const months = ['Январь', 'Февраль', 'Март', 'Апрель', 'Май', 'Июнь', 
+                    'Июль', 'Август', 'Сентябрь', 'Октябрь', 'Ноябрь', 'Декабрь'];
+    
+    // Определяем самый активный день
+    const activeDay = daysOfWeek[stats.peakDay];
+    const activeHour = `${stats.peakHour}:00-${stats.peakHour + 1}:00`;
+    
+    container.innerHTML = `
+        <div style="margin-bottom: 20px;">
+            <h4 style="color: var(--primary-color); margin-bottom: 15px;">
+                <i class="fas fa-chart-line"></i> Активность пользователей
+            </h4>
+            
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 20px; margin-bottom: 25px;">
+                <div class="glass-effect" style="padding: 15px; border-radius: 10px; text-align: center;">
+                    <div style="font-size: 2rem; color: var(--primary-color); margin-bottom: 5px;">
+                        <i class="fas fa-sun"></i>
+                    </div>
+                    <div style="font-size: 1.1rem; font-weight: bold;">${activeHour}</div>
+                    <div style="color: #666; font-size: 0.9rem;">Пиковое время</div>
+                </div>
+                
+                <div class="glass-effect" style="padding: 15px; border-radius: 10px; text-align: center;">
+                    <div style="font-size: 2rem; color: var(--primary-color); margin-bottom: 5px;">
+                        <i class="fas fa-calendar-day"></i>
+                    </div>
+                    <div style="font-size: 1.1rem; font-weight: bold;">${activeDay}</div>
+                    <div style="color: #666; font-size: 0.9rem;">Самый активный день</div>
+                </div>
+                
+                <div class="glass-effect" style="padding: 15px; border-radius: 10px; text-align: center;">
+                    <div style="font-size: 2rem; color: var(--primary-color); margin-bottom: 5px;">
+                        <i class="fas fa-chart-bar"></i>
+                    </div>
+                    <div style="font-size: 1.1rem; font-weight: bold;">${stats.totalReviews}</div>
+                    <div style="color: #666; font-size: 0.9rem;">Всего отзывов</div>
+                </div>
+            </div>
+            
+            <!-- График по часам -->
+            <div style="margin-bottom: 25px;">
+                <h5 style="margin-bottom: 10px; color: var(--secondary-color);">
+                    <i class="fas fa-hourglass-half"></i> Распределение по времени суток
+                </h5>
+                <div id="hour-chart" style="display: grid; grid-template-columns: repeat(24, 1fr); gap: 2px; height: 40px; margin-top: 10px;">
+                    ${stats.byHour.map((count, hour) => {
+                        const height = count > 0 ? Math.min((count / Math.max(...stats.byHour)) * 100, 100) : 1;
+                        return `<div style="background: ${count > 0 ? 'var(--primary-color)' : '#eee'}; height: ${height}%; border-radius: 2px; transition: all 0.3s;" title="${hour}:00 - ${count} отзывов"></div>`;
+                    }).join('')}
+                </div>
+                <div style="display: flex; justify-content: space-between; font-size: 0.8rem; color: #666; margin-top: 5px;">
+                    <span>0:00</span>
+                    <span>12:00</span>
+                    <span>23:00</span>
+                </div>
+            </div>
+            
+            <!-- График по дням недели -->
+            <div style="margin-bottom: 25px;">
+                <h5 style="margin-bottom: 10px; color: var(--secondary-color);">
+                    <i class="fas fa-calendar-week"></i> Активность по дням недели
+                </h5>
+                <div style="display: grid; grid-template-columns: repeat(7, 1fr); gap: 10px; text-align: center;">
+                    ${stats.byDay.map((count, dayIndex) => {
+                        const dayName = ['Вс', 'Пн', 'Вт', 'Ср', 'Чт', 'Пт', 'Сб'][dayIndex];
+                        const percentage = (count / Math.max(...stats.byDay)) * 100;
+                        return `
+                            <div style="display: flex; flex-direction: column; align-items: center;">
+                                <div style="width: 100%; background: #eee; height: 100px; border-radius: 8px; position: relative; overflow: hidden;">
+                                    <div style="position: absolute; bottom: 0; width: 100%; background: ${dayIndex === stats.peakDay ? 'var(--primary-color)' : 'var(--primary-light)'}; height: ${percentage}%; transition: all 0.3s;"></div>
+                                </div>
+                                <div style="margin-top: 8px; font-weight: ${dayIndex === stats.peakDay ? 'bold' : 'normal'}; color: ${dayIndex === stats.peakDay ? 'var(--primary-color)' : '#666'};">${dayName}</div>
+                                <div style="font-size: 0.8rem; color: #888;">${count}</div>
+                            </div>
+                        `;
+                    }).join('')}
+                </div>
+            </div>
+            
+            <!-- График по месяцам -->
+            <div>
+                <h5 style="margin-bottom: 10px; color: var(--secondary-color);">
+                    <i class="fas fa-calendar-alt"></i> Распределение по месяцам
+                </h5>
+                <div style="display: grid; grid-template-columns: repeat(6, 1fr); gap: 8px;">
+                    ${stats.byMonth.map((count, monthIndex) => {
+                        const monthName = ['Янв', 'Фев', 'Мар', 'Апр', 'Май', 'Июн', 'Июл', 'Авг', 'Сен', 'Окт', 'Ноя', 'Дек'][monthIndex];
+                        const percentage = (count / Math.max(...stats.byMonth)) * 100 || 0;
+                        return `
+                            <div style="text-align: center;">
+                                <div style="font-size: 0.9rem; margin-bottom: 5px; color: #666;">${monthName}</div>
+                                <div style="height: 30px; background: ${count > 0 ? 'var(--primary-color)' : '#eee'}; width: ${Math.max(percentage, 5)}%; margin: 0 auto; border-radius: 4px; transition: all 0.3s;" title="${count} отзывов"></div>
+                                <div style="font-size: 0.8rem; margin-top: 3px; color: #888;">${count}</div>
+                            </div>
+                        `;
+                    }).join('')}
+                </div>
+            </div>
+        </div>
+        
+        <div style="margin-top: 20px; padding: 15px; background: rgba(52, 152, 219, 0.1); border-radius: 10px; border-left: 4px solid var(--primary-color);">
+            <h5 style="margin-bottom: 8px; color: var(--secondary-color);">
+                <i class="fas fa-lightbulb"></i> Интересные факты
+            </h5>
+            <ul style="margin: 0; padding-left: 20px; color: #666;">
+                <li>Больше всего отзывов пишется в <strong>${activeHour}</strong></li>
+                <li>Самый активный день - <strong>${activeDay.toLowerCase()}</strong></li>
+                <li>Средний рейтинг всех отзывов: <strong>${(reviews.reduce((sum, r) => sum + r.rating, 0) / reviews.length).toFixed(1)}/5</strong></li>
+                <li>Всего авторов: <strong>${[...new Set(reviews.map(r => r.email))].length}</strong></li>
+            </ul>
+        </div>
+    `;
 }
 
 /*!
