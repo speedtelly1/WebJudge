@@ -638,6 +638,10 @@ function initNavigation() {
             displayAllReviews(reviews);
             displaySitesNeedingReviews(); // Добавьте эту строку
             displayRecommendedSites(); // Добавьте эту строку
+           // Добавляем ссылки на профили после загрузки отзывов
+           setTimeout(() => {
+               updateReviewCardsWithLinks();
+           }, 100);
         }
 
 // Функция для отображения сайтов, которым нужны отзывы
