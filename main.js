@@ -2341,6 +2341,36 @@ function analyzeTimeStats() {
 // Отображение статистики
 function displayTimeStats(stats) {
     const container = document.getElementById('time-stats');
+
+    // Проверка на мало данных
+    if (stats.totalReviews < 5) {
+        container.innerHTML = `
+            <div style="text-align: center; padding: 40px;">
+                <i class="fas fa-chart-bar" style="font-size: 3rem; color: #ddd; margin-bottom: 20px;"></i>
+                <h4 style="color: #666; margin-bottom: 10px;">Мало данных для анализа</h4>
+                <p style="color: #888;">Нужно больше отзывов для статистики по времени.</p>
+                <p style="color: #888; margin-top: 10px;">
+                    <i class="fas fa-info-circle"></i> Сейчас: ${stats.totalReviews} отзывов<br>
+                    <i class="fas fa-bullseye"></i> Нужно: минимум 5 отзывов
+                </p>
+                <button onclick="switchToPage('add-review')" style="
+                    margin-top: 20px;
+                    padding: 10px 20px;
+                    background: var(--primary-color);
+                    color: white;
+                    border: none;
+                    border-radius: 25px;
+                    cursor: pointer;
+                    display: inline-flex;
+                    align-items: center;
+                    gap: 8px;
+                ">
+                    <i class="fas fa-plus-circle"></i> Добавить отзыв
+                </button>
+            </div>
+        `;
+        return;
+    }
     
     const daysOfWeek = ['Воскресенье', 'Понедельник', 'Вторник', 'Среда', 'Четверг', 'Пятница', 'Суббота'];
     const months = ['Январь', 'Февраль', 'Март', 'Апрель', 'Май', 'Июнь', 
