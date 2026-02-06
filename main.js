@@ -128,6 +128,12 @@ function extractUsername(email) {
             createCategoryButtons();
             updateStatistics();
             setupSearchAndFilters();
+
+            // Добавляем обработчики для профилей
+            setupUserProfileLinks();
+    
+            // Проверяем хэш URL при загрузке
+            handleProfileHash();
             
             // Инициализация прогресс-бара
             updateProgress();
