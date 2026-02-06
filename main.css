@@ -1113,3 +1113,94 @@ body.dark-theme .verified-badge {
         padding: 4px 8px;
     }
 }
+
+/* ==================== СТИЛИ ДЛЯ СТРАНИЦЫ ПРОФИЛЯ ==================== */
+
+.profile-container {
+    padding: 30px;
+    animation: fadeIn 0.5s ease;
+}
+
+.profile-header {
+    text-align: center;
+    padding: 30px 0;
+    border-bottom: 1px solid rgba(0,0,0,0.1);
+    margin-bottom: 30px;
+}
+
+.user-avatar {
+    width: 100px;
+    height: 100px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    font-size: 2.5rem;
+    font-weight: bold;
+    margin: 0 auto 20px;
+    transition: all 0.3s ease;
+}
+
+.user-avatar:hover {
+    transform: scale(1.05);
+    box-shadow: 0 6px 25px rgba(0,0,0,0.2);
+}
+
+.profile-stats {
+    margin-bottom: 40px;
+}
+
+.profile-reviews .reviews-container {
+    margin-top: 20px;
+}
+
+/* Стили для кликабельных имен пользователей */
+.reviewer-info h3[data-user-id],
+.reviewer-username[data-user-id] {
+    cursor: pointer;
+    text-decoration: underline;
+    text-decoration-style: dotted;
+    text-underline-offset: 3px;
+    transition: all 0.2s ease;
+}
+
+.reviewer-info h3[data-user-id]:hover,
+.reviewer-username[data-user-id]:hover {
+    color: var(--primary-color);
+    text-decoration-color: var(--primary-color);
+}
+
+/* Стиль для отключения кликабельности в профиле */
+.reviewer-info h3.no-click,
+.reviewer-username.no-click {
+    cursor: default !important;
+    text-decoration: none !important;
+}
+
+/* Адаптивность для профиля */
+@media (max-width: 768px) {
+    .profile-container {
+        padding: 20px;
+    }
+    
+    .user-avatar {
+        width: 80px;
+        height: 80px;
+        font-size: 2rem;
+    }
+    
+    .profile-header h2 {
+        font-size: 1.5rem;
+    }
+    
+    .profile-header > div {
+        flex-direction: column;
+        gap: 10px;
+    }
+}
+
+/* Иконка профиля в навигации */
+.nav-link[data-page="profile"] i {
+    margin-right: 8px;
+}
