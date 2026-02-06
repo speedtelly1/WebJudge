@@ -793,6 +793,11 @@ function displayAllReviews(reviewsArray) {
     sortedReviews.forEach(review => {
         allReviewsContainer.appendChild(createReviewCard(review));
     });
+
+    // ДОБАВЬ ЭТО ↓↓↓
+    setTimeout(() => {
+        updateReviewCardsWithLinks();
+    }, 100);
 }
 
         // Функция определения категорий для конкретного отзыва
