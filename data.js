@@ -430,6 +430,28 @@ const reviews = [
         rating: 1,
         comment: "Если ты стримишь на этой платформе, ну тогда че. Ты лох получается. Платформа для тех, кого забанили на других. Отстой в общем",
         date: "2026-02-06T13:23:00"
+    },
+    {
+        id: 40,
+        name: "Тимофей",
+        nickname: "timoshamoscow",
+        email: "roll3ogurec0@gmail.com",
+        siteUrl: "https://one.google.com/",
+        siteName: "Google One",
+        rating: 5,
+        comment: "Топовое облако, не знаю, почему его захейтили на сайт ревью. Короче круто",
+        date: "2026-02-06T19:17:00"
+    },
+    {
+        id: 41,
+        name: "Тимофей",
+        nickname: "timoshamoscow",
+        email: "roll3ogurec0@gmail.com",
+        siteUrl: "https://web.telegram.org/",
+        siteName: "Telegram Web",
+        rating: 1,
+        comment: "Кто-то пользуется веб версией?",
+        date: "2026-02-06T19:18:00"
     }
 ];
 
