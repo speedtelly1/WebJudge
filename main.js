@@ -137,6 +137,10 @@ function extractUsername(email) {
             
             // Инициализация прогресс-бара
             updateProgress();
+           // Если загрузили страницу без хэша, но активна страница профиля - переключаем
+           if (!window.location.hash && document.querySelector('#profile-page.active')) {
+               switchToPage('home');
+           }
         });
 
 // ==================== ФУНКЦИИ ДЛЯ РАБОТЫ С ПРОФИЛЯМИ ====================
@@ -2155,6 +2159,17 @@ function createUserRankingCard(user, position) {
     
     return card;
 }
+
+// Обработка кнопки "Назад" в браузере
+window.addEventListener('popstate', function(event) {
+    // Если вышли из профиля, переключаем на главную
+    if (!window.location.hash || !window.location.hash.startsWith('#profile/')) {
+        const currentPage = document.querySelector('.page.active');
+        if (currentPage && currentPage.id === 'profile-page') {
+            switchToPage('home');
+        }
+    }
+});
 
 /*!
  * ============================================================
