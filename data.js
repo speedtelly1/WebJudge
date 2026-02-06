@@ -452,6 +452,39 @@ const reviews = [
         rating: 1,
         comment: "Кто-то пользуется веб версией?",
         date: "2026-02-06T19:18:00"
+    },
+    {
+        id: 42,
+        name: "Тимофей",
+        nickname: "timoshamoscow",
+        email: "roll3ogurec0@gmail.com",
+        siteUrl: "https://tlauncher.ru/",
+        siteName: "TLauncher",
+        rating: 3,
+        comment: "Хороший лаунчер, но легаси версия лучше",
+        date: "2026-02-06T19:37:00"
+    },
+    {
+        id: 43,
+        name: "Тимофей",
+        nickname: "timoshamoscow",
+        email: "roll3ogurec0@gmail.com",
+        siteUrl: "https://funpay.com/",
+        siteName: "FunPay",
+        rating: 5,
+        comment: "Сайт имба, пополнение стим практически без комиссии",
+        date: "2026-02-06T19:40:00"
+    },
+    {
+        id: 44,
+        name: "Тимофей",
+        nickname: "timoshamoscow",
+        email: "roll3ogurec0@gmail.com",
+        siteUrl: "https://character.ai/",
+        siteName: "Character.ai",
+        rating: 5,
+        comment: "Сайт топовый. Наверное после пубертата перестану туда ходить (ну или нет)",
+        date: "2026-02-06T19:41:00"
     }
 ];
 
