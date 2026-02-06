@@ -408,6 +408,28 @@ const reviews = [
         rating: 1,
         comment: "Самый ужасный сайт!!! 🤬🤬🤬",
         date: "2026-02-06T09:12:00"
+    },
+    {
+        id: 38,
+        name: "Тимофей",
+        nickname: "timoshamoscow",
+        email: "roll3ogurec0@gmail.com",
+        siteUrl: "https://www.twitch.tv/",
+        siteName: "Twitch",
+        rating: 4,
+        comment: "Стримы топ, но в последнее время ужасно просело качество, зависать стало. Но если не учитывать проблем, то имба",
+        date: "2026-02-06T13:22:00"
+    },
+    {
+        id: 39,
+        name: "Тимофей",
+        nickname: "timoshamoscow",
+        email: "roll3ogurec0@gmail.com",
+        siteUrl: "https://kick.com/",
+        siteName: "KICK",
+        rating: 1,
+        comment: "Если ты стримишь на этой платформе, ну тогда че. Ты лох получается. Платформа для тех, кого забанили на других. Отстой в общем",
+        date: "2026-02-06T13:23:00"
     }
 ];
 
