@@ -105,8 +105,8 @@ const reviews = [
         name: "Тимоша",
         email: "timi.sibi.maxi2010@gmail.com",
         nickname: "timsib",
-        siteUrl: "https://yandex.ru/games/app/191972",
-        siteName: "Битва за территории",
+        siteUrl: "https://yandex.ru/games/",
+        siteName: "Яндекс.Игры",
         rating: 5,
         comment: "Лучшая игра в свое время! (2021-22 года)",
         date: "2026-01-10T10:09:00"
@@ -258,8 +258,8 @@ const reviews = [
         name: "Тимофей",
         nickname: "timoshamoscow",
         email: "roll3ogurec0@gmail.com",
-        siteUrl: "https://yandex.ru/games/app/191972",
-        siteName: "Битва за территории",
+        siteUrl: "https://yandex.ru/games/",
+        siteName: "Яндекс.Игры",
         rating: 3,
         comment: "Хорошая игра, но конкретно эта хуже других. Лучше скачайте оригинальную игру в плей маркете",
         date: "2026-02-05T11:47:00"
