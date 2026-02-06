@@ -346,12 +346,16 @@ function displayUserProfile(userId) {
     profileContent.innerHTML = `
         <div class="profile-header" style="text-align: center; margin-bottom: 30px;">
             ${avatarHTML}
-            <h2 style="margin-bottom: 10px;">${userStats.name}</h2>
-            <div style="display: flex; align-items: center; justify-content: center; gap: 15px; margin-bottom: 15px; flex-wrap: wrap;">
-                <span style="color: #666;">
-                    <i class="fas fa-at"></i> ${userStats.nickname}
-                </span>
-                ${userStats.isVerified ? '<i class="fas fa-check-circle verified-badge" title="Проверенный пользователь"></i>' : ''}
+<div style="display: flex; align-items: center; justify-content: center; gap: 10px; margin-bottom: 10px;">
+    <h2 style="margin: 0; display: flex; align-items: center; gap: 8px;">
+        ${userStats.name}
+        ${userStats.isVerified ? '<i class="fas fa-check-circle verified-badge" title="Проверенный пользователь"></i>' : ''}
+    </h2>
+</div>
+<div style="display: flex; align-items: center; justify-content: center; gap: 15px; margin-bottom: 15px; flex-wrap: wrap;">
+    <span style="color: #666;">
+        <i class="fas fa-at"></i> ${userStats.nickname}
+    </span>
                 <span style="background: ${typeColor}15; color: ${typeColor}; padding: 4px 12px; border-radius: 20px; font-size: 0.9rem;">
                     ${userType}
                 </span>
