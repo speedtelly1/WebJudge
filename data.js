@@ -397,6 +397,17 @@ const reviews = [
         rating: 5,
         comment: "Заметила спорные оценки на свой сайт, и не буду скрывать, да. это мой сайт. Ну что сказать, Тимоша. Ты начал войну. А так, сайт имба, в отличии от TAIPrompts",
         date: "2026-02-05T21:19:00"
+    },
+    {
+        id: 37,
+        name: "Timofey",
+        nickname: "timofey_goryachev_2026",
+        email: "timofeyeng9@gmail.com",
+        siteUrl: "https://one.google.com/",
+        siteName: "Google One",
+        rating: 1,
+        comment: "Самый ужасный сайт!!! 🤬🤬🤬",
+        date: "2026-02-06T09:12:00"
     }
 ];
 
