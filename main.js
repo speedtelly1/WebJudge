@@ -456,6 +456,14 @@ function switchToPage(pageId, userId = null) {
     if (targetPage) {
         targetPage.classList.add('active');
     }
+
+    // Если переходим с профиля на другую страницу - очищаем URL
+    if (pageId !== 'profile') {
+        // Очищаем хэш профиля в URL
+        window.history.pushState({}, '', window.location.pathname);
+        // Очищаем сохраненный профиль
+        localStorage.removeItem('currentProfileId');
+    }
     
     // Обработка конкретных страниц
     switch(pageId) {
