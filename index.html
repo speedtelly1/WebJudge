@@ -135,6 +135,110 @@
                         </div>
                     </div>
                 </div>
+
+<!-- После блока с id="featured-reviews" -->
+<div class="glass-effect" style="padding: 25px; margin-top: 30px;">
+    <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 20px;">
+        <h3 style="color: var(--secondary-color); margin: 0;">
+            <i class="fas fa-gamepad"></i> Викторина
+        </h3>
+        <span id="quiz-score" style="
+            background: linear-gradient(135deg, #9b59b6, #8e44ad);
+            color: white;
+            padding: 5px 15px;
+            border-radius: 20px;
+            font-weight: bold;
+            font-size: 0.9rem;
+        ">
+            <i class="fas fa-star"></i> Счёт: <span id="current-score">0</span>
+        </span>
+    </div>
+    
+    <p style="margin-bottom: 20px; color: #666; line-height: 1.6;">
+        Угадай сайт по отзыву! Читай отзыв и выбирай правильный сайт из предложенных вариантов.
+        За каждый правильный ответ получай +10 очков!
+    </p>
+    
+    <div id="quiz-game-area" style="display: none;">
+        <!-- Здесь будет игра -->
+        <div class="glass-effect" style="padding: 20px; margin-bottom: 20px; border-left: 4px solid #9b59b6;">
+            <div id="quiz-question" style="
+                font-style: italic;
+                color: var(--secondary-color);
+                line-height: 1.6;
+                margin-bottom: 20px;
+                padding: 15px;
+                background: rgba(155, 89, 182, 0.05);
+                border-radius: 10px;
+            "></div>
+            
+            <div id="quiz-options" style="display: grid; gap: 10px;"></div>
+            
+            <div id="quiz-feedback" style="
+                margin-top: 20px;
+                padding: 15px;
+                border-radius: 10px;
+                display: none;
+            "></div>
+        </div>
+        
+        <div style="display: flex; gap: 10px; justify-content: center;">
+            <button id="next-question-btn" class="quiz-btn" style="
+                background: var(--primary-color);
+                color: white;
+                border: none;
+                padding: 12px 25px;
+                border-radius: 25px;
+                font-weight: 600;
+                cursor: pointer;
+                display: none;
+            ">
+                <i class="fas fa-forward"></i> Следующий вопрос
+            </button>
+            
+            <button id="restart-quiz-btn" class="quiz-btn" style="
+                background: #95a5a6;
+                color: white;
+                border: none;
+                padding: 12px 25px;
+                border-radius: 25px;
+                font-weight: 600;
+                cursor: pointer;
+            ">
+                <i class="fas fa-redo"></i> Начать заново
+            </button>
+        </div>
+    </div>
+    
+    <div id="quiz-start-screen" style="text-align: center;">
+        <div style="margin-bottom: 25px;">
+            <i class="fas fa-brain" style="font-size: 3rem; color: #9b59b6; margin-bottom: 15px;"></i>
+            <h4 style="color: var(--secondary-color); margin-bottom: 10px;">Готов проверить свои знания?</h4>
+            <p style="color: #666; margin-bottom: 5px;">В викторине: <strong>5 вопросов</strong></p>
+            <p style="color: #666; margin-bottom: 5px;">Сложность: <span style="color: #e74c3c;">Средняя</span></p>
+            <p style="color: #666;">Рекорд: <span id="quiz-highscore">0</span> очков</p>
+        </div>
+        
+        <button id="start-quiz-btn" style="
+            background: linear-gradient(135deg, #9b59b6, #8e44ad);
+            color: white;
+            border: none;
+            padding: 15px 35px;
+            border-radius: 25px;
+            font-size: 1.1rem;
+            font-weight: 600;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            box-shadow: 0 4px 15px rgba(155, 89, 182, 0.3);
+            transition: all 0.3s ease;
+        ">
+            <i class="fas fa-play-circle"></i> Начать викторину
+        </button>
+    </div>
+</div>
+                
             </section>
 
             <!-- Все отзывы -->
