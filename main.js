@@ -2291,6 +2291,10 @@ function checkPWAInstallPrompt() {
   });
 }
 
+
+
+// ==================== СТАТИСТИКА ПО ВРЕМЕНИ ====================
+
 // Функция анализа активности по времени
 function analyzeTimeStats() {
     const timeStatsContainer = document.getElementById('time-stats');
