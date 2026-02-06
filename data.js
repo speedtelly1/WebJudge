@@ -1,4 +1,13 @@
 // data.js
+const users = [
+    {
+        id: 1, 
+        email: "timosha.sibilev@gmail.com", // Моя очта
+        emoji: "🔵", // Эмоджи-клан для аватара
+        verified: true // Верифицирован ли
+    }
+    ];
+    
 const reviews = [
     {
         id: 1,
@@ -709,6 +718,192 @@ function getNeedsReason(count, days, rating) {
     }
     
     return reasons.join(' • ');
+}
+
+// ==================== СИСТЕМА ЭМОДЖИ-АВАТАРОК ====================
+
+// 1. Получить эмоджи аватарку по email
+function getUserEmojiAvatar(email) {
+    const user = users.find(u => u.email === email);
+    
+    if (!user) {
+        // Если пользователя нет в массиве - генерируем эмоджи из email
+        return generateEmojiFromEmail(email);
+    }
+    
+    // Если есть в массиве - используем его эмоджи
+    return user.emoji || "👤";
+}
+
+// 2. Генерация эмоджи из email (если пользователя нет в массиве)
+function generateEmojiFromEmail(email) {
+    const emailToEmoji = {
+        'timosha.sibilev@gmail.com': '🔵',      // Я
+    };
+    
+    return emailToEmoji[email] || getRandomEmoji(email);
+}
+
+// 3. Случайный эмоджи на основе email (для новых пользователей)
+function getRandomEmoji(email) {
+    const emojiSets = {
+        // Синий набор для верифицированных
+        verified: ['🔷', '💎'],
+        // Разноцветный для обычных
+        default: ['😊', '😎', '🤓', '🧐', '🤩', '😄', '😁', '😃']
+    };
+    
+    // Проверяем верификацию
+    const user = users.find(u => u.email === email);
+    const isVerified = user ? user.verified : false;
+    
+    // Выбираем набор
+    const set = isVerified ? emojiSets.verified : emojiSets.default;
+    
+    // Генерируем индекс из email
+    let hash = 0;
+    for (let i = 0; i < email.length; i++) {
+        hash = email.charCodeAt(i) + ((hash << 5) - hash);
+    }
+    const index = Math.abs(hash % set.length);
+    
+    return set[index];
+}
+
+// 4. Отображение аватарки в интерфейсе
+function renderEmojiAvatar(email, size = 'medium') {
+    const emoji = getUserEmojiAvatar(email);
+    const user = users.find(u => u.email === email);
+    const isVerified = user ? user.verified : false;
+    
+    const sizes = {
+        small: '30px',
+        medium: '40px',
+        large: '60px',
+        xlarge: '80px'
+    };
+    
+    const fontSize = {
+        small: '1.2rem',
+        medium: '1.5rem',
+        large: '2rem',
+        xlarge: '2.5rem'
+    };
+    
+    // Цвет рамки для верифицированных
+    const borderStyle = isVerified 
+        ? 'border: 2px solid #3498db; box-shadow: 0 0 10px rgba(52, 152, 219, 0.5);'
+        : 'border: 2px solid rgba(0,0,0,0.1);';
+    
+    return `
+        <div class="emoji-avatar" style="
+            width: ${sizes[size]};
+            height: ${sizes[size]};
+            ${borderStyle}
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: ${fontSize[size]};
+            background: rgba(255,255,255,0.9);
+            cursor: pointer;
+            transition: all 0.3s ease;
+            user-select: none;
+        " title="${email}${isVerified ? 'Проверенный пользователь' : ''}">
+            ${emoji}
+        </div>
+    `;
+}
+
+// 5. Обновить карточки отзывов с эмоджи-аватарками
+function updateReviewCardsWithAvatars() {
+    document.querySelectorAll('.review-card').forEach(card => {
+        const reviewId = parseInt(card.getAttribute('data-review-id'));
+        const review = reviews.find(r => r.id === reviewId);
+        
+        if (review && review.email) {
+            // Находим заголовок карточки
+            const header = card.querySelector('.review-header .reviewer-info');
+            if (header) {
+                // Добавляем аватарку перед именем
+                const avatarHtml = renderEmojiAvatar(review.email, 'small');
+                header.insertAdjacentHTML('afterbegin', avatarHtml);
+                
+                // Добавляем стили для выравнивания
+                const avatar = header.querySelector('.emoji-avatar');
+                if (avatar) {
+                    avatar.style.marginRight = '10px';
+                    avatar.style.marginTop = '2px';
+                }
+            }
+        }
+    });
+}
+
+// 6. Обновить профили пользователей с аватарками
+function updateUserProfilesWithAvatars() {
+    document.querySelectorAll('[data-user-id]').forEach(element => {
+        const userId = element.getAttribute('data-user-id');
+        // Находим email по ID (нужно будет создать маппинг)
+        const userEmail = getUserEmailById(userId);
+        
+        if (userEmail) {
+            const avatarHtml = renderEmojiAvatar(userEmail, 'medium');
+            element.insertAdjacentHTML('beforebegin', avatarHtml);
+        }
+    });
+}
+
+// 7. Вспомогательная функция для получения email по ID
+function getUserEmailById(userId) {
+    // Ищем в reviews
+    const review = reviews.find(r => {
+        const reviewUserId = generateUserId(r.email);
+        return reviewUserId === userId;
+    });
+    
+    return review ? review.email : null;
+}
+
+// 8. Инициализация при загрузке
+document.addEventListener('DOMContentLoaded', function() {
+    // Обновляем карточки отзывов
+    setTimeout(() => {
+        updateReviewCardsWithAvatars();
+    }, 100);
+    
+    // Добавляем CSS стили
+    const style = document.createElement('style');
+    style.textContent = `
+        .emoji-avatar:hover {
+            transform: scale(1.1);
+            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+        }
+        
+        .review-header {
+            display: flex;
+            align-items: flex-start;
+        }
+        
+        .review-header .emoji-avatar {
+            flex-shrink: 0;
+        }
+    `;
+    document.head.appendChild(style);
+});
+
+// 9. Показать все эмоджи пользователей (для отладки)
+function showAllUserEmojis() {
+    console.log('=== ЭМОДЖИ ПОЛЬЗОВАТЕЛЕЙ ===');
+    const uniqueEmails = [...new Set(reviews.map(r => r.email))];
+    
+    uniqueEmails.forEach(email => {
+        const emoji = getUserEmojiAvatar(email);
+        const user = users.find(u => u.email === email);
+        const verified = user ? user.verified : false;
+        
+        console.log(`${emoji} ${email} ${verified ? '✓' : ''}`);
+    });
 }
 
 /*!
