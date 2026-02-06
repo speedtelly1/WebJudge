@@ -1167,25 +1167,222 @@ function isGitHubPagesAuthor(review) {
             }
         }
 
-        // Настройка поиска и фильтров
-        function setupSearchAndFilters() {
-            // Поиск
-            if (searchBtn && searchInput) {
-                searchBtn.addEventListener('click', performSearch);
-                searchInput.addEventListener('keyup', function(e) {
-                    if (e.key === 'Enter') performSearch();
-                });
-            }
-            
-            // Фильтры
-            filterBtns.forEach(btn => {
-                btn.addEventListener('click', function() {
-                    filterBtns.forEach(b => b.classList.remove('active'));
-                    this.classList.add('active');
-                    applyFilters();
-                });
-            });
+// ==================== РАСШИРЕННЫЙ ПОИСК ====================
+
+function setupSearchAndFilters() {
+    // Заполняем фильтры авторов и сайтов
+    populateFilterOptions();
+    
+    // Основной поиск
+    if (searchBtn && searchInput) {
+        searchBtn.addEventListener('click', performAdvancedSearch);
+        searchInput.addEventListener('keyup', function(e) {
+            if (e.key === 'Enter') performAdvancedSearch();
+        });
+    }
+    
+    // Кнопка сброса поиска
+    document.getElementById('reset-search-btn')?.addEventListener('click', resetAllFilters);
+    
+    // Фильтры
+    document.getElementById('rating-filter')?.addEventListener('change', performAdvancedSearch);
+    document.getElementById('author-filter')?.addEventListener('change', performAdvancedSearch);
+    document.getElementById('site-filter')?.addEventListener('change', performAdvancedSearch);
+    
+    // Чекбоксы
+    document.getElementById('verified-only')?.addEventListener('change', performAdvancedSearch);
+    document.getElementById('critical-only')?.addEventListener('change', performAdvancedSearch);
+    document.getElementById('positive-only')?.addEventListener('change', performAdvancedSearch);
+    
+    // Очистить все фильтры
+    document.getElementById('clear-all-filters')?.addEventListener('click', resetAllFilters);
+}
+
+// Заполнение фильтров авторов и сайтов
+function populateFilterOptions() {
+    // Уникальные авторы
+    const uniqueAuthors = [...new Set(reviews.map(review => review.name))];
+    const authorSelect = document.getElementById('author-filter');
+    
+    if (authorSelect) {
+        // Сохраняем выбранное значение
+        const selectedAuthor = authorSelect.value;
+        
+        // Очищаем и добавляем авторов
+        authorSelect.innerHTML = '<option value="all">Все авторы</option>';
+        uniqueAuthors.sort().forEach(author => {
+            const option = document.createElement('option');
+            option.value = author;
+            option.textContent = author;
+            authorSelect.appendChild(option);
+        });
+        
+        // Восстанавливаем выбранное значение
+        if (selectedAuthor && selectedAuthor !== 'all') {
+            authorSelect.value = selectedAuthor;
         }
+    }
+    
+    // Уникальные сайты
+    const uniqueSites = [...new Set(reviews.map(review => review.siteName))];
+    const siteSelect = document.getElementById('site-filter');
+    
+    if (siteSelect) {
+        const selectedSite = siteSelect.value;
+        
+        siteSelect.innerHTML = '<option value="all">Все сайты</option>';
+        uniqueSites.sort().forEach(site => {
+            const option = document.createElement('option');
+            option.value = site;
+            option.textContent = site;
+            siteSelect.appendChild(option);
+        });
+        
+        if (selectedSite && selectedSite !== 'all') {
+            siteSelect.value = selectedSite;
+        }
+    }
+}
+
+// Расширенный поиск
+function performAdvancedSearch() {
+    const searchTerm = searchInput.value.toLowerCase().trim();
+    const ratingFilter = document.getElementById('rating-filter').value;
+    const authorFilter = document.getElementById('author-filter').value;
+    const siteFilter = document.getElementById('site-filter').value;
+    const verifiedOnly = document.getElementById('verified-only').checked;
+    const criticalOnly = document.getElementById('critical-only').checked;
+    const positiveOnly = document.getElementById('positive-only').checked;
+    
+    // Фильтруем отзывы
+    let filteredReviews = reviews.filter(review => {
+        // Поисковый запрос
+        let matchesSearch = true;
+        if (searchTerm) {
+            const displayNickname = getDisplayNickname(review).toLowerCase();
+            matchesSearch = (
+                review.name.toLowerCase().includes(searchTerm) ||
+                displayNickname.includes(searchTerm) ||
+                review.siteName.toLowerCase().includes(searchTerm) ||
+                review.comment.toLowerCase().includes(searchTerm)
+            );
+        }
+        
+        // Фильтр по рейтингу
+        let matchesRating = true;
+        if (ratingFilter !== 'all') {
+            matchesRating = review.rating === parseInt(ratingFilter);
+        }
+        
+        // Фильтр по автору
+        let matchesAuthor = true;
+        if (authorFilter !== 'all') {
+            matchesAuthor = review.name === authorFilter;
+        }
+        
+        // Фильтр по сайту
+        let matchesSite = true;
+        if (siteFilter !== 'all') {
+            matchesSite = review.siteName === siteFilter;
+        }
+        
+        // Только проверенные
+        let matchesVerified = true;
+        if (verifiedOnly) {
+            matchesVerified = review.verified === true;
+        }
+        
+        // Только критические
+        let matchesCritical = true;
+        if (criticalOnly) {
+            matchesCritical = review.rating <= 2;
+        }
+        
+        // Только позитивные
+        let matchesPositive = true;
+        if (positiveOnly) {
+            matchesPositive = review.rating >= 4;
+        }
+        
+        return matchesSearch && matchesRating && matchesAuthor && 
+               matchesSite && matchesVerified && matchesCritical && matchesPositive;
+    });
+    
+    // Сортируем по дате (новые → старые)
+    filteredReviews = filteredReviews.sort((a, b) => {
+        return new Date(b.date) - new Date(a.date);
+    });
+    
+    // Отображаем результаты
+    displayAllReviews(filteredReviews);
+    
+    // Показываем информацию о результатах
+    showSearchResultsInfo(filteredReviews.length, searchTerm);
+}
+
+// Показать информацию о результатах
+function showSearchResultsInfo(count, searchTerm) {
+    const resultsInfo = document.getElementById('search-results-info');
+    const resultsCount = document.getElementById('results-count');
+    
+    if (resultsInfo && resultsCount) {
+        resultsCount.textContent = count;
+        
+        if (count > 0 || searchTerm || hasActiveFilters()) {
+            resultsInfo.style.display = 'block';
+        } else {
+            resultsInfo.style.display = 'none';
+        }
+    }
+}
+
+// Проверка активных фильтров
+function hasActiveFilters() {
+    const ratingFilter = document.getElementById('rating-filter').value;
+    const authorFilter = document.getElementById('author-filter').value;
+    const siteFilter = document.getElementById('site-filter').value;
+    const verifiedOnly = document.getElementById('verified-only').checked;
+    const criticalOnly = document.getElementById('critical-only').checked;
+    const positiveOnly = document.getElementById('positive-only').checked;
+    
+    return (
+        ratingFilter !== 'all' ||
+        authorFilter !== 'all' ||
+        siteFilter !== 'all' ||
+        verifiedOnly ||
+        criticalOnly ||
+        positiveOnly
+    );
+}
+
+// Сбросить все фильтры
+function resetAllFilters() {
+    // Очистить поисковую строку
+    if (searchInput) {
+        searchInput.value = '';
+    }
+    
+    // Сбросить выпадающие списки
+    document.getElementById('rating-filter').value = 'all';
+    document.getElementById('author-filter').value = 'all';
+    document.getElementById('site-filter').value = 'all';
+    
+    // Сбросить чекбоксы
+    document.getElementById('verified-only').checked = false;
+    document.getElementById('critical-only').checked = false;
+    document.getElementById('positive-only').checked = false;
+    
+    // Скрыть информацию о результатах
+    document.getElementById('search-results-info').style.display = 'none';
+    
+    // Показать все отзывы
+    displayAllReviews(reviews);
+}
+
+// Обновить фильтры при добавлении новых отзывов
+function updateSearchFilters() {
+    populateFilterOptions();
+}
 
 // 3. Выполнение поиска (обновлено)
 function performSearch() {
@@ -1325,75 +1522,6 @@ function resetSearch() {
         if (recentFilter) {
             recentFilter.classList.add('active');
         }
-    }
-}
-
-// Обновленная функция setupSearchAndFilters
-function setupSearchAndFilters() {
-    // Поиск
-    if (searchBtn && searchInput) {
-        searchBtn.addEventListener('click', performSearch);
-        searchInput.addEventListener('keyup', function(e) {
-            if (e.key === 'Enter') performSearch();
-            // Если поле пустое, сбрасываем поиск
-            if (this.value.trim() === '') {
-                resetSearch();
-            }
-        });
-        
-        // Добавляем кнопку сброса поиска прямо в поле ввода
-        const resetBtn = document.createElement('button');
-        resetBtn.innerHTML = '<i class="fas fa-times"></i>';
-        resetBtn.title = 'Сбросить поиск';
-        resetBtn.id = 'search-reset-btn';
-        resetBtn.style.cssText = `
-            position: absolute;
-            right: 45px;
-            top: 50%;
-            transform: translateY(-50%);
-            background: none;
-            border: none;
-            color: #777;
-            cursor: pointer;
-            padding: 5px;
-            font-size: 1rem;
-            opacity: 0;
-            visibility: hidden;
-            transition: opacity 0.2s, visibility 0.2s;
-        `;
-        
-        resetBtn.addEventListener('click', resetSearch);
-        
-        const searchContainer = document.querySelector('.search-container');
-        if (searchContainer) {
-            searchContainer.style.position = 'relative';
-            searchContainer.appendChild(resetBtn);
-            
-            // Показывать/скрывать кнопку сброса при вводе
-            searchInput.addEventListener('input', function() {
-                const hasValue = this.value.trim() !== '';
-                resetBtn.style.opacity = hasValue ? '1' : '0';
-                resetBtn.style.visibility = hasValue ? 'visible' : 'hidden';
-            });
-        }
-    } else {
-        console.warn('Элементы поиска не найдены на странице');
-    }
-    
-    // Фильтры
-    if (filterBtns.length > 0) {
-        filterBtns.forEach(btn => {
-            btn.addEventListener('click', function() {
-                filterBtns.forEach(b => b.classList.remove('active'));
-                this.classList.add('active');
-                applyFilters();
-                
-                // При смене фильтра обновляем поиск, если есть активный поисковый запрос
-                if (searchInput && searchInput.value.trim()) {
-                    performSearch();
-                }
-            });
-        });
     }
 }
 
