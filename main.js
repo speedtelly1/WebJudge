@@ -1181,7 +1181,7 @@ function displayTopSites() {
     topSitesContainer.appendChild(table);
 }
 
-// ==================== ФУНКЦИЯ ДЛЯ РАСЧЕТА ВЗВЕШЕННЫХ РЕЙТИНГОВ ====================
+// ==================== ФУНКЦИЯ ДЛЯ РАСЧЕТА ВЗВЕШЕННЫХ РЕЙТИНГОВ (ОБНОВЛЁННАЯ) ====================
 function calculateSiteRatings() {
     const siteMap = {};
     
@@ -1193,49 +1193,93 @@ function calculateSiteRatings() {
                 name: review.siteName,
                 totalRating: 0,
                 count: 0,
-                reviews: []
+                reviews: [],
+                authorReviews: 0, // Количество авторских отзывов
+                regularReviews: 0 // Количество обычных отзывов
             };
         }
         
+        // Проверяем, является ли отзыв авторским
+        const isAuthorReview = isGitHubPagesAuthor(review) || 
+                              review.comment.includes('мой сайт') || 
+                              review.comment.includes('я автор');
+        
         siteMap[review.siteUrl].totalRating += review.rating;
         siteMap[review.siteUrl].count++;
+        
+        if (isAuthorReview) {
+            siteMap[review.siteUrl].authorReviews++;
+        } else {
+            siteMap[review.siteUrl].regularReviews++;
+        }
+        
         siteMap[review.siteUrl].reviews.push({
             rating: review.rating,
-            date: review.date
+            date: review.date,
+            isAuthorReview: isAuthorReview,
+            reviewer: review.name
         });
     });
     
-    // Рассчитываем взвешенный рейтинг
+    // Рассчитываем взвешенный рейтинг с штрафом за авторские отзывы
     const sites = Object.values(siteMap)
         .filter(site => site.count >= 1)
         .map(site => {
             const avgRating = site.totalRating / site.count;
             
-            // ВЗВЕШЕННЫЙ РЕЙТИНГ: учитываем количество отзывов
-            // Формула: (средний рейтинг * вес) + бонус за количество
-            const minReviewsForFullWeight = 5; // При 5+ отзывах - полный вес
-            const weight = Math.min(site.count / minReviewsForFullWeight, 1);
+            // ШТРАФ ЗА АВТОРСКИЕ ОТЗЫВЫ
+            const authorPenalty = calculateAuthorPenalty(site.authorReviews, site.regularReviews);
             
-            // Бонус за большее количество отзывов (максимум +0.5)
+            // ВЗВЕШЕННЫЙ РЕЙТИНГ с учетом штрафа
+            const minReviewsForFullWeight = 5;
+            const weight = Math.min(site.count / minReviewsForFullWeight, 1);
             const countBonus = Math.min(site.count / 10, 0.5);
             
-            // Итоговый взвешенный рейтинг (максимум 5.5 для сортировки)
-            const weightedScore = (avgRating * weight) + countBonus;
+            // Итоговый рейтинг с штрафом (авторские отзывы снижают итог)
+            const baseScore = (avgRating * weight) + countBonus;
+            const finalScore = baseScore - authorPenalty;
             
             return {
                 ...site,
                 avgRating: avgRating,
                 formattedRating: avgRating.toFixed(1),
-                weightedScore: weightedScore, // Для сортировки
-                countBonus: countBonus.toFixed(2),
-                weight: weight.toFixed(2),
+                weightedScore: Math.max(finalScore, 0.1), // Не ниже 0.1
+                authorPenalty: authorPenalty.toFixed(2),
+                authorPercentage: site.count > 0 ? (site.authorReviews / site.count * 100).toFixed(0) : 0,
                 lastReview: site.reviews.sort((a, b) => new Date(b.date) - new Date(a.date))[0]?.date
             };
         })
-        // Сортируем по взвешенному рейтингу
+        // Сортируем по взвешенному рейтингу (уже с вычетом штрафа)
         .sort((a, b) => b.weightedScore - a.weightedScore);
     
     return sites;
+}
+
+// ==================== ФУНКЦИЯ РАСЧЕТА ШТРАФА ЗА АВТОРСКИЕ ОТЗЫВЫ ====================
+function calculateAuthorPenalty(authorCount, regularCount) {
+    if (authorCount === 0) return 0; // Нет авторских - нет штрафа
+    
+    const total = authorCount + regularCount;
+    const authorRatio = authorCount / total;
+    
+    // Штрафная формула: чем больше % авторских отзывов, тем больше штраф
+    // Максимальный штраф при 100% авторских отзывов: 2.0 балла
+    let penalty = 0;
+    
+    if (authorRatio >= 0.5) { // 50%+ авторских - серьёзный штраф
+        penalty = 1.5 + (authorRatio * 1.0); // 1.5-2.5 балла
+    } else if (authorRatio >= 0.25) { // 25-50% авторских
+        penalty = 0.5 + (authorRatio * 2.0); // 0.5-1.5 балла
+    } else if (authorRatio > 0) { // <25% авторских
+        penalty = authorRatio * 2.0; // 0-0.5 балла
+    }
+    
+    // Дополнительный штраф если мало обычных отзывов
+    if (regularCount === 0) {
+        penalty += 1.0; // +1 балл если ВСЕ отзывы авторские
+    }
+    
+    return penalty;
 }
 
 // ==================== ФУНКЦИЯ СОЗДАНИЯ КАРТОЧКИ РЕЙТИНГА САЙТА ====================
