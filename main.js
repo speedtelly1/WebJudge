@@ -1950,10 +1950,17 @@ function calculateUserRatings() {
                 count: 0,
                 reviews: [],
                 sitesReviewed: new Set(),
-                avgUserRating: 0, // Средняя оценка, которую ставит пользователь
-                consistency: 0 // Насколько стабильны его оценки
+                authorReviews: 0, // Количество авторских отзывов
+                regularReviews: 0, // Количество обычных отзывов
+                avgUserRating: 0,
+                consistency: 0
             };
         }
+        
+        // Проверяем, является ли отзыв авторским
+        const isAuthorReview = isGitHubPagesAuthor(review) || 
+                              review.comment.includes('мой сайт') || 
+                              review.comment.includes('я автор');
         
         userMap[userKey].totalRating += review.rating;
         userMap[userKey].count++;
@@ -1961,9 +1968,17 @@ function calculateUserRatings() {
             rating: review.rating,
             site: review.siteName,
             date: review.date,
-            comment: review.comment
+            comment: review.comment,
+            isAuthorReview: isAuthorReview,
+            url: review.siteUrl
         });
         userMap[userKey].sitesReviewed.add(review.siteUrl);
+        
+        if (isAuthorReview) {
+            userMap[userKey].authorReviews++;
+        } else {
+            userMap[userKey].regularReviews++;
+        }
     });
     
     // Рассчитываем метрики для каждого пользователя
@@ -1979,12 +1994,17 @@ function calculateUserRatings() {
             const variance = ratings.reduce((sum, rating) => sum + Math.pow(rating - mean, 2), 0) / ratings.length;
             const consistency = 5 - Math.sqrt(variance); // Чем выше, тем консистентнее
             
+            // ШТРАФ ЗА АВТОРСКИЕ ОТЗЫВЫ
+            const authorPenalty = calculateAuthorPenalty(user.authorReviews, user.regularReviews);
+            
             // "Вес" пользователя: активность + консистентность + разнообразие
             const activityScore = Math.min(user.count / 10, 1) * 2; // Максимум 2 балла
             const consistencyScore = consistency; // До 5 баллов
             const diversityScore = Math.min(user.sitesReviewed.size / 5, 1); // Максимум 1 балл
             
-            const userScore = activityScore + consistencyScore + diversityScore;
+            // ОСНОВНОЙ БАЛЛ МИНУС ШТРАФ
+            let userScore = activityScore + consistencyScore + diversityScore;
+            userScore = Math.max(userScore - authorPenalty, 0.1); // Не ниже 0.1
             
             return {
                 ...user,
@@ -1994,10 +2014,12 @@ function calculateUserRatings() {
                 consistencyFormatted: consistency.toFixed(1),
                 sitesCount: user.sitesReviewed.size,
                 userScore: userScore,
+                authorPenalty: authorPenalty,
+                authorPercentage: user.count > 0 ? (user.authorReviews / user.count * 100).toFixed(0) : 0,
                 lastReview: user.reviews.sort((a, b) => new Date(b.date) - new Date(a.date))[0]?.date
             };
         })
-        // Сортируем по userScore
+        // Сортируем по userScore (уже с вычетом штрафа)
         .sort((a, b) => b.userScore - a.userScore);
     
     return users;
