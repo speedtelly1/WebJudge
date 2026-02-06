@@ -546,18 +546,6 @@ function updateReviewCardsWithLinks() {
     });
 }
 
-// Обновляем функцию createReviewCard, чтобы добавлять data-review-id
-function createReviewCard(review) {
-    const card = document.createElement('div');
-    card.className = 'review-card glass-effect';
-    card.setAttribute('data-review-id', review.id); // Добавляем ID отзыва
-    
-    // ... существующий код создания карточки (не меняем) ...
-    // (оставляем как есть, просто карточка теперь будет иметь data-review-id)
-    
-    return card; // Функция уже существует, возвращаем карточку
-}
-
 // Обработка загрузки страницы с хэшем профиля
 function handleProfileHash() {
     const hash = window.location.hash;
