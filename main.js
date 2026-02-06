@@ -133,6 +133,449 @@ function extractUsername(email) {
             updateProgress();
         });
 
+// ==================== ФУНКЦИИ ДЛЯ РАБОТЫ С ПРОФИЛЯМИ ====================
+
+// Функция для генерации уникального ID пользователя (без email)
+function generateUserId(email) {
+    if (!email) return 'user_0000';
+    
+    try {
+        let hash = 0;
+        for (let i = 0; i < email.length; i++) {
+            hash = ((hash << 5) - hash) + email.charCodeAt(i);
+            hash = hash & hash;
+        }
+        return `user_${Math.abs(hash % 10000).toString().padStart(4, '0')}`;
+    } catch (e) {
+        return 'user_0000';
+    }
+}
+
+// Функция для генерации аватара на основе имени
+function generateAvatar(name) {
+    if (!name) return '';
+    
+    const colors = [
+        '#3498db', '#2ecc71', '#9b59b6', '#e74c3c', '#f39c12',
+        '#1abc9c', '#34495e', '#7f8c8d', '#d35400', '#27ae60'
+    ];
+    
+    const firstLetter = name.charAt(0).toUpperCase();
+    
+    let hash = 0;
+    for (let i = 0; i < name.length; i++) {
+        hash = name.charCodeAt(i) + ((hash << 5) - hash);
+    }
+    const colorIndex = Math.abs(hash % colors.length);
+    const color = colors[colorIndex];
+    
+    return `
+        <div class="user-avatar" style="
+            width: 100px;
+            height: 100px;
+            border-radius: 50%;
+            background: ${color};
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 2.5rem;
+            font-weight: bold;
+            margin: 0 auto 20px;
+            box-shadow: 0 4px 20px ${color}80;
+        ">
+            ${firstLetter}
+        </div>
+    `;
+}
+
+// Функция для получения статистики пользователя
+function getUserStats(userId) {
+    // Находим пользователя по ID
+    const userReviews = reviews.filter(review => {
+        const reviewUserId = generateUserId(review.email);
+        return reviewUserId === userId;
+    });
+    
+    if (userReviews.length === 0) return null;
+    
+    const totalReviews = userReviews.length;
+    const avgRating = (userReviews.reduce((sum, review) => sum + review.rating, 0) / totalReviews).toFixed(1);
+    const uniqueSites = [...new Set(userReviews.map(review => review.siteUrl))].length;
+    
+    // Группируем по сайтам
+    const sites = {};
+    userReviews.forEach(review => {
+        if (!sites[review.siteUrl]) {
+            sites[review.siteUrl] = {
+                name: review.siteName,
+                url: review.siteUrl,
+                ratings: [],
+                count: 0
+            };
+        }
+        sites[review.siteUrl].ratings.push(review.rating);
+        sites[review.siteUrl].count++;
+    });
+    
+    // Рассчитываем средний рейтинг для каждого сайта
+    Object.keys(sites).forEach(url => {
+        sites[url].avgRating = (sites[url].ratings.reduce((a, b) => a + b, 0) / sites[url].count).toFixed(1);
+    });
+    
+    // Находим самый частый рейтинг
+    const ratingCounts = {};
+    userReviews.forEach(review => {
+        ratingCounts[review.rating] = (ratingCounts[review.rating] || 0) + 1;
+    });
+    const mostCommonRating = Object.keys(ratingCounts).reduce((a, b) => 
+        ratingCounts[a] > ratingCounts[b] ? a : b
+    );
+    
+    return {
+        name: userReviews[0].name,
+        userId: userId,
+        nickname: getDisplayNickname(userReviews[0]),
+        totalReviews,
+        avgRating,
+        uniqueSites,
+        sites: sites,
+        reviews: userReviews.sort((a, b) => new Date(b.date) - new Date(a.date)),
+        firstReviewDate: userReviews.reduce((oldest, review) => {
+            return new Date(review.date) < new Date(oldest.date) ? review : oldest;
+        }).date,
+        lastReviewDate: userReviews.reduce((newest, review) => {
+            return new Date(review.date) > new Date(newest.date) ? review : newest;
+        }).date,
+        isVerified: isUserVerified(userReviews[0].email),
+        mostCommonRating: mostCommonRating,
+        ratingStyle: getRatingStyle(parseFloat(avgRating))
+    };
+}
+
+// Функция для определения стиля оценок
+function getRatingStyle(avgRating) {
+    if (avgRating >= 4.5) return 'Добряк';
+    if (avgRating >= 4.0) return 'Позитивный';
+    if (avgRating >= 3.0) return 'Объективный';
+    if (avgRating >= 2.0) return 'Критик';
+    return 'Строгий';
+}
+
+// Функция для отображения профиля
+function displayUserProfile(userId) {
+    const profileContent = document.getElementById('profile-content');
+    if (!profileContent) return;
+    
+    const userStats = getUserStats(userId);
+    
+    if (!userStats) {
+        profileContent.innerHTML = `
+            <div class="no-profile" style="text-align: center; padding: 40px;">
+                <i class="fas fa-user-slash" style="font-size: 3rem; color: #ddd; margin-bottom: 20px;"></i>
+                <h3 style="color: #666; margin-bottom: 10px;">Пользователь не найден</h3>
+                <p style="color: #888;">Отзывы от этого пользователя отсутствуют в базе.</p>
+                <button onclick="switchToPage('reviews')" class="back-to-reviews" style="
+                    display: inline-flex;
+                    align-items: center;
+                    gap: 8px;
+                    background: var(--glass-bg);
+                    backdrop-filter: blur(5px);
+                    border: 1px solid var(--glass-border);
+                    color: var(--secondary-color);
+                    padding: 10px 20px;
+                    border-radius: 50px;
+                    text-decoration: none;
+                    font-weight: 600;
+                    transition: all 0.3s ease;
+                    cursor: pointer;
+                    margin-top: 20px;
+                ">
+                    <i class="fas fa-arrow-left"></i> Перейти к отзывам
+                </button>
+            </div>
+        `;
+        return;
+    }
+    
+    // Генерируем аватар
+    const avatarHTML = generateAvatar(userStats.name);
+    
+    // Форматируем даты
+    const firstReviewDate = new Date(userStats.firstReviewDate).toLocaleDateString('ru-RU');
+    const lastReviewDate = new Date(userStats.lastReviewDate).toLocaleDateString('ru-RU');
+    
+    // Рассчитываем тип пользователя
+    let userType = '';
+    let typeColor = '#3498db';
+    
+    if (userStats.totalReviews >= 10) {
+        userType = 'Эксперт';
+        typeColor = '#27ae60';
+    } else if (userStats.totalReviews >= 5) {
+        userType = 'Активный';
+        typeColor = '#3498db';
+    } else if (userStats.totalReviews >= 3) {
+        userType = 'Участник';
+        typeColor = '#9b59b6';
+    } else {
+        userType = 'Новичок';
+        typeColor = '#e74c3c';
+    }
+    
+    // Определяем цвет стиля оценок
+    let ratingStyleColor = '#3498db';
+    switch(userStats.ratingStyle) {
+        case 'Добряк': ratingStyleColor = '#27ae60'; break;
+        case 'Позитивный': ratingStyleColor = '#2ecc71'; break;
+        case 'Объективный': ratingStyleColor = '#3498db'; break;
+        case 'Критик': ratingStyleColor = '#f39c12'; break;
+        case 'Строгий': ratingStyleColor = '#e74c3c'; break;
+    }
+    
+    profileContent.innerHTML = `
+        <div class="profile-header" style="text-align: center; margin-bottom: 30px;">
+            ${avatarHTML}
+            <h2 style="margin-bottom: 10px;">${userStats.name}</h2>
+            <div style="display: flex; align-items: center; justify-content: center; gap: 15px; margin-bottom: 15px; flex-wrap: wrap;">
+                <span style="color: #666;">
+                    <i class="fas fa-at"></i> ${userStats.nickname}
+                </span>
+                ${userStats.isVerified ? '<i class="fas fa-check-circle verified-badge" title="Проверенный пользователь"></i>' : ''}
+                <span style="background: ${typeColor}15; color: ${typeColor}; padding: 4px 12px; border-radius: 20px; font-size: 0.9rem;">
+                    ${userType}
+                </span>
+                <span style="background: ${ratingStyleColor}15; color: ${ratingStyleColor}; padding: 4px 12px; border-radius: 20px; font-size: 0.9rem;">
+                    <i class="fas fa-star"></i> ${userStats.ratingStyle}
+                </span>
+            </div>
+            <div style="color: #888; font-size: 0.9rem;">
+                <i class="fas fa-id-card"></i> ID: ${userStats.userId}
+            </div>
+        </div>
+        
+        <div class="profile-stats" style="margin-bottom: 40px;">
+            <h3 style="margin-bottom: 20px; color: var(--secondary-color);">
+                <i class="fas fa-chart-bar"></i> Статистика
+            </h3>
+            <div class="stats-container" style="grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));">
+                <div class="stat-card glass-effect">
+                    <i class="fas fa-comment"></i>
+                    <div class="stat-value">${userStats.totalReviews}</div>
+                    <div class="stat-label">Всего отзывов</div>
+                </div>
+                <div class="stat-card glass-effect">
+                    <i class="fas fa-star"></i>
+                    <div class="stat-value">${userStats.avgRating}</div>
+                    <div class="stat-label">Ср. оценка</div>
+                </div>
+                <div class="stat-card glass-effect">
+                    <i class="fas fa-globe"></i>
+                    <div class="stat-value">${userStats.uniqueSites}</div>
+                    <div class="stat-label">Сайтов оценено</div>
+                </div>
+                <div class="stat-card glass-effect">
+                    <i class="fas fa-chart-pie"></i>
+                    <div class="stat-value">${userStats.mostCommonRating}.0</div>
+                    <div class="stat-label">Частый рейтинг</div>
+                </div>
+            </div>
+            <div style="text-align: center; margin-top: 20px; color: #666; font-size: 0.9rem;">
+                <i class="fas fa-calendar"></i> Активность: ${firstReviewDate} - ${lastReviewDate}
+            </div>
+        </div>
+        
+        <div class="profile-reviews">
+            <h3 style="margin-bottom: 20px; color: var(--secondary-color);">
+                <i class="fas fa-list"></i> Все отзывы пользователя (${userStats.totalReviews})
+            </h3>
+            <div id="user-reviews-container" class="reviews-container"></div>
+        </div>
+    `;
+    
+    // Отображаем отзывы пользователя
+    const userReviewsContainer = document.getElementById('user-reviews-container');
+    if (userReviewsContainer) {
+        userReviewsContainer.innerHTML = '';
+        userStats.reviews.forEach(review => {
+            const card = createReviewCard(review);
+            // Убираем кликабельность, так как мы уже в профиле
+            const nameElement = card.querySelector('[data-user-id]');
+            if (nameElement) {
+                nameElement.style.cursor = 'default';
+                nameElement.style.textDecoration = 'none';
+                nameElement.removeAttribute('data-user-id');
+                nameElement.removeAttribute('onclick');
+            }
+            userReviewsContainer.appendChild(card);
+        });
+    }
+}
+
+// Функция для обработки кликов на имена пользователей
+function setupUserProfileLinks() {
+    document.addEventListener('click', function(e) {
+        // Проверяем, кликнули ли на имя пользователя или никнейм
+        let target = e.target;
+        
+        // Ищем ближайший элемент с данными пользователя
+        while (target && !target.hasAttribute('data-user-id') && target !== document.body) {
+            target = target.parentElement;
+        }
+        
+        if (target && target.hasAttribute('data-user-id')) {
+            e.preventDefault();
+            const userId = target.getAttribute('data-user-id');
+            
+            // Переключаемся на страницу профиля
+            switchToPage('profile', userId);
+        }
+    });
+}
+
+// Вспомогательная функция для переключения страниц
+function switchToPage(pageId, userId = null) {
+    // Сбрасываем активные элементы
+    navLinks.forEach(link => link.classList.remove('active'));
+    pages.forEach(page => page.classList.remove('active'));
+    
+    // Находим и активируем нужную ссылку
+    const pageLink = document.querySelector(`.nav-link[data-page="${pageId}"]`);
+    if (pageLink) {
+        pageLink.classList.add('active');
+    }
+    
+    // Находим и показываем нужную страницу
+    const targetPage = document.getElementById(`${pageId}-page`);
+    if (targetPage) {
+        targetPage.classList.add('active');
+    }
+    
+    // Обработка конкретных страниц
+    switch(pageId) {
+        case 'reviews':
+            displayAllReviews(reviews);
+            break;
+        case 'home':
+            displaySitesNeedingReviews();
+            displayRecommendedSites();
+            break;
+        case 'stats':
+            updateStatistics();
+            displayRatingDistribution();
+            displayTopSites();
+            displayTopUsers();
+            break;
+        case 'profile':
+            if (userId) {
+                displayUserProfile(userId);
+                // Обновляем URL
+                window.history.pushState({}, '', `#profile/${userId}`);
+                localStorage.setItem('currentProfileId', userId);
+            } else {
+                // Показываем сообщение о выборе пользователя
+                document.getElementById('profile-content').innerHTML = `
+                    <div style="text-align: center; padding: 40px;">
+                        <i class="fas fa-user" style="font-size: 3rem; color: #ddd; margin-bottom: 20px;"></i>
+                        <h3 style="color: #666; margin-bottom: 10px;">Выберите пользователя</h3>
+                        <p style="color: #888; margin-bottom: 20px;">Нажмите на имя или никнейм любого пользователя в отзывах, чтобы посмотреть его профиль.</p>
+                        <button onclick="switchToPage('reviews')" class="back-to-reviews" style="
+                            display: inline-flex;
+                            align-items: center;
+                            gap: 8px;
+                            background: var(--glass-bg);
+                            backdrop-filter: blur(5px);
+                            border: 1px solid var(--glass-border);
+                            color: var(--secondary-color);
+                            padding: 10px 20px;
+                            border-radius: 50px;
+                            text-decoration: none;
+                            font-weight: 600;
+                            transition: all 0.3s ease;
+                            cursor: pointer;
+                        ">
+                            <i class="fas fa-arrow-left"></i> Перейти к отзывам
+                        </button>
+                    </div>
+                `;
+            }
+            break;
+    }
+}
+
+// Функция для обновления карточек отзывов с кликабельными именами
+function updateReviewCardsWithLinks() {
+    document.querySelectorAll('.review-card').forEach(card => {
+        // Находим элементы с именем и никнеймом
+        const nameElement = card.querySelector('.reviewer-info h3');
+        const nicknameElement = card.querySelector('.reviewer-username');
+        
+        // Находим ID отзыва
+        const reviewId = parseInt(card.getAttribute('data-review-id') || '0');
+        const review = reviews.find(r => r.id === reviewId);
+        
+        if (review && review.email) {
+            const userId = generateUserId(review.email);
+            
+            // Добавляем атрибут с ID к имени
+            if (nameElement) {
+                nameElement.setAttribute('data-user-id', userId);
+                nameElement.style.cursor = 'pointer';
+                nameElement.style.textDecoration = 'underline';
+                nameElement.style.textDecorationStyle = 'dotted';
+                nameElement.style.textUnderlineOffset = '3px';
+                nameElement.title = 'Посмотреть профиль пользователя';
+            }
+            
+            // Также делаем кликабельным никнейм
+            if (nicknameElement) {
+                nicknameElement.setAttribute('data-user-id', userId);
+                nicknameElement.style.cursor = 'pointer';
+                nicknameElement.style.textDecoration = 'underline';
+                nicknameElement.style.textDecorationStyle = 'dotted';
+                nicknameElement.style.textUnderlineOffset = '2px';
+                nicknameElement.title = 'Посмотреть профиль пользователя';
+            }
+        }
+    });
+}
+
+// Обновляем функцию createReviewCard, чтобы добавлять data-review-id
+function createReviewCard(review) {
+    const card = document.createElement('div');
+    card.className = 'review-card glass-effect';
+    card.setAttribute('data-review-id', review.id); // Добавляем ID отзыва
+    
+    // ... существующий код создания карточки (не меняем) ...
+    // (оставляем как есть, просто карточка теперь будет иметь data-review-id)
+    
+    return card; // Функция уже существует, возвращаем карточку
+}
+
+// Обработка загрузки страницы с хэшем профиля
+function handleProfileHash() {
+    const hash = window.location.hash;
+    
+    if (hash.startsWith('#profile/')) {
+        const userId = hash.split('/')[1];
+        
+        // Переключаемся на страницу профиля
+        switchToPage('profile', userId);
+    }
+}
+
+// Обновляем функцию initNavigation для поддержки профилей
+function initNavigation() {
+    navLinks.forEach(link => {
+        link.addEventListener('click', function(e) {
+            e.preventDefault();
+            
+            const pageId = this.getAttribute('data-page');
+            switchToPage(pageId);
+        });
+    });
+}
+
         // Навигация между страницами
         function initNavigation() {
             navLinks.forEach(link => {
@@ -413,6 +856,8 @@ function displayAllReviews(reviewsArray) {
         function createReviewCard(review) {
             const card = document.createElement('div');
             card.className = 'review-card glass-effect';
+
+            card.setAttribute('data-review-id', review.id);
 
             // Добавляем класс для критических отзывов
             if (review.rating <= 2) {
