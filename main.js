@@ -137,6 +137,8 @@ function extractUsername(email) {
             
             // Инициализация прогресс-бара
             updateProgress();
+
+            initQuiz();
            // Если загрузили страницу без хэша, но активна страница профиля - переключаем
            if (!window.location.hash && document.querySelector('#profile-page.active')) {
                switchToPage('home');
@@ -2485,6 +2487,239 @@ function displayTimeStats(stats) {
             </ul>
         </div>
     `;
+}
+
+// ==================== ВИКТОРИНА "УГАДАЙ САЙТ" ====================
+
+let quizState = {
+    currentQuestion: 0,
+    score: 0,
+    highScore: localStorage.getItem('quizHighScore') || 0,
+    questions: [],
+    totalQuestions: 5,
+    gameActive: false
+};
+
+// Инициализация викторины при загрузке
+function initQuiz() {
+    document.getElementById('quiz-highscore').textContent = quizState.highScore;
+    
+    // Обработчики кнопок
+    document.getElementById('start-quiz-btn')?.addEventListener('click', startQuiz);
+    document.getElementById('next-question-btn')?.addEventListener('click', nextQuestion);
+    document.getElementById('restart-quiz-btn')?.addEventListener('click', restartQuiz);
+    
+    // Генерируем вопросы из отзывов
+    generateQuizQuestions();
+}
+
+// Генерация вопросов для викторины
+function generateQuizQuestions() {
+    quizState.questions = [];
+    
+    // Выбираем случайные отзывы для вопросов
+    const shuffledReviews = [...reviews].sort(() => Math.random() - 0.5);
+    
+    for (let i = 0; i < Math.min(quizState.totalQuestions, shuffledReviews.length); i++) {
+        const review = shuffledReviews[i];
+        
+        // Создаем неправильные варианты (другие сайты)
+        const wrongOptions = reviews
+            .filter(r => r.siteUrl !== review.siteUrl)
+            .map(r => ({ name: r.siteName, url: r.siteUrl }))
+            .filter((value, index, self) => 
+                index === self.findIndex(t => t.url === value.url)
+            )
+            .sort(() => Math.random() - 0.5)
+            .slice(0, 3);
+        
+        // Создаем правильный вариант
+        const correctOption = {
+            name: review.siteName,
+            url: review.siteUrl,
+            isCorrect: true
+        };
+        
+        // Смешиваем варианты
+        const allOptions = [...wrongOptions, correctOption]
+            .sort(() => Math.random() - 0.5)
+            .map((opt, idx) => ({
+                ...opt,
+                letter: String.fromCharCode(65 + idx) // A, B, C, D
+            }));
+        
+        quizState.questions.push({
+            review: review.comment,
+            reviewer: review.name,
+            correctSite: review.siteName,
+            correctUrl: review.siteUrl,
+            options: allOptions
+        });
+    }
+}
+
+// Начать викторину
+function startQuiz() {
+    quizState.currentQuestion = 0;
+    quizState.score = 0;
+    quizState.gameActive = true;
+    
+    updateScore();
+    
+    // Показать игровую область
+    document.getElementById('quiz-start-screen').style.display = 'none';
+    document.getElementById('quiz-game-area').style.display = 'block';
+    
+    // Показать первый вопрос
+    showQuestion();
+}
+
+// Показать вопрос
+function showQuestion() {
+    const questionData = quizState.questions[quizState.currentQuestion];
+    if (!questionData) return;
+    
+    // Обновляем прогресс
+    const progress = ((quizState.currentQuestion + 1) / quizState.totalQuestions) * 100;
+    
+    // Показываем вопрос
+    document.getElementById('quiz-question').innerHTML = `
+        <div style="margin-bottom: 10px; color: #666; font-size: 0.9rem;">
+            <i class="fas fa-user"></i> ${questionData.reviewer}
+        </div>
+        <div>"${questionData.review}"</div>
+    `;
+    
+    // Показываем варианты ответов
+    const optionsContainer = document.getElementById('quiz-options');
+    optionsContainer.innerHTML = '';
+    
+    questionData.options.forEach(option => {
+        const optionElement = document.createElement('div');
+        optionElement.className = 'quiz-option';
+        optionElement.dataset.correct = option.isCorrect || false;
+        optionElement.dataset.url = option.url;
+        
+        optionElement.innerHTML = `
+            <span class="option-letter">${option.letter}</span>
+            <span>${option.name}</span>
+        `;
+        
+        optionElement.addEventListener('click', () => selectAnswer(optionElement));
+        optionsContainer.appendChild(optionElement);
+    });
+    
+    // Скрыть кнопку "Следующий вопрос" и фидбек
+    document.getElementById('next-question-btn').style.display = 'none';
+    document.getElementById('quiz-feedback').style.display = 'none';
+    
+    // Разблокировать варианты ответов
+    document.querySelectorAll('.quiz-option').forEach(opt => {
+        opt.style.pointerEvents = 'auto';
+        opt.style.opacity = '1';
+    });
+}
+
+// Выбор ответа
+function selectAnswer(selectedElement) {
+    if (!quizState.gameActive) return;
+    
+    const isCorrect = selectedElement.dataset.correct === 'true';
+    const correctUrl = quizState.questions[quizState.currentQuestion].correctUrl;
+    
+    // Блокируем все варианты
+    document.querySelectorAll('.quiz-option').forEach(opt => {
+        opt.style.pointerEvents = 'none';
+        
+        // Подсвечиваем правильный/неправильный
+        if (opt.dataset.url === correctUrl) {
+            opt.classList.add('correct');
+        } else if (opt === selectedElement && !isCorrect) {
+            opt.classList.add('wrong');
+        }
+    });
+    
+    // Обновляем счёт
+    if (isCorrect) {
+        quizState.score += 10;
+        updateScore();
+    }
+    
+    // Показываем фидбек
+    const feedbackElement = document.getElementById('quiz-feedback');
+    feedbackElement.style.display = 'block';
+    feedbackElement.className = isCorrect ? 'correct' : 'wrong';
+    
+    feedbackElement.innerHTML = `
+        <div style="display: flex; align-items: center; gap: 10px;">
+            <i class="fas fa-${isCorrect ? 'check-circle' : 'times-circle'}" style="font-size: 1.2rem;"></i>
+            <div>
+                <strong>${isCorrect ? 'Правильно!' : 'Неверно!'}</strong>
+                ${isCorrect ? ' +10 очков!' : ` Правильный ответ: ${quizState.questions[quizState.currentQuestion].correctSite}`}
+            </div>
+        </div>
+    `;
+    
+    // Показываем кнопку "Следующий вопрос"
+    document.getElementById('next-question-btn').style.display = 'block';
+}
+
+// Следующий вопрос
+function nextQuestion() {
+    quizState.currentQuestion++;
+    
+    if (quizState.currentQuestion < quizState.totalQuestions) {
+        showQuestion();
+    } else {
+        finishQuiz();
+    }
+}
+
+// Завершить викторину
+function finishQuiz() {
+    quizState.gameActive = false;
+    
+    // Обновляем рекорд
+    if (quizState.score > quizState.highScore) {
+        quizState.highScore = quizState.score;
+        localStorage.setItem('quizHighScore', quizState.highScore);
+        document.getElementById('quiz-highscore').textContent = quizState.highScore;
+    }
+    
+    // Показываем результаты
+    document.getElementById('quiz-question').innerHTML = `
+        <div style="text-align: center; padding: 20px;">
+            <i class="fas fa-trophy" style="font-size: 3rem; color: #FFD700; margin-bottom: 20px;"></i>
+            <h3 style="color: var(--secondary-color); margin-bottom: 10px;">Викторина завершена!</h3>
+            <p style="color: #666; margin-bottom: 5px;">Ваш счёт: <strong style="font-size: 1.2rem;">${quizState.score}</strong> очков</p>
+            <p style="color: #666; margin-bottom: 5px;">Рекорд: <strong>${quizState.highScore}</strong> очков</p>
+            <p style="color: #666;">Правильных ответов: <strong>${quizState.score / 10} из ${quizState.totalQuestions}</strong></p>
+            
+            ${quizState.score === quizState.totalQuestions * 10 ? 
+                '<div style="margin-top: 15px; color: #27ae60;"><i class="fas fa-crown"></i> Идеальный результат!</div>' : 
+                ''}
+        </div>
+    `;
+    
+    // Очищаем варианты ответов
+    document.getElementById('quiz-options').innerHTML = '';
+    document.getElementById('quiz-feedback').style.display = 'none';
+    document.getElementById('next-question-btn').style.display = 'none';
+}
+
+// Начать заново
+function restartQuiz() {
+    // Генерируем новые вопросы
+    generateQuizQuestions();
+    
+    // Возвращаемся к стартовому экрану
+    document.getElementById('quiz-start-screen').style.display = 'block';
+    document.getElementById('quiz-game-area').style.display = 'none';
+}
+
+// Обновить счёт
+function updateScore() {
+    document.getElementById('current-score').textContent = quizState.score;
 }
 
 /*!
