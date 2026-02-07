@@ -529,6 +529,28 @@ const reviews = [
         rating: 1,
         comment: "Клод лучше",
         date: "2026-02-07T16:25:00"
+    },
+    {
+        id: 49,
+        name: "Алёна",
+        nickname: "fanalenki",
+        email: "akkumulator950@gmail.com",
+        siteUrl: "https://funpay.com/",
+        siteName: "FunPay",
+        rating: 2,
+        comment: "Скам контора",
+        date: "2026-02-07T16:28:00"
+    },
+    {
+        id: 50,
+        name: "Алёна",
+        nickname: "fanalenki",
+        email: "akkumulator950@gmail.com",
+        siteUrl: "https://miro.com/app/dashboard/",
+        siteName: "Miro",
+        rating: 1,
+        comment: "Дизайн из 90-х",
+        date: "2026-02-07T16:30:00"
     }
 ];
 
