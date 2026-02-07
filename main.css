@@ -1497,3 +1497,82 @@ body.dark-theme .verified-badge {
         font-size: 0.95rem;
     }
 }
+
+/* ДОБАВЬТЕ В КОНЕЦ ФАЙЛА main.css */
+
+/* Стили для баннера очистки кэша */
+.cache-banner {
+    background: linear-gradient(135deg, #f8f9fa, #e9ecef) !important;
+    border: 2px solid #27ae60 !important;
+    box-shadow: 0 8px 32px rgba(39, 174, 96, 0.3),
+                0 4px 12px rgba(0, 0, 0, 0.2),
+                0 0 0 1px rgba(39, 174, 96, 0.1) !important;
+}
+
+.cache-banner .banner-text i {
+    color: #27ae60 !important;
+    font-size: 1.3rem;
+}
+
+.cache-banner .banner-text span {
+    color: #2c3e50 !important;
+    font-weight: 500;
+}
+
+/* Анимация пульсации для важного баннера */
+@keyframes pulse-green {
+    0% { 
+        box-shadow: 0 8px 32px rgba(39, 174, 96, 0.3),
+                    0 4px 12px rgba(0, 0, 0, 0.2),
+                    0 0 0 1px rgba(39, 174, 96, 0.1);
+    }
+    50% { 
+        box-shadow: 0 8px 32px rgba(39, 174, 96, 0.5),
+                    0 4px 12px rgba(0, 0, 0, 0.3),
+                    0 0 0 2px rgba(39, 174, 96, 0.3);
+    }
+    100% { 
+        box-shadow: 0 8px 32px rgba(39, 174, 96, 0.3),
+                    0 4px 12px rgba(0, 0, 0, 0.2),
+                    0 0 0 1px rgba(39, 174, 96, 0.1);
+    }
+}
+
+.cache-banner {
+    animation: pulse-green 2s infinite;
+}
+
+/* Кнопка обновления */
+#force-reload-btn {
+    background: #27ae60 !important;
+    color: white !important;
+    font-weight: 600;
+    transition: all 0.3s ease;
+}
+
+#force-reload-btn:hover {
+    background: #219653 !important;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(39, 174, 96, 0.3) !important;
+}
+
+#force-reload-btn:active {
+    transform: translateY(0);
+}
+
+/* Инструкция по обновлению (опционально) */
+.cache-instructions {
+    margin-top: 10px;
+    font-size: 0.85rem;
+    color: #666;
+    text-align: center;
+}
+
+.cache-instructions kbd {
+    background: #2c3e50;
+    color: white;
+    padding: 2px 6px;
+    border-radius: 4px;
+    font-family: monospace;
+    font-size: 0.8rem;
+}
