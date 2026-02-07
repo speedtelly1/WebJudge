@@ -582,7 +582,8 @@ const categories = {
         // Только если это автор И рейтинг высокий
         return isAuthor && review.rating >= 4;
     },
-    'Позитивные': (review) => review.rating >= 4
+    'Позитивные': (review) => review.rating >= 4,
+    'Нейтральные': (review) => review.rating == 3
 };
 
 // Функция генерации анонимного никнейма
