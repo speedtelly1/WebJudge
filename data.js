@@ -507,6 +507,28 @@ const reviews = [
         rating: 3,
         comment: "Система норм, но надо больше функций, допилить старые и разделить код на разные файлы. Смотрел репозиторий, там все в одном файле",
         date: "2026-02-07T08:18:00"
+    },
+    {
+        id: 47,
+        name: "Алёна",
+        nickname: "fanalenki",
+        email: "akkumulator950@gmail.com",
+        siteUrl: "https://character.ai/",
+        siteName: "Character.ai",
+        rating: 1,
+        comment: "Был топовый сайт, но меня там забанили",
+        date: "2026-02-07T16:24:00"
+    },
+    {
+        id: 48,
+        name: "Алёна",
+        nickname: "fanalenki",
+        email: "akkumulator950@gmail.com",
+        siteUrl: "https://chat.deepseek.com/",
+        siteName: "DeepSeek",
+        rating: 1,
+        comment: "Клод лучше",
+        date: "2026-02-07T16:25:00"
     }
 ];
 
