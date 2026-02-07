@@ -551,6 +551,39 @@ const reviews = [
         rating: 1,
         comment: "Дизайн из 90-х",
         date: "2026-02-07T16:30:00"
+    },
+    {
+        id: 51,
+        name: "Алёна",
+        nickname: "fanalenki",
+        email: "akkumulator950@gmail.com",
+        siteUrl: "https://rutube.ru/",
+        siteName: "Rutube",
+        rating: 2,
+        comment: "Ютуб лучше",
+        date: "2026-02-07T21:00:00"
+    },
+    {
+        id: 52,
+        name: "Алёна",
+        nickname: "fanalenki",
+        email: "akkumulator950@gmail.com",
+        siteUrl: "https://tlauncher.ru/",
+        siteName: "TLauncher",
+        rating: 2,
+        comment: "Лаунчеру дизлайк",
+        date: "2026-02-07T21:00:10"
+    },
+    {
+        id: 53,
+        name: "Тимоша",
+        nickname: "timsib",
+        email: "timi.sibi.maxi2010@gmail.com",
+        siteUrl: "https://akkumulator950-bit.github.io/promptflame.github.io/",
+        siteName: "PromptFlame",
+        rating: 1,
+        comment: "Дизайн режет глазки, сайт сломан",
+        date: "2026-02-07T21:01:00"
     }
 ];
 
