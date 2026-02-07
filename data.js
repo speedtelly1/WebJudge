@@ -497,6 +497,17 @@ const reviews = [
         comment: "Супер!",
         date: "2026-02-07T08:15:00"
     },
+    {
+        id: 46,
+        name: "Тимофей",
+        nickname: "timoshamoscow",
+        email: "roll3ogurec0@gmail.com",
+        siteUrl: "https://xtv27.github.io/MAX-OS/",
+        siteName: "MAX OS",
+        rating: 3,
+        comment: "Система норм, но надо больше функций, допилить старые и разделить код на разные файлы. Смотрел репозиторий, там все в одном файле",
+        date: "2026-02-07T08:18:00"
+    }
 ];
 
 // Добавьте в data.js
