@@ -485,7 +485,18 @@ const reviews = [
         rating: 5,
         comment: "Сайт топовый. Наверное после пубертата перестану туда ходить (ну или нет)",
         date: "2026-02-06T19:41:00"
-    }
+    },
+    {
+        id: 45,
+        name: "Timofey",
+        nickname: "timofey_goryachev_2026",
+        email: "timofeyeng9@gmail.com",
+        siteUrl: "https://web.telegram.org/",
+        siteName: "Telegram Web",
+        rating: 5,
+        comment: "Супер!",
+        date: "2026-02-07T08:15:00"
+    },
 ];
 
 // Добавьте в data.js
