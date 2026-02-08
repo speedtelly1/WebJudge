@@ -492,6 +492,7 @@ function switchToPage(pageId, userId = null) {
             updateStatistics();
             displayRatingDistribution();
             displayTopSites();
+            displayTopUsers();
             setTimeout(() => {
                 analyzeTimeStats();
             }, 100);
@@ -1716,7 +1717,7 @@ function filterByCategory(category) {
             }
         }
 
-// ==================== ОБНОВЛЁННАЯ ФУНКЦИЯ ДЛЯ ОТОБРАЖЕНИЯ ТОП-САЙТОВ ====================
+// ==================== ФУНКЦИЯ ДЛЯ ОТОБРАЖЕНИЯ ТОП-САЙТОВ ====================
 function displayTopSites() {
     // Создаем контейнер если его нет
     let topSitesContainer = document.getElementById('top-sites-container');
@@ -1725,35 +1726,13 @@ function displayTopSites() {
         const statsPage = document.getElementById('stats-page');
         if (!statsPage) return;
         
-        // Создаем новый раздел для двухколоночного рейтинга
+        // Создаем новый раздел для топ-сайтов
         const sectionHTML = `
             <div style="margin-top: 40px;">
                 <h3 style="margin-bottom: 20px; color: var(--secondary-color);">
-                    <i class="fas fa-trophy"></i> Рейтинги сайтов и пользователей
+                    <i class="fas fa-trophy"></i> Рейтинг сайтов
                 </h3>
-                <div class="two-columns-container">
-                    <!-- Левая колонка: Топ сайтов -->
-                    <div class="ranking-column sites-ranking">
-                        <div class="ranking-header glass-effect" style="padding: 15px 20px;">
-                            <h3>
-                                <i class="fas fa-globe"></i> Топ сайтов
-                            </h3>
-                            <span class="ranking-count" id="sites-count">0 сайтов</span>
-                        </div>
-                        <div id="top-sites-container"></div>
-                    </div>
-                    
-                    <!-- Правая колонка: Топ пользователей -->
-                    <div class="ranking-column users-ranking">
-                        <div class="ranking-header glass-effect" style="padding: 15px 20px;">
-                            <h3>
-                                <i class="fas fa-users"></i> Топ пользователей
-                            </h3>
-                            <span class="ranking-count" id="users-count">0 пользователей</span>
-                        </div>
-                        <div id="top-users-container"></div>
-                    </div>
-                </div>
+                <div id="top-sites-container"></div>
             </div>
         `;
         
@@ -1777,12 +1756,9 @@ function displayTopSites() {
     const siteStats = calculateSiteRatings();
     
     if (siteStats.length === 0) {
-        topSitesContainer.innerHTML = '<p style="text-align: center; color: #666; padding: 20px;">Недостаточно данных для рейтинга</p>';
+        topSitesContainer.innerHTML = '<p style="text-align: center; color: #666;">Недостаточно данных для рейтинга</p>';
         return;
     }
-    
-    // Обновляем количество сайтов
-    document.getElementById('sites-count').textContent = `${Math.min(siteStats.length, 10)} сайтов`;
     
     // Ограничиваем 10 топ-сайтами
     const topSites = siteStats.slice(0, 10);
@@ -1790,14 +1766,20 @@ function displayTopSites() {
     // Очищаем контейнер
     topSitesContainer.innerHTML = '';
     
-    // Создаем карточки
+    // Создаем таблицу или список
+    const table = document.createElement('div');
+    table.style.cssText = `
+        display: grid;
+        gap: 10px;
+        margin-top: 20px;
+    `;
+    
     topSites.forEach((site, index) => {
         const siteCard = createSiteRankingCard(site, index + 1);
-        topSitesContainer.appendChild(siteCard);
+        table.appendChild(siteCard);
     });
     
-    // Также отображаем топ пользователей
-    displayTopUsers();
+    topSitesContainer.appendChild(table);
 }
 
 // ==================== ФУНКЦИЯ ДЛЯ РАСЧЕТА ВЗВЕШЕННЫХ РЕЙТИНГОВ (ОБНОВЛЁННАЯ) ====================
@@ -1901,26 +1883,41 @@ function calculateAuthorPenalty(authorCount, regularCount) {
     return penalty;
 }
 
-// ==================== ОБНОВЛЁННАЯ ФУНКЦИЯ СОЗДАНИЯ КАРТОЧКИ РЕЙТИНГА САЙТА ====================
+// ==================== ФУНКЦИЯ СОЗДАНИЯ КАРТОЧКИ РЕЙТИНГА САЙТА ====================
 function createSiteRankingCard(site, position) {
     const card = document.createElement('div');
-    card.className = 'ranking-card glass-effect';
+    card.className = 'site-rank-card glass-effect';
     
-    // Добавляем класс для топ-3
-    if (position <= 3) {
-        card.classList.add(`top-${position}`);
+    // Определяем цвета и иконки для топ-3
+    let rankColor = '#3498db'; // Синий для остальных
+    let rankIcon = '';
+    
+    if (position === 1) {
+        rankColor = '#FFD700'; // Золотой
+        rankIcon = '<i class="fas fa-crown"></i>';
+    } else if (position === 2) {
+        rankColor = '#C0C0C0'; // Серебряный
+        rankIcon = '<i class="fas fa-medal"></i>';
+    } else if (position === 3) {
+        rankColor = '#CD7F32'; // Бронзовый
+        rankIcon = '<i class="fas fa-award"></i>';
+    } else {
+        rankIcon = `<span style="color: #777; font-weight: bold;">${position}</span>`;
     }
     
-    // Определяем иконку для позиции
-    let rankIcon = '';
-    if (position === 1) {
-        rankIcon = '<i class="fas fa-crown" style="color: #FFD700;"></i>';
-    } else if (position === 2) {
-        rankIcon = '<i class="fas fa-medal" style="color: #C0C0C0;"></i>';
-    } else if (position === 3) {
-        rankIcon = '<i class="fas fa-award" style="color: #CD7F32;"></i>';
-    } else {
-        rankIcon = `<span style="color: var(--secondary-color);">${position}</span>`;
+    // Создаем звезды для отображения рейтинга
+    let starsHTML = '';
+    const fullStars = Math.floor(site.avgRating);
+    const hasHalfStar = site.avgRating % 1 >= 0.5;
+    
+    for (let i = 1; i <= 5; i++) {
+        if (i <= fullStars) {
+            starsHTML += '<i class="fas fa-star" style="color: #FFD700;"></i>';
+        } else if (i === fullStars + 1 && hasHalfStar) {
+            starsHTML += '<i class="fas fa-star-half-alt" style="color: #FFD700;"></i>';
+        } else {
+            starsHTML += '<i class="far fa-star" style="color: #ddd;"></i>';
+        }
     }
     
     // Извлекаем домен для отображения
@@ -1932,30 +1929,31 @@ function createSiteRankingCard(site, position) {
         // Оставляем как есть
     }
     
-    // Создаем звезды для рейтинга
-    let starsHTML = '';
-    const fullStars = Math.floor(site.avgRating);
-    const hasHalfStar = site.avgRating % 1 >= 0.5;
+    card.style.cssText = `
+        display: flex;
+        align-items: center;
+        padding: 15px 20px;
+        border-radius: 12px;
+        transition: all 0.3s ease;
+        border-left: 4px solid ${rankColor};
+        position: relative;
+        overflow: hidden;
+    `;
     
-    for (let i = 1; i <= 5; i++) {
-        if (i <= fullStars) {
-            starsHTML += '<i class="fas fa-star" style="color: #FFD700; font-size: 0.9rem;"></i>';
-        } else if (i === fullStars + 1 && hasHalfStar) {
-            starsHTML += '<i class="fas fa-star-half-alt" style="color: #FFD700; font-size: 0.9rem;"></i>';
-        } else {
-            starsHTML += '<i class="far fa-star" style="color: #ddd; font-size: 0.9rem;"></i>';
-        }
+    // Специальные стили для топ-3
+    if (position <= 3) {
+        card.style.background = `linear-gradient(135deg, ${rankColor}15, rgba(255,255,255,0.9))`;
+        card.style.boxShadow = `0 4px 15px ${rankColor}30`;
     }
     
-    // Формируем карточку
     card.innerHTML = `
-        <div style="display: flex; align-items: center; width: 100%;">
-            <div class="ranking-position">
-                ${rankIcon}
-            </div>
-            
-            <div class="ranking-content">
-                <h4 class="ranking-title">
+        <div style="width: 50px; text-align: center; font-size: 1.5rem; color: ${rankColor};">
+            ${rankIcon}
+        </div>
+        
+        <div style="flex-grow: 1; margin: 0 20px;">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 5px;">
+                <h4 style="margin: 0; color: var(--secondary-color); font-size: 1.1rem;">
                     <a href="${site.url}" target="_blank" rel="noopener" 
                        style="color: inherit; text-decoration: none;"
                        onmouseover="this.style.textDecoration='underline'"
@@ -1963,48 +1961,94 @@ function createSiteRankingCard(site, position) {
                         ${site.name}
                     </a>
                 </h4>
-                
-                <div class="ranking-subtitle">
+                <div style="display: flex; align-items: center; gap: 10px;">
+                    <div style="font-weight: bold; color: var(--secondary-color);">
+                        ${site.formattedRating}/5
+                    </div>
+                    <div style="background: rgba(52, 152, 219, 0.1); padding: 3px 10px; border-radius: 12px; 
+                                font-size: 0.85rem; color: var(--primary-color);">
+                        ${site.count} отзыв${site.count === 1 ? '' : site.count >= 5 ? 'ов' : 'а'}
+                    </div>
+                </div>
+            </div>
+            
+            <div style="display: flex; align-items: center; gap: 15px; flex-wrap: wrap;">
+                <div style="font-size: 0.9rem; color: #666; display: flex; align-items: center; gap: 5px;">
                     <i class="fas fa-globe" style="font-size: 0.8rem;"></i>
-                    <span title="${site.url}" style="margin-left: 5px;">${domain.length > 25 ? domain.substring(0, 25) + '...' : domain}</span>
+                    <span title="${site.url}">${domain.length > 30 ? domain.substring(0, 30) + '...' : domain}</span>
                 </div>
                 
-                <div class="ranking-stats">
-                    <div class="stat-badge">
-                        <i class="fas fa-star"></i> ${site.formattedRating}/5
-                    </div>
-                    <div class="stat-badge">
-                        <i class="fas fa-comment"></i> ${site.count} отзыв${site.count === 1 ? '' : site.count >= 5 ? 'ов' : 'а'}
-                    </div>
+                <div style="display: flex; align-items: center;">
+                    ${starsHTML}
                 </div>
             </div>
         </div>
         
         ${position <= 3 ? `
-        <div class="top-badge" style="background: ${position === 1 ? '#FFD700' : position === 2 ? '#C0C0C0' : '#CD7F32'}; color: ${position === 1 ? '#333' : 'white'};">
-            ${position === 1 ? 'ТОП-1' : position === 2 ? 'ТОП-2' : 'ТОП-3'}
+        <div style="position: absolute; top: -10px; right: -10px; background: ${rankColor}; 
+                    color: white; font-size: 0.7rem; padding: 2px 8px; border-radius: 10px; 
+                    transform: rotate(15deg); font-weight: bold; box-shadow: 0 2px 5px rgba(0,0,0,0.2);">
+            ${position === 1 ? 'ЛУЧШИЙ' : position === 2 ? '2 МЕСТО' : '3 МЕСТО'}
         </div>
         ` : ''}
     `;
     
+    // Добавляем hover эффект
+    card.addEventListener('mouseenter', function() {
+        this.style.transform = 'translateY(-3px)';
+        this.style.boxShadow = `0 8px 25px ${position <= 3 ? rankColor + '40' : 'rgba(0,0,0,0.15)'}`;
+    });
+    
+    card.addEventListener('mouseleave', function() {
+        this.style.transform = 'translateY(0)';
+        this.style.boxShadow = position <= 3 ? `0 4px 15px ${rankColor}30` : 'var(--shadow)';
+    });
+    
     return card;
 }
 
-// ==================== ОБНОВЛЁННАЯ ФУНКЦИЯ ДЛЯ ОТОБРАЖЕНИЯ ТОП-ПОЛЬЗОВАТЕЛЕЙ ====================
+// ==================== ФУНКЦИЯ ДЛЯ РЕЙТИНГА ПОЛЬЗОВАТЕЛЕЙ ====================
+
 function displayTopUsers() {
-    const topUsersContainer = document.getElementById('top-users-container');
-    if (!topUsersContainer) return;
+    // Создаем контейнер если его нет
+    let topUsersContainer = document.getElementById('top-users-container');
+    
+    if (!topUsersContainer) {
+        const statsPage = document.getElementById('stats-page');
+        if (!statsPage) return;
+        
+        // Создаем новый раздел для топ-пользователей
+        const sectionHTML = `
+            <div style="margin-top: 40px;">
+                <h3 style="margin-bottom: 20px; color: var(--secondary-color);">
+                    <i class="fas fa-users"></i> Рейтинг пользователей
+                </h3>
+                <div id="top-users-container"></div>
+            </div>
+        `;
+        
+        // Вставляем после рейтинга сайтов
+        const topSitesContainer = document.getElementById('top-sites-container');
+        if (topSitesContainer && topSitesContainer.parentNode) {
+            topSitesContainer.parentNode.insertAdjacentHTML('afterend', sectionHTML);
+        } else {
+            // Или просто в конец контейнера статистики
+            const statsContainer = statsPage.querySelector('.glass-effect');
+            if (statsContainer) {
+                statsContainer.insertAdjacentHTML('beforeend', sectionHTML);
+            }
+        }
+        
+        topUsersContainer = document.getElementById('top-users-container');
+    }
     
     // Получаем данные о пользователях
     const userStats = calculateUserRatings();
     
     if (userStats.length === 0) {
-        topUsersContainer.innerHTML = '<p style="text-align: center; color: #666; padding: 20px;">Нет данных о пользователях</p>';
+        topUsersContainer.innerHTML = '<p style="text-align: center; color: #666;">Нет данных о пользователях</p>';
         return;
     }
-    
-    // Обновляем количество пользователей
-    document.getElementById('users-count').textContent = `${Math.min(userStats.length, 10)} пользователей`;
     
     // Ограничиваем 10 топ-пользователями
     const topUsers = userStats.slice(0, 10);
@@ -2012,11 +2056,20 @@ function displayTopUsers() {
     // Очищаем контейнер
     topUsersContainer.innerHTML = '';
     
-    // Создаем карточки
+    // Создаем таблицу
+    const table = document.createElement('div');
+    table.style.cssText = `
+        display: grid;
+        gap: 10px;
+        margin-top: 20px;
+    `;
+    
     topUsers.forEach((user, index) => {
         const userCard = createUserRankingCard(user, index + 1);
-        topUsersContainer.appendChild(userCard);
+        table.appendChild(userCard);
     });
+    
+    topUsersContainer.appendChild(table);
 }
 
 // ==================== ФУНКЦИЯ ДЛЯ РАСЧЕТА РЕЙТИНГОВ ПОЛЬЗОВАТЕЛЕЙ ====================
@@ -2113,29 +2166,30 @@ function calculateUserRatings() {
     return users;
 }
 
-// ==================== ОБНОВЛЁННАЯ ФУНКЦИЯ СОЗДАНИЯ КАРТОЧКИ РЕЙТИНГА ПОЛЬЗОВАТЕЛЯ ====================
+// ==================== ФУНКЦИЯ СОЗДАНИЯ КАРТОЧКИ РЕЙТИНГА ПОЛЬЗОВАТЕЛЯ ====================
+
 function createUserRankingCard(user, position) {
     const card = document.createElement('div');
-    card.className = 'ranking-card glass-effect';
+    card.className = 'user-rank-card glass-effect';
     
-    // Добавляем класс для топ-3
-    if (position <= 3) {
-        card.classList.add(`top-${position}`);
-    }
-    
-    // Определяем иконку для позиции
+    // Определяем цвета и иконки для топ-3
+    let rankColor = '#3498db'; // Синий для остальных
     let rankIcon = '';
+    
     if (position === 1) {
-        rankIcon = '<i class="fas fa-crown" style="color: #FFD700;"></i>';
+        rankColor = '#FFD700'; // Золотой
+        rankIcon = '<i class="fas fa-crown"></i>';
     } else if (position === 2) {
-        rankIcon = '<i class="fas fa-medal" style="color: #C0C0C0;"></i>';
+        rankColor = '#C0C0C0'; // Серебряный
+        rankIcon = '<i class="fas fa-medal"></i>';
     } else if (position === 3) {
-        rankIcon = '<i class="fas fa-award" style="color: #CD7F32;"></i>';
+        rankColor = '#CD7F32'; // Бронзовый
+        rankIcon = '<i class="fas fa-award"></i>';
     } else {
-        rankIcon = `<span style="color: var(--secondary-color);">${position}</span>`;
+        rankIcon = `<span style="color: #777; font-weight: bold;">${position}</span>`;
     }
     
-    // Определяем тип пользователя
+    // Определяем тип пользователя по активности
     let userType = '';
     let typeColor = '#3498db';
     
@@ -2167,48 +2221,104 @@ function createUserRankingCard(user, position) {
         ratingStyle = 'Строгий';
     }
     
-    // Формируем карточку
+    card.style.cssText = `
+        display: flex;
+        align-items: center;
+        padding: 15px 20px;
+        border-radius: 12px;
+        transition: all 0.3s ease;
+        border-left: 4px solid ${rankColor};
+        position: relative;
+        overflow: hidden;
+    `;
+    
+    // Специальные стили для топ-3
+    if (position <= 3) {
+        card.style.background = `linear-gradient(135deg, ${rankColor}15, rgba(255,255,255,0.9))`;
+        card.style.boxShadow = `0 4px 15px ${rankColor}30`;
+    }
+    
     card.innerHTML = `
-        <div style="display: flex; align-items: center; width: 100%;">
-            <div class="ranking-position">
-                ${rankIcon}
+        <div style="width: 50px; text-align: center; font-size: 1.5rem; color: ${rankColor};">
+            ${rankIcon}
+        </div>
+        
+        <div style="flex-grow: 1; margin: 0 20px;">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 5px;">
+                <div>
+                    <h4 style="margin: 0; color: var(--secondary-color); font-size: 1.1rem;">
+                        ${user.name}
+                    </h4>
+                    <div style="font-size: 0.85rem; color: #666; margin-top: 3px; display: flex; align-items: center; gap: 10px;">
+                        <span style="background: ${typeColor}15; color: ${typeColor}; padding: 2px 8px; border-radius: 10px;">
+                            ${userType}
+                        </span>
+                        <span style="color: #777;">
+                            <i class="fas fa-at"></i> ${user.nickname}
+                        </span>
+                    </div>
+                </div>
+                <div style="display: flex; align-items: center; gap: 15px;">
+                    <div style="text-align: center;">
+                        <div style="font-weight: bold; color: var(--secondary-color); font-size: 1.2rem;">
+                            ${user.avgUserRating.toFixed(1)}
+                        </div>
+                        <div style="font-size: 0.75rem; color: #666;">средняя оценка</div>
+                    </div>
+                    <div style="background: rgba(52, 152, 219, 0.1); padding: 3px 10px; border-radius: 12px; 
+                                font-size: 0.85rem; color: var(--primary-color);">
+                        ${user.count} отзыв${user.count === 1 ? '' : user.count >= 5 ? 'ов' : 'а'}
+                    </div>
+                </div>
             </div>
             
-            <div class="ranking-content">
-                <h4 class="ranking-title">
-                    ${user.name}
-                    ${user.isVerified ? '<i class="fas fa-check-circle verified-badge" style="margin-left: 5px;"></i>' : ''}
-                </h4>
-                
-                <div class="ranking-subtitle" style="display: flex; align-items: center; gap: 10px;">
-                    <span style="color: #666;">
-                        <i class="fas fa-at"></i> ${user.nickname}
-                    </span>
-                    <span style="background: ${typeColor}15; color: ${typeColor}; padding: 2px 8px; border-radius: 10px; font-size: 0.75rem;">
-                        ${userType}
-                    </span>
+            <div style="display: flex; align-items: center; gap: 15px; flex-wrap: wrap; margin-top: 10px;">
+                <div style="font-size: 0.85rem; color: #666; display: flex; align-items: center; gap: 5px;">
+                    <i class="fas fa-star" style="color: #FFD700;"></i>
+                    <span>Стиль: <strong>${ratingStyle}</strong></span>
                 </div>
                 
-                <div class="ranking-stats">
-                    <div class="stat-badge">
-                        <i class="fas fa-star"></i> ${user.formattedAvgRating}/5
-                    </div>
-                    <div class="stat-badge">
-                        <i class="fas fa-comment"></i> ${user.count} отзыв${user.count === 1 ? '' : user.count >= 5 ? 'ов' : 'а'}
-                    </div>
-                    <div class="stat-badge" style="background: rgba(46, 204, 113, 0.1); color: #27ae60;">
-                        <i class="fas fa-chart-line"></i> ${ratingStyle}
-                    </div>
+                <div style="font-size: 0.85rem; color: #666; display: flex; align-items: center; gap: 5px;">
+                    <i class="fas fa-chart-line" style="color: #2ecc71;"></i>
+                    <span>Консистентность: <strong>${user.consistencyFormatted}/5</strong></span>
                 </div>
+                
+                <div style="font-size: 0.85rem; color: #666; display: flex; align-items: center; gap: 5px;">
+                    <i class="fas fa-globe" style="color: #9b59b6;"></i>
+                    <span>Сайтов: <strong>${user.sitesCount}</strong></span>
+                </div>
+            </div>
+            
+            <!-- Последние оценки -->
+            <div style="margin-top: 10px; font-size: 0.8rem; color: #888;">
+                <i class="fas fa-history"></i> Последние: 
+                ${user.reviews
+                    .sort((a, b) => new Date(b.date) - new Date(a.date))
+                    .slice(0, 2)
+                    .map(r => `${r.site} (${r.rating}.0)`)
+                    .join(', ')}
             </div>
         </div>
         
         ${position <= 3 ? `
-        <div class="top-badge" style="background: ${position === 1 ? '#FFD700' : position === 2 ? '#C0C0C0' : '#CD7F32'}; color: ${position === 1 ? '#333' : 'white'};">
-            ${position === 1 ? 'ЛУЧШИЙ' : position === 2 ? 'ВТОРОЙ' : 'ТРЕТИЙ'}
+        <div style="position: absolute; top: -10px; right: -10px; background: ${rankColor}; 
+                    color: white; font-size: 0.7rem; padding: 2px 8px; border-radius: 10px; 
+                    transform: rotate(15deg); font-weight: bold; box-shadow: 0 2px 5px rgba(0,0,0,0.2);">
+            ${position === 1 ? 'ТОП-РЕЦЕНЗЕНТ' : position === 2 ? '2 МЕСТО' : '3 МЕСТО'}
         </div>
         ` : ''}
     `;
+    
+    // Добавляем hover эффект
+    card.addEventListener('mouseenter', function() {
+        this.style.transform = 'translateY(-3px)';
+        this.style.boxShadow = `0 8px 25px ${position <= 3 ? rankColor + '40' : 'rgba(0,0,0,0.15)'}`;
+    });
+    
+    card.addEventListener('mouseleave', function() {
+        this.style.transform = 'translateY(0)';
+        this.style.boxShadow = position <= 3 ? `0 4px 15px ${rankColor}30` : 'var(--shadow)';
+    });
     
     return card;
 }
@@ -2223,6 +2333,99 @@ window.addEventListener('popstate', function(event) {
         }
     }
 });
+
+// Регистрация Service Worker для PWA
+if ('serviceWorker' in navigator) {
+  window.addEventListener('load', function() {
+    navigator.serviceWorker.register('service-worker.js')
+      .then(function(registration) {
+        console.log('ServiceWorker registration successful with scope: ', registration.scope);
+        
+        // Показываем уведомление об установке PWA
+        checkPWAInstallPrompt();
+      })
+      .catch(function(error) {
+        console.log('ServiceWorker registration failed: ', error);
+      });
+  });
+}
+
+// Проверка и предложение установки PWA
+function checkPWAInstallPrompt() {
+  let deferredPrompt;
+  const installButton = document.createElement('button');
+  
+  window.addEventListener('beforeinstallprompt', (e) => {
+    // Предотвращаем автоматическое отображение подсказки
+    e.preventDefault();
+    deferredPrompt = e;
+    
+    // Показываем свою кнопку установки
+    showInstallButton();
+  });
+  
+  function showInstallButton() {
+    installButton.innerHTML = '<i class="fas fa-download"></i> Установить приложение';
+    installButton.style.cssText = `
+      position: fixed;
+      bottom: 80px;
+      right: 20px;
+      background: linear-gradient(135deg, var(--primary-color), var(--primary-dark));
+      color: white;
+      border: none;
+      padding: 12px 20px;
+      border-radius: 25px;
+      font-weight: 600;
+      cursor: pointer;
+      box-shadow: 0 4px 15px rgba(52, 152, 219, 0.4);
+      z-index: 9999;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      transition: all 0.3s ease;
+    `;
+    
+    installButton.addEventListener('mouseenter', () => {
+      installButton.style.transform = 'translateY(-2px)';
+      installButton.style.boxShadow = '0 6px 20px rgba(52, 152, 219, 0.5)';
+    });
+    
+    installButton.addEventListener('mouseleave', () => {
+      installButton.style.transform = 'translateY(0)';
+      installButton.style.boxShadow = '0 4px 15px rgba(52, 152, 219, 0.4)';
+    });
+    
+    installButton.addEventListener('click', () => {
+      hideInstallButton();
+      deferredPrompt.prompt();
+      
+      deferredPrompt.userChoice.then((choiceResult) => {
+        if (choiceResult.outcome === 'accepted') {
+          console.log('User accepted the install prompt');
+        } else {
+          console.log('User dismissed the install prompt');
+        }
+        deferredPrompt = null;
+      });
+    });
+    
+    document.body.appendChild(installButton);
+  }
+  
+  function hideInstallButton() {
+    if (installButton.parentNode) {
+      installButton.parentNode.removeChild(installButton);
+    }
+  }
+  
+  // Скрываем кнопку после установки
+  window.addEventListener('appinstalled', () => {
+    console.log('PWA was installed');
+    hideInstallButton();
+  });
+}
+
+
 
 // ==================== СТАТИСТИКА ПО ВРЕМЕНИ ====================
 
@@ -2651,6 +2854,90 @@ function updateScore() {
     document.getElementById('current-score').textContent = quizState.score;
 }
 
+// ==================== PWA АВТО-СИНХРОНИЗАЦИЯ ====================
+
+// Регистрация периодической синхронизации
+async function registerPeriodicSync() {
+    if ('periodicSync' in self.registration) {
+        try {
+            await self.registration.periodicSync.register('update-reviews', {
+                minInterval: 12 * 60 * 60 * 1000, // 12 часов минимум
+            });
+            console.log('Периодическая синхронизация зарегистрирована (12 часов)');
+            return true;
+        } catch (error) {
+            console.warn('Периодическая синхронизация не доступна:', error);
+            return false;
+        }
+    }
+    return false;
+}
+
+// Инициализация синхронизации
+async function initAutoSync() {
+    if ('serviceWorker' in navigator) {
+        try {
+            // Ждём регистрации Service Worker
+            const registration = await navigator.serviceWorker.ready;
+            
+            // Регистрируем периодическую синхронизацию
+            await registerPeriodicSync();
+            
+            // Проверяем обновления при запуске
+            setTimeout(async () => {
+                try {
+                    const cache = await caches.open('sitereview-v1.2');
+                    const response = await fetch('/sitereview.github.io/data.js');
+                    
+                    if (response.ok) {
+                        await cache.put('/sitereview.github.io/data.js', response);
+                        console.log('Данные обновлены при запуске');
+                    }
+                } catch (e) {
+                    console.warn('Не удалось обновить данные при запуске:', e);
+                }
+            }, 2000);
+            
+        } catch (error) {
+            console.warn('Ошибка инициализации авто-синхронизации:', error);
+        }
+    }
+}
+
+// Автоматическая проверка обновлений каждые 6 часов
+function startAutoUpdateCheck() {
+    // Проверяем каждые 6 часов (21600000 мс)
+    setInterval(async () => {
+        try {
+            const cache = await caches.open('sitereview-v1.2');
+            const response = await fetch('/sitereview.github.io/data.js');
+            
+            if (response.ok) {
+                const cached = await cache.match('/sitereview.github.io/data.js');
+                
+                if (cached) {
+                    const cachedText = await cached.text();
+                    const newText = await response.text();
+                    
+                    if (cachedText !== newText) {
+                        // Обновляем кэш если данные изменились
+                        await cache.put('/sitereview.github.io/data.js', response);
+                        console.log('Данные обновлены в фоне (раз в 6 часов)');
+                        
+                        // Можно добавить мягкое уведомление в консоль
+                        if (typeof window !== 'undefined') {
+                            console.info('📢 SiteReview: Данные обновлены в фоне');
+                        }
+                    }
+                } else {
+                    await cache.put('/sitereview.github.io/data.js', response);
+                }
+            }
+        } catch (e) {
+            // Молча игнорируем ошибки фоновой проверки
+        }
+    }, 6 * 60 * 60 * 1000); // 6 часов
+}
 /*!
  * ============================================================
  * SiteReview - Система оценки веб-сайтов
