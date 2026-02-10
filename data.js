@@ -590,7 +590,7 @@ const reviews = [
         name: "Тимофей",
         nickname: "timoshamoscow",
         email: "roll3ogurec0@gmail.com",
-        siteUrl: "https://books.yandex.ru/books/BCSAvmr1",
+        siteUrl: "https://books.yandex.ru/",
         siteName: "Яндекс.Книги",
         rating: 5,
         comment: "Очень смешная история. Советую любителям классики. (Смешно, Мудро, Весело)",
