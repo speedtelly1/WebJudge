@@ -1497,3 +1497,45 @@ body.dark-theme .verified-badge {
         font-size: 0.95rem;
     }
 }
+
+/* Стили для иконок сайтов */
+.site-icon {
+    font-size: 1.1rem;
+    margin-right: 5px;
+    vertical-align: middle;
+}
+
+/* Подсказки для объединенных сайтов */
+[data-tooltip] {
+    position: relative;
+}
+
+[data-tooltip]:hover::after {
+    content: attr(data-tooltip);
+    position: absolute;
+    bottom: 100%;
+    left: 50%;
+    transform: translateX(-50%);
+    background: var(--secondary-color);
+    color: white;
+    padding: 8px 12px;
+    border-radius: 6px;
+    font-size: 0.8rem;
+    white-space: nowrap;
+    z-index: 1000;
+    margin-bottom: 5px;
+    max-width: 300px;
+    word-wrap: break-word;
+    white-space: normal;
+    text-align: center;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+}
+
+/* Для мобильных устройств */
+@media (max-width: 768px) {
+    [data-tooltip]:hover::after {
+        font-size: 0.7rem;
+        padding: 6px 10px;
+        max-width: 250px;
+    }
+}
