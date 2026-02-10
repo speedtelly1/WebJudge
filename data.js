@@ -709,6 +709,14 @@ const siteGroups = {
         icon: '🤖',
         displayName: 'TAIPrompts'
     },
+    'SiteReview': {
+        sites: [
+            'https://speedtelly1.github.io/sitereview.github.io/',
+            'sitereview'
+        ],
+        icon: '⭐',
+        displayName: 'SiteReview'
+    },
     'GitHub': {
         sites: [
             'https://github.com/',
