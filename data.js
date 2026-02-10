@@ -595,6 +595,17 @@ const reviews = [
         rating: 5,
         comment: "Очень смешная история. Советую любителям классики. (Смешно, Мудро, Весело)",
         date: "2026-02-10T08:42:00"
+    },
+    {
+        id: 55,
+        name: "Тимофей",
+        nickname: "timoshamoscow",
+        email: "roll3ogurec0@gmail.com",
+        siteUrl: "https://music.yandex.ru/",
+        siteName: "Яндекс.Музыка",
+        rating: 5,
+        comment: "Сервис имба. Люблю Яндекс",
+        date: "2026-02-10T20:48:00"
     }
 ];
 
