@@ -584,6 +584,17 @@ const reviews = [
         rating: 1,
         comment: "Дизайн режет глазки, сайт сломан",
         date: "2026-02-07T21:01:00"
+    },
+    {
+        id: 54,
+        name: "Тимофей",
+        nickname: "timoshamoscow",
+        email: "roll3ogurec0@gmail.com",
+        siteUrl: "https://books.yandex.ru/books/BCSAvmr1",
+        siteName: "Яндекс.Книги",
+        rating: 5,
+        comment: "Очень смешная история. Советую любителям классики. (Смешно, Мудро, Весело)",
+        date: "2026-02-10T08:42:00"
     }
 ];
 
