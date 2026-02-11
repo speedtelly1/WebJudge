@@ -625,6 +625,7 @@ const categories = {
         review.siteName.includes(name) || review.comment.includes('купи') || review.comment.includes('покуп')
     ),
     'Критические': (review) => review.rating <= 2,
+    'Негативные': (review) => review.rating == 2,
     'Авторские': (review) => {
         // Определяем, является ли отзыв авторским
         const isAuthor = review.comment.includes('мой сайт') || 
@@ -803,7 +804,7 @@ function getSitesNeedingReviews() {
     // Сортируем по приоритету (высший приоритет = больше нуждается)
     return sites
         .sort((a, b) => b.priority - a.priority)
-        .slice(0, 10); // Ограничиваем 10 сайтами
+        .slice(0, 5); // Ограничиваем 5 сайтами
 }
 
 // Вспомогательная функция: рассчитывает стандартное отклонение
