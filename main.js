@@ -2662,19 +2662,96 @@ function generateQuizQuestions() {
         // ОПРЕДЕЛЯЕМ КАТЕГОРИЮ НА ЛЕТУ!
         const correctCategory = getSiteCategory(review);
         
-        // Создаем неправильные варианты (другие сайты) + ИХ КАТЕГОРИИ
-        const wrongOptions = reviews
-            .filter(r => r.siteUrl !== review.siteUrl)
-            .map(r => ({ 
-                name: r.siteName, 
-                url: r.siteUrl,
-                category: getSiteCategory(r) // ← категория на лету!
-            }))
-            .filter((value, index, self) => 
-                index === self.findIndex(t => t.url === value.url)
-            )
+        // === УМНЫЙ ПОДБОР ВАРИАНТОВ ===
+        let wrongOptions = [];
+        
+        // 1. Определяем группу сайта
+        const siteGroup = getSiteGroup(review.siteName);
+        
+        // 2. Собираем потенциальные варианты
+        let candidateSites = [];
+        
+        if (siteGroup) {
+            // Если есть группа — берём из той же группы
+            candidateSites = reviews
+                .filter(r => r.siteUrl !== review.siteUrl && getSiteGroup(r.siteName) === siteGroup)
+                .map(r => ({ 
+                    name: r.siteName, 
+                    url: r.siteUrl,
+                    category: getSiteCategory(r)
+                }))
+                .filter((value, index, self) => 
+                    index === self.findIndex(t => t.url === value.url)
+                );
+        }
+        
+        // 3. Если в группе мало вариантов — добираем из той же категории
+        if (candidateSites.length < 3) {
+            const sameCategorySites = reviews
+                .filter(r => r.siteUrl !== review.siteUrl && getSiteCategory(r) === correctCategory)
+                .map(r => ({ 
+                    name: r.siteName, 
+                    url: r.siteUrl,
+                    category: getSiteCategory(r)
+                }))
+                .filter((value, index, self) => 
+                    index === self.findIndex(t => t.url === value.url)
+                );
+            
+            // Добавляем уникальные
+            sameCategorySites.forEach(site => {
+                if (!candidateSites.find(c => c.url === site.url)) {
+                    candidateSites.push(site);
+                }
+            });
+        }
+        
+        // 4. ВСЁ ЕЩЁ МАЛО? Берём любые сайты (кроме правильного)
+        if (candidateSites.length < 3) {
+            const anySites = reviews
+                .filter(r => r.siteUrl !== review.siteUrl)
+                .map(r => ({ 
+                    name: r.siteName, 
+                    url: r.siteUrl,
+                    category: getSiteCategory(r)
+                }))
+                .filter((value, index, self) => 
+                    index === self.findIndex(t => t.url === value.url)
+                );
+            
+            anySites.forEach(site => {
+                if (!candidateSites.find(c => c.url === site.url) && candidateSites.length < 8) {
+                    candidateSites.push(site);
+                }
+            });
+        }
+        
+        // 5. Берём 3 случайных варианта
+        wrongOptions = candidateSites
             .sort(() => Math.random() - 0.5)
             .slice(0, 3);
+        
+        // 6. ОСОБЫЙ РЕЖИМ: Алёна получает триггер-варианты 😈
+        if (review.name === 'Алёна' && wrongOptions.length < 3) {
+            const triggerSites = [
+                {
+                    name: 'TAIPrompts',
+                    url: 'https://timoshamoscow.github.io/taiprompts.github.io/',
+                    category: 'Инструменты'
+                },
+                {
+                    name: 'PromptFlame',
+                    url: 'https://akkumulator950-bit.github.io/promptflame.github.io/',
+                    category: 'Инструменты'
+                }
+            ];
+            
+            triggerSites.forEach(site => {
+                if (!wrongOptions.find(w => w.url === site.url) && wrongOptions.length < 3) {
+                    wrongOptions.push(site);
+                }
+            });
+        }
         
         // Создаем правильный вариант с ЕГО КАТЕГОРИЕЙ
         const correctOption = {
@@ -2697,13 +2774,64 @@ function generateQuizQuestions() {
             reviewer: review.name,
             correctSite: review.siteName,
             correctUrl: review.siteUrl,
-            correctCategory: correctCategory, // ← сохраняем категорию!
+            correctCategory: correctCategory,
             options: allOptions
         });
     }
 }
 
-// НОВАЯ ФУНКЦИЯ: определение категории сайта по отзыву
+// Функция для определения группы сайта
+function getSiteGroup(siteName) {
+    const name = siteName.toLowerCase();
+    
+    // Яндекс группа
+    if (name.includes('яндекс') || name.includes('yandex') || 
+        name.includes('книги') || name.includes('музыка') || 
+        name.includes('игры') || name.includes('games')) {
+        return 'Яндекс';
+    }
+    
+    // Видео/Стримы
+    if (name.includes('youtube') || name.includes('ютуб') ||
+        name.includes('rutube') || name.includes('рутьюб') ||
+        name.includes('twitch') || name.includes('твич') ||
+        name.includes('kick')) {
+        return 'Видео/Стримы';
+    }
+    
+    // Соцсети
+    if (name.includes('итд') || name.includes('telegram') || 
+        name.includes('телеграм')) {
+        return 'Соцсети';
+    }
+    
+    // Нейросети
+    if (name.includes('deepseek') || name.includes('character.ai') || 
+        name.includes('chat')) {
+        return 'Нейросети';
+    }
+    
+    // Инструменты
+    if (name.includes('taiprompts') || name.includes('promptflame') ||
+        name.includes('miro') || name.includes('movavi')) {
+        return 'Инструменты';
+    }
+    
+    // Игры/Маркет
+    if (name.includes('launcher') || name.includes('funpay') || 
+        name.includes('tlauncher')) {
+        return 'Игры/Маркет';
+    }
+    
+    // Образование
+    if (name.includes('duolingo') || name.includes('дуолинго')) {
+        return 'Образование';
+    }
+    
+    return null;
+}
+
+// Функция: определение категории сайта по отзыву
 function getSiteCategory(review) {
     const text = (review.siteName + ' ' + review.comment).toLowerCase();
     
