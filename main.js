@@ -2659,20 +2659,28 @@ function generateQuizQuestions() {
     for (let i = 0; i < Math.min(quizState.totalQuestions, shuffledReviews.length); i++) {
         const review = shuffledReviews[i];
         
-        // Создаем неправильные варианты (другие сайты)
+        // ОПРЕДЕЛЯЕМ КАТЕГОРИЮ НА ЛЕТУ!
+        const correctCategory = getSiteCategory(review);
+        
+        // Создаем неправильные варианты (другие сайты) + ИХ КАТЕГОРИИ
         const wrongOptions = reviews
             .filter(r => r.siteUrl !== review.siteUrl)
-            .map(r => ({ name: r.siteName, url: r.siteUrl }))
+            .map(r => ({ 
+                name: r.siteName, 
+                url: r.siteUrl,
+                category: getSiteCategory(r) // ← категория на лету!
+            }))
             .filter((value, index, self) => 
                 index === self.findIndex(t => t.url === value.url)
             )
             .sort(() => Math.random() - 0.5)
             .slice(0, 3);
         
-        // Создаем правильный вариант
+        // Создаем правильный вариант с ЕГО КАТЕГОРИЕЙ
         const correctOption = {
             name: review.siteName,
             url: review.siteUrl,
+            category: correctCategory,
             isCorrect: true
         };
         
@@ -2689,9 +2697,68 @@ function generateQuizQuestions() {
             reviewer: review.name,
             correctSite: review.siteName,
             correctUrl: review.siteUrl,
+            correctCategory: correctCategory, // ← сохраняем категорию!
             options: allOptions
         });
     }
+}
+
+// НОВАЯ ФУНКЦИЯ: определение категории сайта по отзыву
+function getSiteCategory(review) {
+    const text = (review.siteName + ' ' + review.comment).toLowerCase();
+    
+    // Видеохостинги
+    if (text.includes('youtube') || text.includes('ютуб') || 
+        text.includes('rutube') || text.includes('рутьюб') ||
+        text.includes('видео') || text.includes('видеохостинг')) {
+        return 'Видеохостинг';
+    }
+    
+    // Стриминг
+    if (text.includes('twitch') || text.includes('твич') ||
+        text.includes('kick') || text.includes('стрим')) {
+        return 'Стриминг';
+    }
+    
+    // Соцсети
+    if (text.includes('итд') || text.includes('соцсет') ||
+        text.includes('telegram') || text.includes('телеграм')) {
+        return 'Соцсеть';
+    }
+    
+    // Инструменты / Генераторы
+    if (text.includes('taiprompts') || text.includes('промпт') ||
+        text.includes('генератор') || text.includes('miro') ||
+        text.includes('инструмент')) {
+        return 'Инструменты';
+    }
+    
+    // Нейросети
+    if (text.includes('deepseek') || text.includes('character.ai') ||
+        text.includes('нейросет') || text.includes('нейрон')) {
+        return 'Нейросеть';
+    }
+    
+    // Образование
+    if (text.includes('duolingo') || text.includes('дуолинго') ||
+        text.includes('шахмат') || text.includes('урок')) {
+        return 'Образование';
+    }
+    
+    // Игры
+    if (text.includes('launcher') || text.includes('tlauncher') ||
+        text.includes('игр') || text.includes('гейм') ||
+        text.includes('яндекс.игры')) {
+        return 'Игры';
+    }
+    
+    // Маркетплейсы
+    if (text.includes('funpay') || text.includes('покуп') ||
+        text.includes('продав') || text.includes('комисс')) {
+        return 'Маркетплейс';
+    }
+    
+    return 'Другое';
 }
 
 // Начать викторину
@@ -2762,6 +2829,16 @@ function selectAnswer(selectedElement) {
     
     const isCorrect = selectedElement.dataset.correct === 'true';
     const correctUrl = quizState.questions[quizState.currentQuestion].correctUrl;
+    const correctCategory = quizState.questions[quizState.currentQuestion].correctCategory;
+    
+    // Получаем категорию выбранного варианта
+    const selectedOption = quizState.questions[quizState.currentQuestion].options.find(
+        opt => opt.url === selectedElement.dataset.url
+    );
+    const selectedCategory = selectedOption?.category || '';
+    
+    // Проверяем категорию
+    const isCategoryCorrect = selectedCategory === correctCategory;
     
     // Блокируем все варианты
     document.querySelectorAll('.quiz-option').forEach(opt => {
@@ -2775,23 +2852,36 @@ function selectAnswer(selectedElement) {
         }
     });
     
-    // Обновляем счёт
+    // Обновляем счёт (САЙТ + КАТЕГОРИЯ!)
+    let points = 0;
+    let feedbackText = '';
+    
     if (isCorrect) {
-        quizState.score += 10;
+        points += 10;
+        feedbackText = 'Сайт угадан! +10';
+    }
+    
+    if (isCategoryCorrect) {
+        points += 5;
+        feedbackText += feedbackText ? ' Категория угадана! +5' : 'Категория угадана! +5';
+    }
+    
+    if (points > 0) {
+        quizState.score += points;
         updateScore();
     }
     
     // Показываем фидбек
     const feedbackElement = document.getElementById('quiz-feedback');
     feedbackElement.style.display = 'block';
-    feedbackElement.className = isCorrect ? 'correct' : 'wrong';
+    feedbackElement.className = points >= 15 ? 'correct' : (points > 0 ? 'correct' : 'wrong');
     
     feedbackElement.innerHTML = `
         <div style="display: flex; align-items: center; gap: 10px;">
-            <i class="fas fa-${isCorrect ? 'check-circle' : 'times-circle'}" style="font-size: 1.2rem;"></i>
+            <i class="fas fa-${points >= 10 ? 'check-circle' : 'times-circle'}" style="font-size: 1.2rem;"></i>
             <div>
-                <strong>${isCorrect ? 'Правильно!' : 'Неверно!'}</strong>
-                ${isCorrect ? ' +10 очков!' : ` Правильный ответ: ${quizState.questions[quizState.currentQuestion].correctSite}`}
+                <strong>${points >= 10 ? 'Правильно!' : 'Неверно!'}</strong><br>
+                ${feedbackText || `Правильный ответ: ${quizState.questions[quizState.currentQuestion].correctSite} [${correctCategory}]`}
             </div>
         </div>
     `;
