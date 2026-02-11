@@ -1853,9 +1853,9 @@ function calculateSiteRatings() {
             
             // 2. ШТРАФ ЗА МАЛО ОТЗЫВОВ (НОВОЕ!)
             let lowReviewPenalty = 0;
-            if (site.count === 1) lowReviewPenalty = 0.6;
-            if (site.count === 2) lowReviewPenalty = 0.3;
-            if (site.count === 3) lowReviewPenalty = 0.1;
+            if (site.count === 1) lowReviewPenalty = 3.0;
+            if (site.count === 2) lowReviewPenalty = 2.0;
+            if (site.count === 3) lowReviewPenalty = 1.0;
             
             // 3. БОНУС ЗА ПОПУЛЯРНОСТЬ (НОВОЕ!)
             let popularityBonus = 0;
