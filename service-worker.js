@@ -1,5 +1,5 @@
 // Имя кэша
-const CACHE_NAME = 'sitereview-v1.3.15';
+const CACHE_NAME = 'sitereview-v1.3.16';
 
 // Файлы для кэширования
 const urlsToCache = [
