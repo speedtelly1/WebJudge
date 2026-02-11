@@ -1803,7 +1803,7 @@ function displayTopSites() {
     displayTopUsers();
 }
 
-// ==================== ФУНКЦИЯ ДЛЯ РАСЧЕТА ВЗВЕШЕННЫХ РЕЙТИНГОВ (ОБНОВЛЁННАЯ) ====================
+// ==================== НОВАЯ ФУНКЦИЯ ДЛЯ РАСЧЕТА ЧЕСТНЫХ РЕЙТИНГОВ САЙТОВ ====================
 function calculateSiteRatings() {
     const siteMap = {};
     
@@ -1816,12 +1816,11 @@ function calculateSiteRatings() {
                 totalRating: 0,
                 count: 0,
                 reviews: [],
-                authorReviews: 0, // Количество авторских отзывов
-                regularReviews: 0 // Количество обычных отзывов
+                authorReviews: 0,
+                regularReviews: 0
             };
         }
         
-        // Проверяем, является ли отзыв авторским
         const isAuthorReview = isGitHubPagesAuthor(review) || 
                               review.comment.includes('мой сайт') || 
                               review.comment.includes('я автор');
@@ -1843,36 +1842,71 @@ function calculateSiteRatings() {
         });
     });
     
-    // Рассчитываем взвешенный рейтинг с штрафом за авторские отзывы
+    // Рассчитываем ЧЕСТНЫЙ рейтинг
     const sites = Object.values(siteMap)
         .filter(site => site.count >= 1)
         .map(site => {
             const avgRating = site.totalRating / site.count;
             
-            // ШТРАФ ЗА АВТОРСКИЕ ОТЗЫВЫ
+            // 1. ШТРАФ ЗА АВТОРСКИЕ ОТЗЫВЫ (было)
             const authorPenalty = calculateAuthorPenalty(site.authorReviews, site.regularReviews);
             
-            // ВЗВЕШЕННЫЙ РЕЙТИНГ с учетом штрафа
-            const minReviewsForFullWeight = 5;
-            const weight = Math.min(site.count / minReviewsForFullWeight, 1);
-            const countBonus = Math.min(site.count / 10, 0.5);
+            // 2. ШТРАФ ЗА МАЛО ОТЗЫВОВ (НОВОЕ!)
+            let lowReviewPenalty = 0;
+            if (site.count === 1) lowReviewPenalty = 0.6;
+            if (site.count === 2) lowReviewPenalty = 0.3;
+            if (site.count === 3) lowReviewPenalty = 0.1;
             
-            // Итоговый рейтинг с штрафом (авторские отзывы снижают итог)
-            const baseScore = (avgRating * weight) + countBonus;
-            const finalScore = baseScore - authorPenalty;
+            // 3. БОНУС ЗА ПОПУЛЯРНОСТЬ (НОВОЕ!)
+            let popularityBonus = 0;
+            if (site.count >= 8) popularityBonus = 0.2;
+            if (site.count >= 15) popularityBonus = 0.4;
+            
+            // 4. ШТРАФ ЗА ПРОТИВОРЕЧИВОСТЬ (НОВОЕ!)
+            let controversyPenalty = 0;
+            if (site.count >= 3) {
+                const ratings = site.reviews.map(r => r.rating);
+                const std = calculateStandardDeviation(ratings);
+                if (std > 1.5) controversyPenalty = 0.2; // Спорный сайт
+                if (std > 2.0) controversyPenalty = 0.4; // Очень спорный
+            }
+            
+            // 5. БОНУС ЗА СТАБИЛЬНОСТЬ (НОВОЕ!)
+            let stabilityBonus = 0;
+            if (site.count >= 3) {
+                const ratings = site.reviews.map(r => r.rating);
+                const std = calculateStandardDeviation(ratings);
+                if (std < 0.8) stabilityBonus = 0.2; // Все ставят примерно одинаково
+            }
+            
+            // ЧЕСТНЫЙ РЕЙТИНГ = средний рейтинг + бонусы - штрафы
+            let honestRating = avgRating;
+            honestRating += popularityBonus;
+            honestRating += stabilityBonus;
+            honestRating -= authorPenalty;
+            honestRating -= lowReviewPenalty;
+            honestRating -= controversyPenalty;
+            
+            // Для визуала ОСТАВЛЯЕМ СТАРЫЙ formattedRating!
+            // Пользователи видят 4.8, но ТОП сортируется по honestRating
             
             return {
                 ...site,
                 avgRating: avgRating,
-                formattedRating: avgRating.toFixed(1),
-                weightedScore: Math.max(finalScore, 0.1), // Не ниже 0.1
+                formattedRating: avgRating.toFixed(1), // НЕ МЕНЯЕМ! Люди видят это
+                weightedScore: Math.max(honestRating, 0.1), // СОРТИРУЕМ ПО ЭТОМУ
+                honestRating: Math.max(honestRating, 0.1),
                 authorPenalty: authorPenalty.toFixed(2),
+                lowReviewPenalty: lowReviewPenalty.toFixed(1),
+                controversyPenalty: controversyPenalty.toFixed(1),
+                popularityBonus: popularityBonus.toFixed(1),
+                stabilityBonus: stabilityBonus.toFixed(1),
                 authorPercentage: site.count > 0 ? (site.authorReviews / site.count * 100).toFixed(0) : 0,
                 lastReview: site.reviews.sort((a, b) => new Date(b.date) - new Date(a.date))[0]?.date
             };
         })
-        // Сортируем по взвешенному рейтингу (уже с вычетом штрафа)
-        .sort((a, b) => b.weightedScore - a.weightedScore);
+        // СОРТИРУЕМ ПО ЧЕСТНОМУ РЕЙТИНГУ!
+        .sort((a, b) => b.honestRating - a.honestRating);
     
     return sites;
 }
@@ -2022,14 +2056,13 @@ function displayTopUsers() {
     });
 }
 
-// ==================== ФУНКЦИЯ ДЛЯ РАСЧЕТА РЕЙТИНГОВ ПОЛЬЗОВАТЕЛЕЙ ====================
-
+// ==================== НОВАЯ ФУНКЦИЯ ДЛЯ РАСЧЕТА РЕЙТИНГОВ ПОЛЬЗОВАТЕЛЕЙ ====================
 function calculateUserRatings() {
     const userMap = {};
     
     // Собираем статистику по пользователям
     reviews.forEach(review => {
-        const userKey = review.email || review.name; // Используем email как уникальный ключ
+        const userKey = review.email || review.name;
         const displayNickname = getDisplayNickname(review);
         
         if (!userMap[userKey]) {
@@ -2041,14 +2074,13 @@ function calculateUserRatings() {
                 count: 0,
                 reviews: [],
                 sitesReviewed: new Set(),
-                authorReviews: 0, // Количество авторских отзывов
-                regularReviews: 0, // Количество обычных отзывов
+                authorReviews: 0,
+                regularReviews: 0,
                 avgUserRating: 0,
                 consistency: 0
             };
         }
         
-        // Проверяем, является ли отзыв авторским
         const isAuthorReview = isGitHubPagesAuthor(review) || 
                               review.comment.includes('мой сайт') || 
                               review.comment.includes('я автор');
@@ -2061,7 +2093,9 @@ function calculateUserRatings() {
             date: review.date,
             comment: review.comment,
             isAuthorReview: isAuthorReview,
-            url: review.siteUrl
+            url: review.siteUrl,
+            verified: review.verified || false,
+            length: review.comment.length
         });
         userMap[userKey].sitesReviewed.add(review.siteUrl);
         
@@ -2076,41 +2110,98 @@ function calculateUserRatings() {
     const users = Object.values(userMap)
         .filter(user => user.count >= 1)
         .map(user => {
-            // Средняя оценка, которую ставит пользователь
             const avgUserRating = user.totalRating / user.count;
             
-            // Консистентность оценок (стандартное отклонение)
+            // Консистентность оценок
             const ratings = user.reviews.map(r => r.rating);
             const mean = avgUserRating;
             const variance = ratings.reduce((sum, rating) => sum + Math.pow(rating - mean, 2), 0) / ratings.length;
-            const consistency = 5 - Math.sqrt(variance); // Чем выше, тем консистентнее
+            const consistency = 5 - Math.sqrt(variance);
             
             // ШТРАФ ЗА АВТОРСКИЕ ОТЗЫВЫ
             const authorPenalty = calculateAuthorPenalty(user.authorReviews, user.regularReviews);
             
-            // "Вес" пользователя: активность + консистентность + разнообразие
-            const activityScore = Math.min(user.count / 10, 1) * 2; // Максимум 2 балла
-            const consistencyScore = consistency; // До 5 баллов
-            const diversityScore = Math.min(user.sitesReviewed.size / 5, 1); // Максимум 1 балл
+            // БАЗОВЫЕ БАЛЛЫ (активность + консистентность + разнообразие)
+            const activityScore = Math.min(user.count / 10, 1) * 2;
+            const consistencyScore = consistency;
+            const diversityScore = Math.min(user.sitesReviewed.size / 5, 1);
             
-            // ОСНОВНОЙ БАЛЛ МИНУС ШТРАФ
+            // ========== НОВЫЕ БОНУСЫ ЗА КАЧЕСТВО ==========
+            let qualityBonus = 0;
+            
+            // 1. Бонус за развёрнутые отзывы (>100 символов)
+            const longReviews = user.reviews.filter(r => r.comment.length > 100).length;
+            qualityBonus += longReviews * 0.07;
+            
+            // 2. Бонус за верификацию
+            const verifiedCount = user.reviews.filter(r => r.verified === true).length;
+            if (verifiedCount > 0) {
+                qualityBonus += (verifiedCount / user.count) * 0.2;
+            }
+            
+            // 3. Бонус за разнообразие ОЦЕНОК (не только 5 или только 1)
+            const uniqueRatings = new Set(user.reviews.map(r => r.rating)).size;
+            if (uniqueRatings >= 3 && user.count >= 3) {
+                qualityBonus += 0.15; // Умеет ставить разные оценки
+            }
+            if (uniqueRatings >= 4) {
+                qualityBonus += 0.1; // Ещё +0.1
+            }
+            
+            // 4. Бонус за полезность (отзывы без конфликтов)
+            const cleanReviews = user.reviews.filter(r => 
+                !r.comment.includes('груб') && 
+                !r.comment.includes('глуп') && 
+                !r.comment.includes('лох') &&
+                !r.comment.includes('тупой')
+            ).length;
+            qualityBonus += (cleanReviews / user.count) * 0.1;
+            
+            // ========== НОВЫЕ ШТРАФЫ ==========
+            let qualityPenalty = 0;
+            
+            // 1. Штраф за слишком короткие отзывы (<20 символов)
+            const shortReviews = user.reviews.filter(r => r.comment.length < 20).length;
+            qualityPenalty += shortReviews * 0.12;
+            
+            // 2. Штраф за "однообразные" оценки (все 5 или все 1)
+            if (uniqueRatings <= 1 && user.count >= 3) {
+                qualityPenalty += 0.3; // Ставит только 5 или только 1
+            }
+            if (uniqueRatings <= 2 && user.count >= 5) {
+                qualityPenalty += 0.1; // Только два варианта оценок
+            }
+            
+            // 3. Штраф за неактивность (>30 дней без отзывов)
+            if (user.reviews.length > 0) {
+                const lastDate = new Date(user.reviews.sort((a, b) => new Date(b.date) - new Date(a.date))[0].date);
+                const daysSinceLast = (new Date() - lastDate) / (1000 * 60 * 60 * 24);
+                if (daysSinceLast > 30) {
+                    qualityPenalty += 0.2;
+                }
+            }
+            
+            // ИТОГОВЫЙ СЧЁТ = база + бонусы - штрафы
             let userScore = activityScore + consistencyScore + diversityScore;
-            userScore = Math.max(userScore - authorPenalty, 0.1); // Не ниже 0.1
+            userScore = userScore - authorPenalty + qualityBonus - qualityPenalty;
+            userScore = Math.max(userScore, 0.1);
             
             return {
                 ...user,
                 avgUserRating: avgUserRating,
-                formattedAvgRating: avgUserRating.toFixed(1),
+                formattedAvgRating: avgUserRating.toFixed(1), // НЕ МЕНЯЕМ!
                 consistency: consistency,
                 consistencyFormatted: consistency.toFixed(1),
                 sitesCount: user.sitesReviewed.size,
-                userScore: userScore,
+                userScore: userScore, // СОРТИРУЕМ ПО ЭТОМУ!
                 authorPenalty: authorPenalty,
+                qualityBonus: qualityBonus.toFixed(2),
+                qualityPenalty: qualityPenalty.toFixed(2),
                 authorPercentage: user.count > 0 ? (user.authorReviews / user.count * 100).toFixed(0) : 0,
                 lastReview: user.reviews.sort((a, b) => new Date(b.date) - new Date(a.date))[0]?.date
             };
         })
-        // Сортируем по userScore (уже с вычетом штрафа)
+        // СОРТИРУЕМ ПО ИТОГОВОМУ СЧЁТУ (качество + активность)
         .sort((a, b) => b.userScore - a.userScore);
     
     return users;
