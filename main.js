@@ -621,6 +621,9 @@ function initNavigation() {
                        updateStatistics();
                        displayRatingDistribution();
                        displayTopSites(); // Добавляем эту строку
+                           setTimeout(() => {
+                               analyzeTimeStats(); // ЭТО ДОЛЖНО БЫТЬ!
+                           }, 100);
                     }
                 });
             });
