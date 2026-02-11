@@ -2649,49 +2649,9 @@ function initQuiz() {
     generateQuizQuestions();
 }
 
-// Функция проверки — есть ли название сайта в тексте отзыва?
-function isSiteNameInComment(review) {
-    if (!review || !review.comment || !review.siteName) return false;
-    
-    const comment = review.comment.toLowerCase();
-    const siteName = review.siteName.toLowerCase();
-    
-    // Разбиваем название сайта на слова
-    const nameParts = siteName.split(/[.\s-]+/);
-    
-    // Проверяем, есть ли часть названия в комментарии
-    for (const part of nameParts) {
-        if (part.length > 3 && comment.includes(part)) {
-            return true; // Нашли название сайта в отзыве!
-        }
-    }
-    
-    return false;
-}
-
 // Генерация вопросов для викторины
 function generateQuizQuestions() {
     quizState.questions = [];
-
-    // ОТСЕИВАЕМ ОТЗЫВЫ-СПОЙЛЕРЫ!
-    const eligibleReviews = reviews.filter(review => 
-        !isSiteNameInComment(review) // ← ТОЛЬКО ТЕ, ГДЕ НЕТ НАЗВАНИЯ САЙТА
-    );
-    
-    // Если подходящих отзывов мало — берём любые, но предупреждаем
-    if (eligibleReviews.length < quizState.totalQuestions) {
-        console.warn(`Мало отзывов без спойлеров (${eligibleReviews.length}), добираем из обычных`);
-        const fallbackReviews = reviews
-            .filter(r => !eligibleReviews.includes(r))
-            .sort(() => Math.random() - 0.5)
-            .slice(0, quizState.totalQuestions - eligibleReviews.length);
-        
-        const shuffledReviews = [...eligibleReviews, ...fallbackReviews]
-            .sort(() => Math.random() - 0.5);
-    } else {
-        // Хватит отзывов без спойлеров
-        var shuffledReviews = [...eligibleReviews].sort(() => Math.random() - 0.5);
-    }
     
     // Выбираем случайные отзывы для вопросов
     const shuffledReviews = [...reviews].sort(() => Math.random() - 0.5);
