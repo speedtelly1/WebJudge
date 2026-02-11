@@ -2367,7 +2367,7 @@ function displayTimeStats(stats) {
     const container = document.getElementById('time-stats');
 
     // Проверка на мало данных
-    if (stats.totalReviews < 5) {
+    if (stats.totalReviews < 2) {
         container.innerHTML = `
             <div style="text-align: center; padding: 40px;">
                 <i class="fas fa-chart-bar" style="font-size: 3rem; color: #ddd; margin-bottom: 20px;"></i>
@@ -2375,7 +2375,7 @@ function displayTimeStats(stats) {
                 <p style="color: #888;">Нужно больше отзывов для статистики по времени.</p>
                 <p style="color: #888; margin-top: 10px;">
                     <i class="fas fa-info-circle"></i> Сейчас: ${stats.totalReviews} отзывов<br>
-                    <i class="fas fa-bullseye"></i> Нужно: минимум 5 отзывов
+                    <i class="fas fa-bullseye"></i> Нужно: минимум 2 отзыва
                 </p>
                 <button onclick="switchToPage('add-review')" style="
                     margin-top: 20px;
@@ -2397,116 +2397,227 @@ function displayTimeStats(stats) {
     }
     
     const daysOfWeek = ['Воскресенье', 'Понедельник', 'Вторник', 'Среда', 'Четверг', 'Пятница', 'Суббота'];
-    const months = ['Январь', 'Февраль', 'Март', 'Апрель', 'Май', 'Июнь', 
-                    'Июль', 'Август', 'Сентябрь', 'Октябрь', 'Ноябрь', 'Декабрь'];
     
-    // Определяем самый активный день
-    const activeDay = daysOfWeek[stats.peakDay];
-    const activeHour = `${stats.peakHour}:00-${stats.peakHour + 1}:00`;
+    // Находим первый и последний отзывы
+    const dates = reviews.map(r => new Date(r.date)).sort((a, b) => a - b);
+    const firstDate = dates[0];
+    const lastDate = dates[dates.length - 1];
+    
+    // Форматируем даты
+    const formatDate = (date) => {
+        return date.toLocaleDateString('ru-RU', {
+            day: 'numeric',
+            month: 'long',
+            year: 'numeric'
+        });
+    };
+    
+    // Находим первый отзыв
+    const firstReview = [...reviews].sort((a, b) => new Date(a.date) - new Date(b.date))[0];
+    
+    // Находим самый активный день
+    const dayCount = {};
+    reviews.forEach(review => {
+        const date = new Date(review.date);
+        const dateStr = date.toISOString().split('T')[0];
+        dayCount[dateStr] = (dayCount[dateStr] || 0) + 1;
+    });
+    
+    let maxDayCount = 0;
+    let maxDayDate = '';
+    
+    Object.entries(dayCount).forEach(([date, count]) => {
+        if (count > maxDayCount) {
+            maxDayCount = count;
+            maxDayDate = date;
+        }
+    });
+    
+    // Форматируем самый активный день
+    const maxDay = new Date(maxDayDate);
+    const formattedMaxDay = maxDay.toLocaleDateString('ru-RU', {
+        day: 'numeric',
+        month: 'long',
+        year: 'numeric'
+    });
+    
+    // Самое активное время
+    let maxHourCount = 0;
+    let maxHour = 0;
+    
+    stats.byHour.forEach((count, hour) => {
+        if (count > maxHourCount) {
+            maxHourCount = count;
+            maxHour = hour;
+        }
+    });
+    
+    const hourRanges = [
+        { range: '00:00-06:00', name: 'Ночь (00:00-06:00)' },
+        { range: '06:00-12:00', name: 'Утро (06:00-12:00)' },
+        { range: '12:00-18:00', name: 'День (12:00-18:00)' },
+        { range: '18:00-00:00', name: 'Вечер (18:00-00:00)' }
+    ];
+    
+    let timeRangeCounts = [0, 0, 0, 0];
+    reviews.forEach(review => {
+        const hour = new Date(review.date).getHours();
+        if (hour >= 0 && hour < 6) timeRangeCounts[0]++;
+        else if (hour >= 6 && hour < 12) timeRangeCounts[1]++;
+        else if (hour >= 12 && hour < 18) timeRangeCounts[2]++;
+        else timeRangeCounts[3]++;
+    });
+    
+    const maxRangeIndex = timeRangeCounts.indexOf(Math.max(...timeRangeCounts));
+    const popularTimeRange = hourRanges[maxRangeIndex].name;
+    
+    // Средняя длина отзыва
+    const avgLength = Math.round(reviews.reduce((sum, r) => sum + r.comment.length, 0) / reviews.length);
+    
+    // Самый популярный рейтинг
+    const ratingCounts = {5: 0, 4: 0, 3: 0, 2: 0, 1: 0};
+    reviews.forEach(r => ratingCounts[r.rating]++);
+    let mostPopularRating = 5;
+    let mostPopularCount = 0;
+    Object.entries(ratingCounts).forEach(([rating, count]) => {
+        if (count > mostPopularCount) {
+            mostPopularCount = count;
+            mostPopularRating = parseInt(rating);
+        }
+    });
     
     container.innerHTML = `
         <div style="margin-bottom: 20px;">
-            <h4 style="color: var(--primary-color); margin-bottom: 15px;">
-                <i class="fas fa-chart-line"></i> Активность пользователей
-            </h4>
-            
-            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 20px; margin-bottom: 25px;">
-                <div class="glass-effect" style="padding: 15px; border-radius: 10px; text-align: center;">
-                    <div style="font-size: 2rem; color: var(--primary-color); margin-bottom: 5px;">
-                        <i class="fas fa-sun"></i>
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 20px;">
+                
+                <!-- Первый отзыв -->
+                <div class="glass-effect" style="padding: 20px; border-radius: 12px; border-left: 4px solid #3498db;">
+                    <div style="display: flex; align-items: center; gap: 15px; margin-bottom: 10px;">
+                        <div style="font-size: 2rem; color: #3498db;">
+                            <i class="fas fa-flag"></i>
+                        </div>
+                        <div>
+                            <h4 style="margin: 0 0 5px 0; color: var(--secondary-color);">Первый отзыв</h4>
+                            <div style="font-size: 1.1rem; font-weight: bold;">${formatDate(firstDate)}</div>
+                        </div>
                     </div>
-                    <div style="font-size: 1.1rem; font-weight: bold;">${activeHour}</div>
-                    <div style="color: #666; font-size: 0.9rem;">Пиковое время</div>
+                    <div style="margin-top: 10px; padding-top: 10px; border-top: 1px solid rgba(0,0,0,0.05);">
+                        <div style="display: flex; justify-content: space-between; margin-bottom: 5px;">
+                            <span style="color: #666;">Сайт:</span>
+                            <span style="font-weight: 600;">${firstReview.siteName}</span>
+                        </div>
+                        <div style="display: flex; justify-content: space-between;">
+                            <span style="color: #666;">Оценка:</span>
+                            <span style="font-weight: 600; color: #f39c12;">
+                                ${'★'.repeat(firstReview.rating)}${'☆'.repeat(5 - firstReview.rating)} ${firstReview.rating}.0
+                            </span>
+                        </div>
+                    </div>
                 </div>
                 
-                <div class="glass-effect" style="padding: 15px; border-radius: 10px; text-align: center;">
-                    <div style="font-size: 2rem; color: var(--primary-color); margin-bottom: 5px;">
-                        <i class="fas fa-calendar-day"></i>
+                <!-- Самый активный день -->
+                <div class="glass-effect" style="padding: 20px; border-radius: 12px; border-left: 4px solid #e67e22;">
+                    <div style="display: flex; align-items: center; gap: 15px; margin-bottom: 10px;">
+                        <div style="font-size: 2rem; color: #e67e22;">
+                            <i class="fas fa-calendar-check"></i>
+                        </div>
+                        <div>
+                            <h4 style="margin: 0 0 5px 0; color: var(--secondary-color);">Самый активный день</h4>
+                            <div style="font-size: 1.1rem; font-weight: bold;">${formattedMaxDay}</div>
+                        </div>
                     </div>
-                    <div style="font-size: 1.1rem; font-weight: bold;">${activeDay}</div>
-                    <div style="color: #666; font-size: 0.9rem;">Самый активный день</div>
+                    <div style="margin-top: 10px; padding-top: 10px; border-top: 1px solid rgba(0,0,0,0.05);">
+                        <div style="display: flex; justify-content: space-between;">
+                            <span style="color: #666;">Количество отзывов:</span>
+                            <span style="font-weight: 600; color: #e67e22;">${maxDayCount} ${maxDayCount === 1 ? 'отзыв' : maxDayCount < 5 ? 'отзыва' : 'отзывов'}</span>
+                        </div>
+                    </div>
                 </div>
                 
-                <div class="glass-effect" style="padding: 15px; border-radius: 10px; text-align: center;">
-                    <div style="font-size: 2rem; color: var(--primary-color); margin-bottom: 5px;">
-                        <i class="fas fa-chart-bar"></i>
+                <!-- Самое популярное время -->
+                <div class="glass-effect" style="padding: 20px; border-radius: 12px; border-left: 4px solid #9b59b6;">
+                    <div style="display: flex; align-items: center; gap: 15px; margin-bottom: 10px;">
+                        <div style="font-size: 2rem; color: #9b59b6;">
+                            <i class="fas fa-clock"></i>
+                        </div>
+                        <div>
+                            <h4 style="margin: 0 0 5px 0; color: var(--secondary-color);">Популярное время</h4>
+                            <div style="font-size: 1.1rem; font-weight: bold;">${popularTimeRange}</div>
+                        </div>
                     </div>
-                    <div style="font-size: 1.1rem; font-weight: bold;">${stats.totalReviews}</div>
-                    <div style="color: #666; font-size: 0.9rem;">Всего отзывов</div>
+                    <div style="margin-top: 10px; padding-top: 10px; border-top: 1px solid rgba(0,0,0,0.05);">
+                        <div style="display: flex; justify-content: space-between;">
+                            <span style="color: #666;">Пиковый час:</span>
+                            <span style="font-weight: 600;">${maxHour}:00-${maxHour+1}:00 (${maxHourCount} отзывов)</span>
+                        </div>
+                    </div>
                 </div>
+                
+                <!-- День недели -->
+                <div class="glass-effect" style="padding: 20px; border-radius: 12px; border-left: 4px solid #27ae60;">
+                    <div style="display: flex; align-items: center; gap: 15px; margin-bottom: 10px;">
+                        <div style="font-size: 2rem; color: #27ae60;">
+                            <i class="fas fa-calendar-alt"></i>
+                        </div>
+                        <div>
+                            <h4 style="margin: 0 0 5px 0; color: var(--secondary-color);">Любимый день</h4>
+                            <div style="font-size: 1.1rem; font-weight: bold;">${daysOfWeek[stats.peakDay]}</div>
+                        </div>
+                    </div>
+                    <div style="margin-top: 10px; padding-top: 10px; border-top: 1px solid rgba(0,0,0,0.05);">
+                        <div style="display: flex; justify-content: space-between;">
+                            <span style="color: #666;">Отзывов по ${daysOfWeek[stats.peakDay].toLowerCase()}м:</span>
+                            <span style="font-weight: 600;">${stats.byDay[stats.peakDay]}</span>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Общая статистика -->
+                <div class="glass-effect" style="padding: 20px; border-radius: 12px; border-left: 4px solid #34495e;">
+                    <div style="display: flex; align-items: center; gap: 15px; margin-bottom: 10px;">
+                        <div style="font-size: 2rem; color: #34495e;">
+                            <i class="fas fa-chart-pie"></i>
+                        </div>
+                        <div>
+                            <h4 style="margin: 0 0 5px 0; color: var(--secondary-color);">Интересные факты</h4>
+                        </div>
+                    </div>
+                    <div style="margin-top: 10px; padding-top: 10px; border-top: 1px solid rgba(0,0,0,0.05);">
+                        <div style="display: flex; justify-content: space-between; margin-bottom: 8px;">
+                            <span style="color: #666;">Средняя длина отзыва:</span>
+                            <span style="font-weight: 600;">${avgLength} символов</span>
+                        </div>
+                        <div style="display: flex; justify-content: space-between; margin-bottom: 8px;">
+                            <span style="color: #666;">Самый частый рейтинг:</span>
+                            <span style="font-weight: 600; color: #f39c12;">
+                                ${mostPopularRating} звезд${mostPopularRating === 1 ? 'а' : ''}
+                            </span>
+                        </div>
+                        <div style="display: flex; justify-content: space-between;">
+                            <span style="color: #666;">Всего дней активности:</span>
+                            <span style="font-weight: 600;">${Object.keys(dayCount).length} дней</span>
+                        </div>
+                    </div>
+                </div>
+                
             </div>
             
-            <!-- График по часам -->
-            <div style="margin-bottom: 25px;">
-                <h5 style="margin-bottom: 10px; color: var(--secondary-color);">
-                    <i class="fas fa-hourglass-half"></i> Распределение по времени суток
-                </h5>
-                <div id="hour-chart" style="display: grid; grid-template-columns: repeat(24, 1fr); gap: 2px; height: 40px; margin-top: 10px;">
-                    ${stats.byHour.map((count, hour) => {
-                        const height = count > 0 ? Math.min((count / Math.max(...stats.byHour)) * 100, 100) : 1;
-                        return `<div style="background: ${count > 0 ? 'var(--primary-color)' : '#eee'}; height: ${height}%; border-radius: 2px; transition: all 0.3s;" title="${hour}:00 - ${count} отзывов"></div>`;
-                    }).join('')}
-                </div>
-                <div style="display: flex; justify-content: space-between; font-size: 0.8rem; color: #666; margin-top: 5px;">
-                    <span>0:00</span>
-                    <span>12:00</span>
-                    <span>23:00</span>
-                </div>
-            </div>
-            
-            <!-- График по дням недели -->
-            <div style="margin-bottom: 25px;">
-                <h5 style="margin-bottom: 10px; color: var(--secondary-color);">
-                    <i class="fas fa-calendar-week"></i> Активность по дням недели
-                </h5>
-                <div style="display: grid; grid-template-columns: repeat(7, 1fr); gap: 10px; text-align: center;">
-                    ${stats.byDay.map((count, dayIndex) => {
-                        const dayName = ['Вс', 'Пн', 'Вт', 'Ср', 'Чт', 'Пт', 'Сб'][dayIndex];
-                        const percentage = (count / Math.max(...stats.byDay)) * 100;
-                        return `
-                            <div style="display: flex; flex-direction: column; align-items: center;">
-                                <div style="width: 100%; background: #eee; height: 100px; border-radius: 8px; position: relative; overflow: hidden;">
-                                    <div style="position: absolute; bottom: 0; width: 100%; background: ${dayIndex === stats.peakDay ? 'var(--primary-color)' : 'var(--primary-light)'}; height: ${percentage}%; transition: all 0.3s;"></div>
-                                </div>
-                                <div style="margin-top: 8px; font-weight: ${dayIndex === stats.peakDay ? 'bold' : 'normal'}; color: ${dayIndex === stats.peakDay ? 'var(--primary-color)' : '#666'};">${dayName}</div>
-                                <div style="font-size: 0.8rem; color: #888;">${count}</div>
-                            </div>
-                        `;
-                    }).join('')}
+            <div style="margin-top: 20px; padding: 15px; background: rgba(52, 152, 219, 0.1); border-radius: 10px; border-left: 4px solid var(--primary-color);">
+                <div style="display: flex; align-items: center; gap: 15px; flex-wrap: wrap;">
+                    <div style="display: flex; align-items: center; gap: 8px;">
+                        <i class="fas fa-calendar" style="color: var(--primary-color);"></i>
+                        <span>Первый отзыв: <strong>${formatDate(firstDate)}</strong></span>
+                    </div>
+                    <div style="display: flex; align-items: center; gap: 8px;">
+                        <i class="fas fa-calendar" style="color: var(--primary-color);"></i>
+                        <span>Последний отзыв: <strong>${formatDate(lastDate)}</strong></span>
+                    </div>
+                    <div style="display: flex; align-items: center; gap: 8px;">
+                        <i class="fas fa-clock" style="color: var(--primary-color);"></i>
+                        <span>Всего активность длится: <strong>${Math.ceil((lastDate - firstDate) / (1000 * 60 * 60 * 24))} дней</strong></span>
+                    </div>
                 </div>
             </div>
-            
-            <!-- График по месяцам -->
-            <div>
-                <h5 style="margin-bottom: 10px; color: var(--secondary-color);">
-                    <i class="fas fa-calendar-alt"></i> Распределение по месяцам
-                </h5>
-                <div style="display: grid; grid-template-columns: repeat(6, 1fr); gap: 8px;">
-                    ${stats.byMonth.map((count, monthIndex) => {
-                        const monthName = ['Янв', 'Фев', 'Мар', 'Апр', 'Май', 'Июн', 'Июл', 'Авг', 'Сен', 'Окт', 'Ноя', 'Дек'][monthIndex];
-                        const percentage = (count / Math.max(...stats.byMonth)) * 100 || 0;
-                        return `
-                            <div style="text-align: center;">
-                                <div style="font-size: 0.9rem; margin-bottom: 5px; color: #666;">${monthName}</div>
-                                <div style="height: 30px; background: ${count > 0 ? 'var(--primary-color)' : '#eee'}; width: ${Math.max(percentage, 5)}%; margin: 0 auto; border-radius: 4px; transition: all 0.3s;" title="${count} отзывов"></div>
-                                <div style="font-size: 0.8rem; margin-top: 3px; color: #888;">${count}</div>
-                            </div>
-                        `;
-                    }).join('')}
-                </div>
-            </div>
-        </div>
-        
-        <div style="margin-top: 20px; padding: 15px; background: rgba(52, 152, 219, 0.1); border-radius: 10px; border-left: 4px solid var(--primary-color);">
-            <h5 style="margin-bottom: 8px; color: var(--secondary-color);">
-                <i class="fas fa-lightbulb"></i> Интересные факты
-            </h5>
-            <ul style="margin: 0; padding-left: 20px; color: #666;">
-                <li>Больше всего отзывов пишется в <strong>${activeHour}</strong></li>
-                <li>Самый активный день - <strong>${activeDay.toLowerCase()}</strong></li>
-                <li>Средний рейтинг всех отзывов: <strong>${(reviews.reduce((sum, r) => sum + r.rating, 0) / reviews.length).toFixed(1)}/5</strong></li>
-                <li>Всего авторов: <strong>${[...new Set(reviews.map(r => r.email))].length}</strong></li>
-            </ul>
         </div>
     `;
 }
