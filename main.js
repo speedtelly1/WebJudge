@@ -656,7 +656,7 @@ function initNavigation() {
            }, 100);
         }
 
-// Функция для отображения сайтов, которым нужны отзывы (с иконками)
+// Функция для отображения сайтов, которым нужны отзывы
 function displaySitesNeedingReviews() {
     const container = document.getElementById('sites-needing-reviews');
     if (!container) return;
@@ -673,37 +673,52 @@ function displaySitesNeedingReviews() {
     sitesNeedingReviews.forEach(site => {
         const siteElement = document.createElement('div');
         siteElement.className = 'site-needing-review';
-        siteElement.title = `Включает: ${site.originalNames.join(', ')}`;
         
         // Определяем текст в зависимости от количества отзывов
-        let infoText = site.needsReviewsReason;
+        let infoText = '';
+        if (site.reviewCount === 1) {
+            infoText = '1 отзыв';
+        } else if (site.reviewCount === 0) {
+            infoText = 'нет отзывов';
+        } else {
+            infoText = `${site.reviewCount} отзыва`;
+        }
         
-        // Добавляем иконки в зависимости от причины
-        const reasonIcon = getReasonIcon(site.count, site.daysSinceLastReview, site.avgRating);
+        // Добавляем информацию о давности, если больше 30 дней
+        if (site.daysSinceLastReview > 30) {
+            infoText += ` • ${Math.floor(site.daysSinceLastReview / 30)} мес.`;
+        }
         
         siteElement.innerHTML = `
-            <span style="margin-right: 8px; font-size: 1.1rem;">${site.icon}</span>
-            <span style="margin-right: 8px; color: #666;">${reasonIcon}</span>
             <span class="site-name">${site.name}</span>
-            ${site.originalNames.length > 1 ? 
-                `<span style="color: #95a5a6; font-size: 0.8rem; margin-left: 5px;">
-                    (+${site.originalNames.length - 1})
-                </span>` : 
-                ''
-            }
-            <span class="site-info">${infoText}</span>
+            <span class="site-info">${site.needsReviewsReason}</span>
         `;
+
+       // И добавим иконки в зависимости от причины
+       const reasonIcon = getReasonIcon(site.reviewCount, site.daysSinceLastReview, site.avgRating);
+       siteElement.innerHTML = `
+           <span style="margin-right: 8px; color: #666;">${reasonIcon}</span>
+           <span class="site-name">${site.name}</span>
+           <span class="site-info">${site.needsReviewsReason}</span>
+        `;
+
+         function getReasonIcon(count, days, rating) {
+             if (count <= 2) return '<i class="fas fa-exclamation-circle" style="color: #e74c3c;"></i>';
+             if (days > 30) return '<i class="fas fa-clock" style="color: #f39c12;"></i>';
+             if (rating < 3.0) return '<i class="fas fa-thermometer-empty" style="color: #e74c3c;"></i>';
+             return '<i class="fas fa-question-circle" style="color: #3498db;"></i>';
+          }
         
         // Добавляем обработчик клика для быстрой оценки
         siteElement.addEventListener('click', () => {
-            suggestSite(site.name, site.displayUrl);
+            suggestSite(site.name, site.url);
         });
         
         container.appendChild(siteElement);
     });
 }
 
-// Функция для отображения рекомендованных сайтов (с иконками)
+// Функция для отображения рекомендованных сайтов
 function displayRecommendedSites() {
     const container = document.getElementById('recommended-sites');
     if (!container) return;
@@ -723,10 +738,9 @@ function displayRecommendedSites() {
     topSites.forEach(site => {
         const siteElement = document.createElement('a');
         siteElement.className = 'recommended-site';
-        siteElement.href = site.displayUrl;
+        siteElement.href = site.url;
         siteElement.target = '_blank';
         siteElement.rel = 'noopener noreferrer';
-        siteElement.title = `Включает: ${site.originalNames.join(', ')}`;
         
         // Форматируем рейтинг
         const formattedRating = site.avgRating.toFixed(1);
@@ -744,7 +758,6 @@ function displayRecommendedSites() {
         }
         
         siteElement.innerHTML = `
-            <span style="font-size: 1.1rem; margin-right: 5px;">${site.icon}</span>
             <span class="site-name">${site.name}</span>
             <span class="site-rating" title="Средний рейтинг: ${formattedRating}">
                 ${starsHTML} ${formattedRating}
@@ -758,11 +771,6 @@ function displayRecommendedSites() {
             badge.className = 'recommended-badge';
             badge.textContent = 'Топ';
             siteElement.appendChild(badge);
-        }
-        
-        // Добавляем подсказку о входящих сайтах
-        if (site.originalNames.length > 1) {
-            siteElement.setAttribute('data-tooltip', `Объединяет: ${site.originalNames.join(', ')}`);
         }
         
         container.appendChild(siteElement);
@@ -1792,28 +1800,54 @@ function displayTopSites() {
     displayTopUsers();
 }
 
-// ==================== ФУНКЦИЯ ДЛЯ РАСЧЕТА ВЗВЕШЕННЫХ РЕЙТИНГОВ (С ГРУППИРОВКОЙ) ====================
+// ==================== ФУНКЦИЯ ДЛЯ РАСЧЕТА ВЗВЕШЕННЫХ РЕЙТИНГОВ (ОБНОВЛЁННАЯ) ====================
 function calculateSiteRatings() {
-    // Используем группировку сайтов вместо отдельных URL
-    const groupedSites = groupReviewsBySite(reviews);
+    const siteMap = {};
+    
+    // Собираем статистику по сайтам
+    reviews.forEach(review => {
+        if (!siteMap[review.siteUrl]) {
+            siteMap[review.siteUrl] = {
+                url: review.siteUrl,
+                name: review.siteName,
+                totalRating: 0,
+                count: 0,
+                reviews: [],
+                authorReviews: 0, // Количество авторских отзывов
+                regularReviews: 0 // Количество обычных отзывов
+            };
+        }
+        
+        // Проверяем, является ли отзыв авторским
+        const isAuthorReview = isGitHubPagesAuthor(review) || 
+                              review.comment.includes('мой сайт') || 
+                              review.comment.includes('я автор');
+        
+        siteMap[review.siteUrl].totalRating += review.rating;
+        siteMap[review.siteUrl].count++;
+        
+        if (isAuthorReview) {
+            siteMap[review.siteUrl].authorReviews++;
+        } else {
+            siteMap[review.siteUrl].regularReviews++;
+        }
+        
+        siteMap[review.siteUrl].reviews.push({
+            rating: review.rating,
+            date: review.date,
+            isAuthorReview: isAuthorReview,
+            reviewer: review.name
+        });
+    });
     
     // Рассчитываем взвешенный рейтинг с штрафом за авторские отзывы
-    const sites = groupedSites
-        .filter(site => site.count >= 1) // Фильтруем только сайты с отзывами
+    const sites = Object.values(siteMap)
+        .filter(site => site.count >= 1)
         .map(site => {
-            const avgRating = site.avgRating; // Уже рассчитано в groupReviewsBySite
-            
-            // Проверяем, какие отзывы являются авторскими
-            const authorReviews = site.reviews.filter(review => 
-                isGitHubPagesAuthor(review) || 
-                review.comment.includes('мой сайт') || 
-                review.comment.includes('я автор')
-            ).length;
-            
-            const regularReviews = site.count - authorReviews;
+            const avgRating = site.totalRating / site.count;
             
             // ШТРАФ ЗА АВТОРСКИЕ ОТЗЫВЫ
-            const authorPenalty = calculateAuthorPenalty(authorReviews, regularReviews);
+            const authorPenalty = calculateAuthorPenalty(site.authorReviews, site.regularReviews);
             
             // ВЗВЕШЕННЫЙ РЕЙТИНГ с учетом штрафа
             const minReviewsForFullWeight = 5;
@@ -1824,85 +1858,20 @@ function calculateSiteRatings() {
             const baseScore = (avgRating * weight) + countBonus;
             const finalScore = baseScore - authorPenalty;
             
-            // Находим последний отзыв
-            const lastReview = site.reviews.sort((a, b) => 
-                new Date(b.date) - new Date(a.date)
-            )[0];
-            
-            // Рассчитываем стандартное отклонение для оценки консистентности
-            const ratings = site.reviews.map(r => r.rating);
-            const ratingStd = calculateStandardDeviation(ratings);
-            
-            // Определяем "надежность" рейтинга
-            let reliability = 'Высокая';
-            if (site.count < 3) {
-                reliability = 'Низкая';
-            } else if (site.count < 5) {
-                reliability = 'Средняя';
-            }
-            
             return {
-                // Основная информация
-                url: site.displayUrl,
-                name: site.name,
-                icon: site.icon,
-                
-                // Статистика
-                totalRating: site.totalRating,
-                count: site.count,
+                ...site,
                 avgRating: avgRating,
                 formattedRating: avgRating.toFixed(1),
                 weightedScore: Math.max(finalScore, 0.1), // Не ниже 0.1
-                
-                // Авторские отзывы
-                authorReviews: authorReviews,
-                regularReviews: regularReviews,
                 authorPenalty: authorPenalty.toFixed(2),
-                authorPercentage: site.count > 0 ? (authorReviews / site.count * 100).toFixed(0) : 0,
-                
-                // Дополнительная информация
-                originalUrls: site.originalUrls,
-                originalNames: site.originalNames,
-                lastReview: lastReview?.date,
-                lastReviewer: lastReview?.name,
-                ratingStd: ratingStd.toFixed(2),
-                reliability: reliability,
-                
-                // Для сортировки и фильтрации
-                daysSinceLastReview: lastReview ? 
-                    Math.floor((new Date() - new Date(lastReview.date)) / (1000 * 60 * 60 * 24)) : 
-                    999,
-                
-                // Все отзывы (для возможного дальнейшего анализа)
-                reviews: site.reviews
+                authorPercentage: site.count > 0 ? (site.authorReviews / site.count * 100).toFixed(0) : 0,
+                lastReview: site.reviews.sort((a, b) => new Date(b.date) - new Date(a.date))[0]?.date
             };
         })
         // Сортируем по взвешенному рейтингу (уже с вычетом штрафа)
-        .sort((a, b) => {
-            // Сначала по взвешенному рейтингу
-            if (b.weightedScore !== a.weightedScore) {
-                return b.weightedScore - a.weightedScore;
-            }
-            
-            // Если рейтинг одинаковый, по количеству отзывов
-            if (b.count !== a.count) {
-                return b.count - a.count;
-            }
-            
-            // Если количество одинаковое, по дате последнего отзыва
-            return new Date(b.lastReview) - new Date(a.lastReview);
-        });
+        .sort((a, b) => b.weightedScore - a.weightedScore);
     
     return sites;
-}
-
-// Вспомогательная функция для расчета стандартного отклонения (если её ещё нет)
-function calculateStandardDeviation(numbers) {
-    if (numbers.length === 0) return 0;
-    
-    const mean = numbers.reduce((sum, num) => sum + num, 0) / numbers.length;
-    const variance = numbers.reduce((sum, num) => sum + Math.pow(num - mean, 2), 0) / numbers.length;
-    return Math.sqrt(variance);
 }
 
 // ==================== ФУНКЦИЯ РАСЧЕТА ШТРАФА ЗА АВТОРСКИЕ ОТЗЫВЫ ====================
@@ -1936,9 +1905,6 @@ function calculateAuthorPenalty(authorCount, regularCount) {
 function createSiteRankingCard(site, position) {
     const card = document.createElement('div');
     card.className = 'ranking-card glass-effect';
-    card.title = site.originalNames.length > 1 ? 
-        `Объединяет: ${site.originalNames.join(', ')}` : 
-        site.name;
     
     // Добавляем класс для топ-3
     if (position <= 3) {
@@ -1981,12 +1947,6 @@ function createSiteRankingCard(site, position) {
         }
     }
     
-    // Показываем количество объединенных сайтов
-    const mergedCount = site.originalNames.length > 1 ? 
-        `<span style="background: rgba(52, 152, 219, 0.2); color: var(--primary-color); padding: 1px 6px; border-radius: 10px; font-size: 0.7rem; margin-left: 5px;">
-            +${site.originalNames.length - 1}
-        </span>` : '';
-    
     // Формируем карточку
     card.innerHTML = `
         <div style="display: flex; align-items: center; width: 100%;">
@@ -1994,18 +1954,13 @@ function createSiteRankingCard(site, position) {
                 ${rankIcon}
             </div>
             
-            <div style="font-size: 1.2rem; margin-right: 10px; color: var(--primary-color);">
-                ${site.icon}
-            </div>
-            
             <div class="ranking-content">
                 <h4 class="ranking-title">
                     <a href="${site.url}" target="_blank" rel="noopener" 
-                       style="color: inherit; text-decoration: none; display: flex; align-items: center;"
+                       style="color: inherit; text-decoration: none;"
                        onmouseover="this.style.textDecoration='underline'"
                        onmouseout="this.style.textDecoration='none'">
                         ${site.name}
-                        ${mergedCount}
                     </a>
                 </h4>
                 
@@ -2021,11 +1976,6 @@ function createSiteRankingCard(site, position) {
                     <div class="stat-badge">
                         <i class="fas fa-comment"></i> ${site.count} отзыв${site.count === 1 ? '' : site.count >= 5 ? 'ов' : 'а'}
                     </div>
-                    ${site.originalUrls.length > 1 ? 
-                        `<div class="stat-badge" style="background: rgba(155, 89, 182, 0.1); color: #9b59b6;">
-                            <i class="fas fa-layer-group"></i> ${site.originalUrls.length} сайта
-                        </div>` : ''
-                    }
                 </div>
             </div>
         </div>

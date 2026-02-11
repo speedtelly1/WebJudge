@@ -641,205 +641,6 @@ const categories = {
     'Нейтральные': (review) => review.rating == 3
 };
 
-// В начало data.js после categories добавьте:
-
-// Группы сайтов для объединения
-const siteGroups = {
-    'Яндекс': {
-        sites: [
-            'https://yandex.ru/',
-            'https://yandex.ru/games/',
-            'https://music.yandex.ru/',
-            'https://books.yandex.ru/',
-            'https://yandex.com/',
-            'yandex.ru',
-            'yandex.com'
-        ],
-        icon: '🔍',
-        displayName: 'Яндекс'
-    },
-    'Google': {
-        sites: [
-            'https://google.com/',
-            'https://one.google.com/',
-            'https://www.google.com/',
-            'https://accounts.google.com/',
-            'google.com'
-        ],
-        icon: '🔍',
-        displayName: 'Google'
-    },
-    'VK': {
-        sites: [
-            'https://vk.com/',
-            'https://vk.ru/',
-            'https://m.vk.com/',
-            'vk.com',
-            'vk.ru'
-        ],
-        icon: '💬',
-        displayName: 'VK'
-    },
-    'YouTube': {
-        sites: [
-            'https://youtube.com/',
-            'https://www.youtube.com/',
-            'https://m.youtube.com/',
-            'youtube.com'
-        ],
-        icon: '🎬',
-        displayName: 'YouTube'
-    },
-    'Telegram': {
-        sites: [
-            'https://telegram.org/',
-            'https://web.telegram.org/',
-            'https://t.me/',
-            'telegram.org',
-            't.me'
-        ],
-        icon: '📱',
-        displayName: 'Telegram'
-    },
-    'TAIPrompts': {
-        sites: [
-            'https://timoshamoscow.github.io/taiprompts.github.io/',
-            'taiprompts'
-        ],
-        icon: '🤖',
-        displayName: 'TAIPrompts'
-    },
-    'SiteReview': {
-        sites: [
-            'https://speedtelly1.github.io/sitereview.github.io/',
-            'sitereview'
-        ],
-        icon: '⭐',
-        displayName: 'SiteReview'
-    },
-    'GitHub': {
-        sites: [
-            'https://github.com/',
-            'github.com',
-            'https://github.io/',
-            '.github.io'
-        ],
-        icon: '💻',
-        displayName: 'GitHub'
-    },
-    'Discord': {
-        sites: [
-            'https://discord.com/',
-            'https://discord.gg/',
-            'discord.com'
-        ],
-        icon: '👾',
-        displayName: 'Discord'
-    },
-    'Twitch': {
-        sites: [
-            'https://twitch.tv/',
-            'https://www.twitch.tv/',
-            'twitch.tv'
-        ],
-        icon: '🎮',
-        displayName: 'Twitch'
-    }
-};
-
-// Функция для получения группы сайта
-function getSiteGroup(siteUrl, siteName) {
-    // Приводим всё к нижнему регистру для сравнения
-    const url = siteUrl.toLowerCase();
-    const name = siteName.toLowerCase();
-    
-    // Проверяем по URL
-    for (const [groupName, group] of Object.entries(siteGroups)) {
-        for (const site of group.sites) {
-            const siteLower = site.toLowerCase();
-            if (url.includes(siteLower) || name.includes(siteLower.replace('https://', '').replace('www.', ''))) {
-                return {
-                    name: group.displayName,
-                    icon: group.icon,
-                    originalUrl: siteUrl,
-                    originalName: siteName
-                };
-            }
-        }
-    }
-    
-    // Проверяем по имени (на всякий случай)
-    for (const [groupName, group] of Object.entries(siteGroups)) {
-        if (name.includes(group.displayName.toLowerCase()) || 
-            group.displayName.toLowerCase().includes(name)) {
-            return {
-                name: group.displayName,
-                icon: group.icon,
-                originalUrl: siteUrl,
-                originalName: siteName
-            };
-        }
-    }
-    
-    // Если группа не найдена, возвращаем как есть
-    return {
-        name: siteName,
-        icon: '🌐',
-        originalUrl: siteUrl,
-        originalName: siteName
-    };
-}
-
-// Функция для группировки отзывов по сайтам (с объединением)
-function groupReviewsBySite(reviews) {
-    const grouped = {};
-    
-    reviews.forEach(review => {
-        const group = getSiteGroup(review.siteUrl, review.siteName);
-        const groupKey = group.name;
-        
-        if (!grouped[groupKey]) {
-            grouped[groupKey] = {
-                name: group.name,
-                icon: group.icon,
-                reviews: [],
-                totalRating: 0,
-                count: 0,
-                originalUrls: new Set(),
-                originalNames: new Set()
-            };
-        }
-        
-        grouped[groupKey].reviews.push(review);
-        grouped[groupKey].totalRating += review.rating;
-        grouped[groupKey].count++;
-        grouped[groupKey].originalUrls.add(review.siteUrl);
-        grouped[groupKey].originalNames.add(review.siteName);
-        
-        // Сохраняем самый популярный URL для перехода
-        if (!grouped[groupKey].mainUrl) {
-            grouped[groupKey].mainUrl = review.siteUrl;
-        }
-    });
-    
-    // Преобразуем Set в массивы
-    Object.keys(grouped).forEach(key => {
-        grouped[key].originalUrls = Array.from(grouped[key].originalUrls);
-        grouped[key].originalNames = Array.from(grouped[key].originalNames);
-        grouped[key].avgRating = grouped[key].totalRating / grouped[key].count;
-        
-        // Выбираем самый короткий URL для отображения
-        if (grouped[key].originalUrls.length > 0) {
-            grouped[key].displayUrl = grouped[key].originalUrls
-                .sort((a, b) => a.length - b.length)[0];
-        } else {
-            grouped[key].displayUrl = grouped[key].mainUrl;
-        }
-    });
-    
-    return Object.values(grouped);
-}
-
 // Функция генерации анонимного никнейма
 function generateAnonimNickname(email) {
     if (!email) return 'anonim_0000';
@@ -891,165 +692,118 @@ function addReview(newReview) {
     return reviewWithId;
 }
 
-// Функция для получения рекомендованных сайтов (с группировкой)
+// Добавьте в конец файла data.js, перед финальным комментарием:
+
+// Функция для получения рекомендованных сайтов (хороший рейтинг)
 function getRecommendedSites() {
-    // Группируем отзывы с помощью новой функции groupReviewsBySite
-    const groupedSites = groupReviewsBySite(reviews);
+    // Группируем отзывы по сайтам и считаем средний рейтинг
+    const siteMap = {};
     
-    // Рассчитываем средний рейтинг для каждой группы и добавляем дополнительную информацию
-    const sitesWithRating = groupedSites.map(site => {
-        // Находим последний отзыв
-        const lastReview = site.reviews.sort((a, b) => 
-            new Date(b.date) - new Date(a.date)
-        )[0];
-        
-        const lastReviewDate = new Date(lastReview.date);
-        const daysSinceLastReview = Math.floor((new Date() - lastReviewDate) / (1000 * 60 * 60 * 24));
-        
-        // Проверяем авторские отзывы
-        const authorReviews = site.reviews.filter(review => 
-            isGitHubPagesAuthor(review) || 
-            review.comment.includes('мой сайт') || 
-            review.comment.includes('я автор')
-        ).length;
-        
-        // Рассчитываем "чистый" рейтинг (исключая авторские отзывы)
-        let cleanRating = site.avgRating;
-        if (authorReviews > 0) {
-            const regularReviews = site.reviews.filter(review => 
-                !isGitHubPagesAuthor(review) && 
-                !review.comment.includes('мой сайт') && 
-                !review.comment.includes('я автор')
-            );
-            
-            if (regularReviews.length > 0) {
-                const regularTotalRating = regularReviews.reduce((sum, r) => sum + r.rating, 0);
-                cleanRating = regularTotalRating / regularReviews.length;
-            }
+    reviews.forEach(review => {
+        if (!siteMap[review.siteUrl]) {
+            siteMap[review.siteUrl] = {
+                url: review.siteUrl,
+                name: review.siteName,
+                totalRating: 0,
+                count: 0,
+                lastReview: new Date(review.date)
+            };
         }
         
-        return {
-            // Основная информация о группе
-            url: site.displayUrl,
-            name: site.name,
-            icon: site.icon,
-            
-            // Статистика
-            totalRating: site.totalRating,
-            count: site.count,
-            avgRating: site.avgRating,
-            cleanRating: cleanRating,
-            formattedRating: cleanRating.toFixed(1),
-            
-            // Авторские отзывы
-            authorReviews: authorReviews,
-            authorPercentage: site.count > 0 ? (authorReviews / site.count * 100).toFixed(0) : 0,
-            
-            // Время
-            lastReview: lastReviewDate,
-            daysSinceLastReview: daysSinceLastReview,
-            
-            // Подробности о составе группы
-            originalUrls: site.originalUrls,
-            originalNames: site.originalNames,
-            
-            // Для сортировки и фильтрации
-            hasMultipleSites: site.originalUrls.length > 1,
-            isRecent: daysSinceLastReview <= 30, // Не старше месяца
-            
-            // Все отзывы (для проверки)
-            reviews: site.reviews
-        };
+        siteMap[review.siteUrl].totalRating += review.rating;
+        siteMap[review.siteUrl].count++;
+        
+        const reviewDate = new Date(review.date);
+        if (reviewDate > siteMap[review.siteUrl].lastReview) {
+            siteMap[review.siteUrl].lastReview = reviewDate;
+        }
     });
+    
+    // Рассчитываем средний рейтинг и фильтруем
+    const sitesWithRating = Object.values(siteMap).map(site => ({
+        ...site,
+        avgRating: site.totalRating / site.count,
+        daysSinceLastReview: Math.floor((new Date() - site.lastReview) / (1000 * 60 * 60 * 24))
+    }));
     
     // Фильтруем сайты с хорошим рейтингом (≥ 4.0) и хотя бы 2 отзыва
     const recommended = sitesWithRating
-        .filter(site => {
-            // Основные критерии
-            const hasGoodRating = site.cleanRating >= 4.0;
-            const hasEnoughReviews = site.count >= 2;
-            
-            // Дополнительные критерии
-            const hasRegularReviews = (site.count - site.authorReviews) >= 1; // Хотя бы 1 неавторский отзыв
-            const notTooOld = site.daysSinceLastReview <= 180; // Не старше 6 месяцев
-            
-            return hasGoodRating && hasEnoughReviews && hasRegularReviews && notTooOld;
-        })
-        .sort((a, b) => {
-            // Сначала сортируем по чистому рейтингу (учитывая авторские отзывы)
-            if (b.cleanRating !== a.cleanRating) {
-                return b.cleanRating - a.cleanRating;
-            }
-            
-            // Если рейтинг одинаковый, по количеству отзывов
-            if (b.count !== a.count) {
-                return b.count - a.count;
-            }
-            
-            // Если количество одинаковое, по актуальности (новые выше)
-            return a.daysSinceLastReview - b.daysSinceLastReview;
-        });
+        .filter(site => site.avgRating >= 4.0 && site.count >= 2)
+        .sort((a, b) => b.avgRating - a.avgRating);
     
     return recommended;
 }
 
-// Функция для получения сайтов, которые нуждаются в отзывах (с группировкой)
+// Функция для получения сайтов, которые нуждаются в отзывах (ОБНОВЛЁННАЯ)
 function getSitesNeedingReviews() {
+    const siteMap = {};
     const currentDate = new Date();
     
-    // Группируем отзывы
-    const groupedSites = groupReviewsBySite(reviews);
+    // Собираем статистику по сайтам
+    reviews.forEach(review => {
+        if (!siteMap[review.siteUrl]) {
+            siteMap[review.siteUrl] = {
+                url: review.siteUrl,
+                name: review.siteName,
+                lastReview: new Date(review.date),
+                reviewCount: 0,
+                ratings: []
+            };
+        }
+        
+        const reviewDate = new Date(review.date);
+        if (reviewDate > siteMap[review.siteUrl].lastReview) {
+            siteMap[review.siteUrl].lastReview = reviewDate;
+        }
+        
+        siteMap[review.siteUrl].reviewCount++;
+        siteMap[review.siteUrl].ratings.push(review.rating);
+    });
     
-    const sites = groupedSites.map(site => {
-        // Находим последний отзыв в группе
-        const lastReview = site.reviews.sort((a, b) => 
-            new Date(b.date) - new Date(a.date)
-        )[0];
+    const sites = Object.values(siteMap).map(site => {
+        // Рассчитываем сколько дней прошло с последнего отзыва
+        const daysSinceLastReview = Math.floor((currentDate - site.lastReview) / (1000 * 60 * 60 * 24));
         
-        const lastReviewDate = new Date(lastReview.date);
-        const daysSinceLastReview = Math.floor((currentDate - lastReviewDate) / (1000 * 60 * 60 * 24));
+        // Рассчитываем средний рейтинг
+        const avgRating = site.ratings.reduce((sum, r) => sum + r, 0) / site.ratings.length;
         
-        // Рассчитываем стандартное отклонение оценок
-        const ratings = site.reviews.map(r => r.rating);
-        const ratingStd = calculateStandardDeviation(ratings);
-        
-        // Определяем приоритет
+        // Определяем приоритет (чем выше, тем больше нуждается)
         let priority = 0;
         
-        // Критерий 1: Мало отзывов
-        if (site.count <= 2) {
-            priority += 100 - (site.count * 10);
+        // Критерий 1: Мало отзывов (высший приоритет)
+        if (site.reviewCount <= 2) {
+            priority += 100 - (site.reviewCount * 10); // 1 отзыв = 90, 2 отзыва = 80
         }
         
-        // Критерий 2: Давно не было отзывов
+        // Критерий 2: Давно не было отзывов (>30 дней)
         if (daysSinceLastReview > 30) {
-            priority += Math.min(daysSinceLastReview / 10, 50);
+            priority += Math.min(daysSinceLastReview / 10, 50); // Максимум +50 баллов
         }
         
-        // Критерий 3: Низкий рейтинг
-        if (site.avgRating < 3.0) {
-            priority += (3.0 - site.avgRating) * 20;
+        // Критерий 3: Низкий рейтинг (<3.0)
+        if (avgRating < 3.0) {
+            priority += (3.0 - avgRating) * 20; // Чем ниже рейтинг, тем выше приоритет
         }
         
-        // Критерий 4: Противоречивые оценки
-        if (ratingStd > 1.5) {
+        // Критерий 4: Противоречивые оценки (высокий разброс)
+        const ratingStd = calculateStandardDeviation(site.ratings);
+        if (ratingStd > 1.5) { // Большой разброс оценок
             priority += ratingStd * 10;
         }
         
         return {
             ...site,
             daysSinceLastReview: daysSinceLastReview,
-            avgRating: site.avgRating.toFixed(1),
+            avgRating: avgRating.toFixed(1),
             priority: priority,
-            needsReviewsReason: getNeedsReason(site.count, daysSinceLastReview, site.avgRating),
-            lastReviewDate: lastReviewDate
+            needsReviewsReason: getNeedsReason(site.reviewCount, daysSinceLastReview, avgRating)
         };
     });
     
-    // Сортируем по приоритету и ограничиваем 5 сайтами
+    // Сортируем по приоритету (высший приоритет = больше нуждается)
     return sites
         .sort((a, b) => b.priority - a.priority)
-        .slice(0, 5);
+        .slice(0, 10); // Ограничиваем 10 сайтами
 }
 
 // Вспомогательная функция: рассчитывает стандартное отклонение
