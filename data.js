@@ -74,7 +74,7 @@ const reviews = [
         siteUrl: "https://funpay.com/",
         siteName: "FunPay",
         rating: 3,
-        comment: "Пользовался FunPay несколько лет назад — купил там почту timosha.sibilev@gmail.com (история длинная 😄). Что понравилось: большой выбор цифровых товаров, безопасная сделка через гаранта. Что не понравилось: высокие комиссии, риск мошенников. Для разовых покупок — нормально, но проверяйте отзывы продавца!",
+        comment: "Пользовался FunPay несколько лет назад — купил там почту timosha.sibilev@gmail.com (история длинная). Понравился большой выбор цифровых товаров, безопасные сделки. Есть одно но, например, высокие комиссии, риск мошенников. Для разовых покупок нормально, но проверяйте отзывы продавца",
         date: "2026-01-10T09:07:00",
         verified: true
     },
@@ -606,6 +606,30 @@ const reviews = [
         rating: 5,
         comment: "Сервис имба. Люблю Яндекс",
         date: "2026-02-10T20:48:00"
+    },
+    {
+        id: 56,
+        name: "Константин",
+        email: "timosha.sibilev@gmail.com",
+        nickname: "speedtelly1",
+        siteUrl: "https://www.youtube.com/",
+        siteName: "YouTube",
+        rating: 5,
+        comment: "Лучший сайт ever!",
+        date: "2026-02-11T19:30:00",
+        verified: true
+    },
+    {
+        id: 57,
+        name: "Константин",
+        email: "timosha.sibilev@gmail.com",
+        nickname: "speedtelly1",
+        siteUrl: "https://www.deepseek.com/",
+        siteName: "DeepSeek",
+        rating: 4,
+        comment: "Топовая нейронка",
+        date: "2026-02-11T19:35:00",
+        verified: true
     }
 ];
 
