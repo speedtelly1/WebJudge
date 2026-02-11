@@ -343,37 +343,75 @@
                 <div class="reviews-container" id="all-reviews"></div>
             </section>
 
-            <!-- Добавить отзыв -->
-            <section id="add-review-page" class="page">
-                <div class="form-container glass-effect">
-                    <h2 class="section-title">Добавить отзыв о сайте</h2>
-                    <div class="form-note">
-                        <p><strong>Внимание:</strong> Эта форма интегрирована через Google Forms. После отправки отзыва, он будет проверен и добавлен в общий список на сайте в течение 24 часов.</p>
-                        <p>Все поля обязательны для заполения. Убедитесь, что URL сайта указан корректно.</p>
-                    </div>
-
-                    <!-- Подсказки по сайтам -->
-                    <div class="site-suggestions" style="margin-bottom: 20px;">
-                        <p><strong>Не знаете о чем писать?</strong> Предлагаем оценить:</p>
-                        <div style="display: flex; gap: 10px; flex-wrap: wrap; margin-top: 10px;">
-                            <button onclick="suggestSite('YouTube', 'https://youtube.com')" style="padding: 8px 15px; background: #FF0000; color: white; border: none; border-radius: 5px;">
-                                YouTube
-                            </button>
-                            <button onclick="suggestSite('TAIPrompts', 'https://timoshamoscow.github.io/taiprompts.github.io/')" style="padding: 8px 15px; background: #000000; color: white; border: none; border-radius: 5px;">
-                                TAIPrompts
-                            </button>
-                            <button onclick="suggestSite('Telegram', 'https://web.telegram.org')" style="padding: 8px 15px; background: #0088cc; color: white; border: none; border-radius: 5px;">
-                                Telegram Web
-                            </button>
-                        </div>
-                    </div>
-                    
-                    <!-- Google Form -->
-                    <div class="iframe-container glass-effect">
-                        <iframe src="https://docs.google.com/forms/d/e/1FAIpQLScnJgoAtfAcGdH8HljAYEoEKfJ_f7uqNaL4el8g8rC6OsmJnw/viewform?embedded=true" width="100%" height="1124" frameborder="0" marginheight="0" marginwidth="0">Загрузка…</iframe>
-                    </div>
+<!-- Добавить отзыв -->
+<section id="add-review-page" class="page">
+    <div style="display: grid; grid-template-columns: 1fr 2fr; gap: 25px; align-items: start;">
+        <!-- ЛЕВАЯ КОЛОНКА: ПРАВИЛА -->
+        <div class="glass-effect" style="padding: 25px;">
+            <h3 style="margin-bottom: 20px; color: var(--secondary-color); display: flex; align-items: center; gap: 10px;">
+                <i class="fas fa-list"></i> Правила публикации
+            </h3>
+            <div style="display: flex; flex-direction: column; gap: 15px;">
+                <div style="display: flex; gap: 10px; align-items: baseline;">
+                    <span style="font-weight: bold; color: var(--primary-color); min-width: 25px;">1.</span>
+                    <span style="color: var(--text-color);">Без личных оскорблений — критикуем сайты, а не авторов</span>
                 </div>
-            </section>
+                <div style="display: flex; gap: 10px; align-items: baseline;">
+                    <span style="font-weight: bold; color: var(--primary-color); min-width: 25px;">2.</span>
+                    <span style="color: var(--text-color);">Запрещены реклама и спам</span>
+                </div>
+                <div style="display: flex; gap: 10px; align-items: baseline;">
+                    <span style="font-weight: bold; color: var(--primary-color); min-width: 25px;">3.</span>
+                    <span style="color: var(--text-color);">Не используйте ненормативную лексику</span>
+                </div>
+                <div style="display: flex; gap: 10px; align-items: baseline;">
+                    <span style="font-weight: bold; color: var(--primary-color); min-width: 25px;">4.</span>
+                    <span style="color: var(--text-color);">Только реальный опыт использования</span>
+                </div>
+                <div style="display: flex; gap: 10px; align-items: baseline;">
+                    <span style="font-weight: bold; color: var(--primary-color); min-width: 25px;">5.</span>
+                    <span style="color: var(--text-color);">Один сайт — один отзыв (При изменении мнения не отклоняется)</span>
+                </div>
+            </div>
+            <div style="margin-top: 25px; padding-top: 20px; border-top: 1px solid rgba(0,0,0,0.1);">
+                <p style="color: #666; font-size: 0.9rem; display: flex; align-items: center; gap: 8px;">
+                    <i class="fas fa-shield-alt"></i> 
+                    Нарушение правил — отклонение отзыва
+                </p>
+            </div>
+        </div>
+        
+        <!-- ПРАВАЯ КОЛОНКА: ФОРМА -->
+        <div class="form-container glass-effect" style="margin: 0;">
+            <h2 class="section-title">Добавить отзыв о сайте</h2>
+            <div class="form-note">
+                <p><strong>Внимание:</strong> Эта форма интегрирована через Google Forms. После отправки отзыва, он будет проверен и добавлен в общий список на сайте в течение 24 часов.</p>
+                <p>Все поля обязательны для заполения. Убедитесь, что URL сайта указан корректно.</p>
+            </div>
+
+            <!-- Подсказки по сайтам -->
+            <div class="site-suggestions" style="margin-bottom: 20px;">
+                <p><strong>Не знаете о чем писать?</strong> Предлагаем оценить:</p>
+                <div style="display: flex; gap: 10px; flex-wrap: wrap; margin-top: 10px;">
+                    <button onclick="suggestSite('YouTube', 'https://youtube.com')" style="padding: 8px 15px; background: #FF0000; color: white; border: none; border-radius: 5px;">
+                        YouTube
+                    </button>
+                    <button onclick="suggestSite('TAIPrompts', 'https://timoshamoscow.github.io/taiprompts.github.io/')" style="padding: 8px 15px; background: #000000; color: white; border: none; border-radius: 5px;">
+                        TAIPrompts
+                    </button>
+                    <button onclick="suggestSite('Telegram', 'https://web.telegram.org')" style="padding: 8px 15px; background: #0088cc; color: white; border: none; border-radius: 5px;">
+                        Telegram Web
+                    </button>
+                </div>
+            </div>
+            
+            <!-- Google Form -->
+            <div class="iframe-container glass-effect">
+                <iframe src="https://docs.google.com/forms/d/e/1FAIpQLScnJgoAtfAcGdH8HljAYEoEKfJ_f7uqNaL4el8g8rC6OsmJnw/viewform?embedded=true" width="100%" height="1124" frameborder="0" marginheight="0" marginwidth="0">Загрузка…</iframe>
+            </div>
+        </div>
+    </div>
+</section>
 
             <!-- Статистика -->
             <section id="stats-page" class="page">
