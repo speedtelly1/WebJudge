@@ -1,4 +1,283 @@
-       // DOM элементы
+// ==================== СИСТЕМА ЛОГИРОВАНИЯ ====================
+const LOG_STYLES = {
+    info: 'background: #3498db; color: white; padding: 2px 6px; border-radius: 3px; font-weight: bold;',
+    success: 'background: #27ae60; color: white; padding: 2px 6px; border-radius: 3px; font-weight: bold;',
+    warning: 'background: #f39c12; color: white; padding: 2px 6px; border-radius: 3px; font-weight: bold;',
+    error: 'background: #e74c3c; color: white; padding: 2px 6px; border-radius: 3px; font-weight: bold;',
+    debug: 'background: #9b59b6; color: white; padding: 2px 6px; border-radius: 3px; font-weight: bold;',
+    star: 'background: #f1c40f; color: black; padding: 2px 6px; border-radius: 3px; font-weight: bold;'
+};
+
+const LOG_ICONS = {
+    info: '📘',
+    success: '✅',
+    warning: '⚠️',
+    error: '❌',
+    debug: '🐞',
+    star: '⭐'
+};
+
+// Основная функция логирования
+function log(level, message, data = null) {
+    const timestamp = new Date().toLocaleTimeString('ru-RU', {
+        hour12: false,
+        hour: '2-digit',
+        minute: '2-digit',
+        second: '2-digit',
+        fractionalSecondDigits: 3
+    });
+    
+    const icon = LOG_ICONS[level] || '📌';
+    const style = LOG_STYLES[level] || LOG_STYLES.info;
+    
+    console.log(
+        `${icon} %c${level.toUpperCase()}%c [${timestamp}] ${message}`,
+        style,
+        'background: transparent; color: inherit; font-weight: normal;'
+    );
+    
+    if (data) {
+        console.log('   📦 Данные:', data);
+    }
+}
+
+// Групповое логирование
+function logGroup(name, callback) {
+    console.group(`📁 ${name}`);
+    callback();
+    console.groupEnd();
+}
+
+// Счетчики производительности
+const perfCounters = {};
+
+function startTimer(label) {
+    perfCounters[label] = performance.now();
+    log('debug', `⏱️ Таймер запущен: ${label}`);
+}
+
+function endTimer(label) {
+    if (perfCounters[label]) {
+        const duration = (performance.now() - perfCounters[label]).toFixed(2);
+        log('debug', `⏱️ Таймер завершен: ${label} — ${duration}ms`);
+        delete perfCounters[label];
+        return duration;
+    }
+    return null;
+}
+
+// ==================== ПЕРЕХВАТЧИКИ СОБЫТИЙ ====================
+
+// Логирование всех кликов
+document.addEventListener('click', function(e) {
+    const target = e.target;
+    let description = '';
+    
+    if (target.tagName) description += target.tagName.toLowerCase();
+    if (target.id) description += `#${target.id}`;
+    if (target.className && typeof target.className === 'string') {
+        const classes = target.className.split(' ').filter(c => c).join('.');
+        if (classes) description += `.${classes}`;
+    }
+    if (target.innerText && target.innerText.length < 30) {
+        description += ` («${target.innerText.trim()}»)`;
+    }
+    
+    log('debug', `Клик: ${description || 'неизвестный элемент'}`);
+}, true);
+
+// Логирование загрузки страницы
+window.addEventListener('load', function() {
+    log('success', `🚀 Страница полностью загружена за ${performance.now().toFixed(2)}ms`);
+    log('info', `📱 Размер окна: ${window.innerWidth}x${window.innerHeight}`);
+    log('info', `🔋 Онлайн: ${navigator.onLine ? 'Да' : 'Нет'}`);
+});
+
+// Логирование ошибок
+window.addEventListener('error', function(e) {
+    log('error', `Ошибка: ${e.message}`, {
+        файл: e.filename,
+        строка: e.lineno,
+        колонка: e.colno
+    });
+});
+
+window.addEventListener('unhandledrejection', function(e) {
+    log('error', `Unhandled Promise Rejection: ${e.reason}`);
+});
+
+// ==================== СТАРТОВОЕ ЛОГИРОВАНИЕ ====================
+
+logGroup('🚀 ИНИЦИАЛИЗАЦИЯ SITEREVIEW', () => {
+    log('info', `Версия ${new Date().toLocaleDateString('ru-RU')}`);
+    log('info', `User Agent: ${navigator.userAgent}`);
+    log('info', `Язык: ${navigator.language}`);
+    log('info', `Cookies: ${document.cookie ? 'Есть' : 'Нет'}`);
+    log('info', `LocalStorage: ${localStorage.length} записей`);
+    log('info', `SessionStorage: ${sessionStorage.length} записей`);
+});
+
+// ==================== ОБЕРТКИ ДЛЯ СУЩЕСТВУЮЩИХ ФУНКЦИЙ ====================
+
+// Сохраняем оригинальные функции
+const originalInitBanner = window.initBanner;
+const originalAddReview = window.addReview;
+const originalDisplayAllReviews = window.displayAllReviews;
+const originalFilterByCategory = window.filterByCategory;
+
+// Переопределяем с логированием
+window.initBanner = function() {
+    log('info', '🖼️ Инициализация баннера');
+    startTimer('banner-init');
+    if (originalInitBanner) {
+        const result = originalInitBanner.apply(this, arguments);
+        endTimer('banner-init');
+        log('success', '✅ Баннер инициализирован');
+        return result;
+    }
+};
+
+window.addReview = function(newReview) {
+    logGroup('📝 ДОБАВЛЕНИЕ НОВОГО ОТЗЫВА', () => {
+        log('info', `Автор: ${newReview.name || 'Не указан'}`);
+        log('info', `Сайт: ${newReview.siteName || 'Не указан'}`);
+        log('info', `Рейтинг: ${'★'.repeat(newReview.rating)}${'☆'.repeat(5 - newReview.rating)} (${newReview.rating})`);
+        log('info', `Комментарий: "${newReview.comment?.substring(0, 50)}${newReview.comment?.length > 50 ? '...' : ''}"`);
+    });
+    
+    if (originalAddReview) {
+        const result = originalAddReview.apply(this, arguments);
+        log('success', `✅ Отзыв добавлен с ID: ${result.id}`);
+        return result;
+    }
+};
+
+// Добавляем логирование в ключевые функции
+document.addEventListener('DOMContentLoaded', function() {
+    log('success', '📄 DOM полностью загружен');
+    
+    // Считаем отзывы
+    if (typeof reviews !== 'undefined') {
+        log('info', `📊 Всего отзывов в data.js: ${reviews.length}`);
+        
+        // Статистика по рейтингам
+        const ratingCounts = {5:0,4:0,3:0,2:0,1:0};
+        reviews.forEach(r => ratingCounts[r.rating]++);
+        log('info', '📈 Распределение оценок:', ratingCounts);
+        
+        // Топ-3 сайта по количеству отзывов
+        const siteCounts = {};
+        reviews.forEach(r => {
+            siteCounts[r.siteName] = (siteCounts[r.siteName] || 0) + 1;
+        });
+        const topSites = Object.entries(siteCounts)
+            .sort((a,b) => b[1] - a[1])
+            .slice(0, 3);
+        log('info', '🏆 Топ-3 сайта по отзывам:', Object.fromEntries(topSites));
+    } else {
+        log('warning', '⚠️ Массив reviews не найден!');
+    }
+    
+    // Логируем localStorage
+    const bannerHidden = localStorage.getItem('bannerHidden_v1.1.4');
+    const bannerTime = localStorage.getItem('bannerHiddenTime_v1.1.4');
+    if (bannerHidden || bannerTime) {
+        log('debug', '🔄 Состояние баннера:', {
+            навсегда: bannerHidden === 'true' ? 'Скрыт' : 'Показан',
+            на24часа: bannerTime ? new Date(parseInt(bannerTime)).toLocaleString() : 'Нет'
+        });
+    }
+});
+
+// ==================== ЛОГИРОВАНИЕ ПРОИЗВОДИТЕЛЬНОСТИ ====================
+
+// Логируем время рендеринга карточек
+const originalCreateReviewCard = window.createReviewCard;
+window.createReviewCard = function(review) {
+    startTimer(`render-card-${review.id}`);
+    const card = originalCreateReviewCard.apply(this, arguments);
+    const time = endTimer(`render-card-${review.id}`);
+    
+    if (time > 50) {
+        log('warning', `⚠️ Медленный рендеринг карточки #${review.id}: ${time}ms`);
+    }
+    
+    return card;
+};
+
+// Логируем поиск
+const originalPerformSearch = window.performSearch;
+window.performSearch = function() {
+    const searchTerm = document.getElementById('search-input')?.value || '';
+    log('info', `🔍 Поиск: "${searchTerm}"`);
+    startTimer('search');
+    const result = originalPerformSearch.apply(this, arguments);
+    const time = endTimer('search');
+    log('debug', `⏱️ Поиск выполнен за ${time}ms`);
+    return result;
+};
+
+// ==================== ЛОГИРОВАНИЕ СЕТИ ====================
+
+// Мониторинг сетевых запросов
+const originalFetch = window.fetch;
+window.fetch = function() {
+    const url = arguments[0];
+    log('debug', `🌐 Fetch запрос: ${url}`);
+    startTimer(`fetch-${url}`);
+    
+    return originalFetch.apply(this, arguments)
+        .then(response => {
+            const time = endTimer(`fetch-${url}`);
+            log('success', `✅ Fetch успешен (${time}ms): ${url}`);
+            return response;
+        })
+        .catch(error => {
+            const time = endTimer(`fetch-${url}`);
+            log('error', `❌ Fetch ошибка (${time}ms): ${url} — ${error.message}`);
+            throw error;
+        });
+};
+
+// ==================== ЛОГИРОВАНИЕ СОСТОЯНИЯ ПРИЛОЖЕНИЯ ====================
+
+// Периодический лог состояния
+setInterval(() => {
+    if (document.visibilityState === 'visible') {
+        log('debug', `💓 Heartbeat — страница активна, отзывов: ${reviews?.length || 0}`);
+        
+        // Проверяем память (если доступно)
+        if (performance.memory) {
+            log('debug', '🧠 Использование памяти:', {
+                usedJSHeapSize: `${(performance.memory.usedJSHeapSize / 1048576).toFixed(2)} MB`,
+                totalJSHeapSize: `${(performance.memory.totalJSHeapSize / 1048576).toFixed(2)} MB`,
+                jsHeapSizeLimit: `${(performance.memory.jsHeapSizeLimit / 1048576).toFixed(2)} MB`
+            });
+        }
+    }
+}, 30000); // Каждые 30 секунд
+
+// Логирование изменения видимости страницы
+document.addEventListener('visibilitychange', function() {
+    if (document.hidden) {
+        log('debug', '😴 Страница скрыта');
+    } else {
+        log('debug', '👋 Страница снова видима');
+    }
+});
+
+// Логирование онлайн/офлайн статуса
+window.addEventListener('online', function() {
+    log('success', '🌍 Соединение восстановлено');
+});
+
+window.addEventListener('offline', function() {
+    log('warning', '⚠️ Нет соединения с интернетом');
+});
+
+log('success', '✅ Система логирования активирована');
+
+// DOM элементы
         const pages = document.querySelectorAll('.page');
         const navLinks = document.querySelectorAll('.nav-link');
         const searchInput = document.getElementById('search-input');
