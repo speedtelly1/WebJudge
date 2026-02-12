@@ -547,6 +547,59 @@
 
     <!-- Скрипт баннера (после HTML баннера) -->
     <script src="banner.js"></script>
+
+<script>
+// Автоматическое обновление Service Worker
+if ('serviceWorker' in navigator) {
+  let refreshing = false;
+  
+  // Слушаем сообщения от Service Worker
+  navigator.serviceWorker.addEventListener('message', event => {
+    if (event.data === 'reload' && !refreshing) {
+      refreshing = true;
+      window.location.reload();
+    }
+  });
+
+  // Регистрация с проверкой обновлений
+  async function registerServiceWorker() {
+    try {
+      const registration = await navigator.serviceWorker.register('/sitereview.github.io/service-worker.js');
+      
+      console.log('Service Worker registered:', registration.scope);
+      
+      // Проверяем обновления при загрузке страницы
+      registration.update();
+      
+      // Проверяем обновления каждые 30 минут
+      setInterval(() => {
+        registration.update();
+        console.log('Checking for SW updates...');
+      }, 30 * 60 * 1000);
+      
+      // Автоматическое обновление при обнаружении новой версии
+      registration.addEventListener('updatefound', () => {
+        const newWorker = registration.installing;
+        
+        newWorker.addEventListener('statechange', () => {
+          if (newWorker.state === 'installed' && navigator.serviceWorker.controller) {
+            // Показываем уведомление о доступном обновлении
+            if (confirm('Доступна новая версия сайта. Обновить?')) {
+              newWorker.postMessage('update');
+            }
+          }
+        });
+      });
+      
+    } catch (error) {
+      console.error('Service Worker registration failed:', error);
+    }
+  }
+
+  // Регистрируем при загрузке
+  window.addEventListener('load', registerServiceWorker);
+}
+</script>
     
 </body>
 </html>
