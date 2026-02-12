@@ -3416,7 +3416,7 @@ function finishQuiz() {
             <h3 style="color: var(--secondary-color); margin-bottom: 10px;">Викторина завершена!</h3>
             <p style="color: #666; margin-bottom: 5px;">Ваш счёт: <strong style="font-size: 1.2rem;">${quizState.score}</strong> очков</p>
             <p style="color: #666; margin-bottom: 5px;">Рекорд: <strong>${quizState.highScore}</strong> очков</p>
-            <p style="color: #666;">Правильных ответов: <strong>${quizState.score / 10}</strong></p>
+            <p style="color: #666;">Правильных ответов: <strong>${quizState.score / 10} из ${quizState.totalQuestions}</strong></p>
             
             ${quizState.score === quizState.totalQuestions * 10 ? 
                 '<div style="margin-top: 15px; color: #27ae60;"><i class="fas fa-crown"></i> Идеальный результат!</div>' : 
