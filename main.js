@@ -3166,18 +3166,18 @@ function getSiteGroup(siteName) {
         name.includes('rutube') || name.includes('рутьюб') ||
         name.includes('twitch') || name.includes('твич') ||
         name.includes('kick')) {
-        return 'Видеохостинги';
+        return 'Видео/Стримы';
     }
     
     // Соцсети
     if (name.includes('итд') || name.includes('telegram') || 
-        name.includes('телеграм')) || comment.includes('мессендж') {
+        name.includes('телеграм')) {
         return 'Соцсети';
     }
     
     // Нейросети
     if (name.includes('deepseek') || name.includes('character.ai') || 
-        name.includes('chat g')) {
+        name.includes('chat')) {
         return 'Нейросети';
     }
     
@@ -3188,8 +3188,9 @@ function getSiteGroup(siteName) {
     }
     
     // Игры/Маркет
-    if (name.includes('launcher') || name.includes('tlauncher')) {
-        return 'Лаунчеры';
+    if (name.includes('launcher') || name.includes('funpay') || 
+        name.includes('tlauncher')) {
+        return 'Игры/Маркет';
     }
     
     // Образование
