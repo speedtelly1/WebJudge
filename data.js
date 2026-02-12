@@ -642,6 +642,17 @@ const reviews = [
         comment: "Нормальный хостинг для стримов, почему он никому не нравится?",
         date: "2026-02-12T10:32:00",
         verified: true
+    },
+    {
+        id: 59,
+        name: "Тимофей",
+        nickname: "timoshamoscow",
+        email: "roll3ogurec0@gmail.com",
+        siteUrl: "https://www.mos.ru/",
+        siteName: "Mos.ru",
+        rating: 1,
+        comment: "Самый худший сайт, который я видел. Ужасно неудобный, навигация хромает. Застрял на этапе логина",
+        date: "2026-02-12T14:28:00"
     }
 ];
 
