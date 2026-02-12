@@ -753,7 +753,7 @@ function getRecommendedSites() {
     
     // Фильтруем сайты с хорошим рейтингом
     const recommended = sitesWithRating
-        .filter(site => site.avgRating >= 4.2 && site.count >= 4)
+        .filter(site => site.avgRating >= 4.2 && site.count >= 3)
         .sort((a, b) => b.avgRating - a.avgRating);
     
     return recommended;
