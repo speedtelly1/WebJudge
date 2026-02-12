@@ -1878,45 +1878,14 @@ function calculateSiteRatings() {
                 const std = calculateStandardDeviation(ratings);
                 if (std < 0.8) stabilityBonus = 0.2; // Все ставят примерно одинаково
             }
-
-            // ========== ПРОЦЕНТНЫЕ БОНУСЫ (НЕВИДИМЫЕ) ==========
-
-            // 6. БОНУС ЗА ПРОЦЕНТ ПОЛОЖИТЕЛЬНЫХ ОТЗЫВОВ (4-5★)
-            const positiveReviews = site.reviews.filter(r => r.rating >= 4).length;
-            const positivePercentage = site.count > 0 ? (positiveReviews / site.count) * 100 : 0;
-            let positiveBonus = 0;
-
-            if (positivePercentage >= 80) positiveBonus = 0.3;
-            else if (positivePercentage >= 60) positiveBonus = 0.2;
-            else if (positivePercentage >= 40) positiveBonus = 0.1;
-
-            // 7. ШТРАФ ЗА ПРОЦЕНТ НЕГАТИВНЫХ ОТЗЫВОВ (1-2★)
-            const negativeReviews = site.reviews.filter(r => r.rating <= 2).length;
-            const negativePercentage = site.count > 0 ? (negativeReviews / site.count) * 100 : 0;
-            let negativePenalty = 0;
-
-            if (negativePercentage >= 50) negativePenalty = 0.5;
-            else if (negativePercentage >= 30) negativePenalty = 0.3;
-            else if (negativePercentage >= 20) negativePenalty = 0.1;
-
-            // 8. БОНУС ЗА "НАРОДНОСТЬ" (процент обычных отзывов)
-            const regularPercentage = site.count > 0 ? (site.regularReviews / site.count) * 100 : 0;
-            let regularBonus = 0;
-
-            if (regularPercentage >= 90) regularBonus = 0.25;
-            else if (regularPercentage >= 75) regularBonus = 0.15;
-            else if (regularPercentage >= 50) regularBonus = 0.05;
             
             // ЧЕСТНЫЙ РЕЙТИНГ = средний рейтинг + бонусы - штрафы
             let honestRating = avgRating;
             honestRating += popularityBonus;
             honestRating += stabilityBonus;
-            honestRating += positiveBonus;      // ← ДОБАВЬ
-            honestRating += regularBonus;       // ← ДОБАВЬ
             honestRating -= authorPenalty;
             honestRating -= lowReviewPenalty;
             honestRating -= controversyPenalty;
-            honestRating -= negativePenalty;    // ← ДОБАВЬ
             
             // Для визуала ОСТАВЛЯЕМ СТАРЫЙ formattedRating!
             // Пользователи видят 4.8, но ТОП сортируется по honestRating
@@ -2187,83 +2156,6 @@ function calculateUserRatings() {
                 !r.comment.includes('тупой')
             ).length;
             qualityBonus += (cleanReviews / user.count) * 0.1;
-
-            // ========== ПРОЦЕНТНЫЕ БОНУСЫ ПОЛЬЗОВАТЕЛЕЙ ==========
-
-            // 5. БОНУС ЗА ПРОЦЕНТ ВЫСОКИХ ОЦЕНОК (4-5★)
-            const highRatingCount = user.reviews.filter(r => r.rating >= 4).length;
-            const highRatingPercentage = user.count > 0 ? (highRatingCount / user.count) * 100 : 0;
-
-            if (highRatingPercentage >= 70) {
-                qualityBonus += 0.25;
-            } else if (highRatingPercentage >= 50) {
-                qualityBonus += 0.15;
-            } else if (highRatingPercentage >= 30) {
-                qualityBonus += 0.05;
-            }
-
-            // 6. БОНУС ЗА ПРОЦЕНТ НИЗКИХ ОЦЕНОК (1-2★) - для критиков
-            const lowRatingCount = user.reviews.filter(r => r.rating <= 2).length;
-            const lowRatingPercentage = user.count > 0 ? (lowRatingCount / user.count) * 100 : 0;
-
-            if (lowRatingPercentage >= 50) {
-                qualityBonus += 0.2;
-            } else if (lowRatingPercentage >= 30) {
-                qualityBonus += 0.1;
-            }
-
-            // 7. БОНУС ЗА РАЗНООБРАЗИЕ ОЦЕНОК
-            const ratingDistribution = {};
-            user.reviews.forEach(r => { ratingDistribution[r.rating] = (ratingDistribution[r.rating] || 0) + 1; });
-            const uniqueRatingCount = Object.keys(ratingDistribution).length;
-
-            if (uniqueRatingCount >= 4 && user.count >= 5) {
-                qualityBonus += 0.2;
-            } else if (uniqueRatingCount >= 3 && user.count >= 4) {
-                qualityBonus += 0.1;
-            }
-
-            // 8. ШТРАФ ЗА ПРОЦЕНТ КОРОТКИХ ОТЗЫВОВ (УСИЛЕНИЕ)
-            const shortReviewsCount = user.reviews.filter(r => r.comment.length < 20).length;
-            const shortPercentage = user.count > 0 ? (shortReviewsCount / user.count) * 100 : 0;
-
-            if (shortPercentage >= 50) {
-                qualityPenalty += 0.4;
-            } else if (shortPercentage >= 30) {
-                qualityPenalty += 0.25;
-            } else if (shortPercentage >= 15) {
-                qualityPenalty += 0.1;
-            }
-
-            // 9. БОНУС ЗА ПРОЦЕНТ ДЛИННЫХ ОТЗЫВОВ (УСИЛЕНИЕ)
-            const longReviewsCount = user.reviews.filter(r => r.comment.length > 100).length;
-            const longPercentage = user.count > 0 ? (longReviewsCount / user.count) * 100 : 0;
-
-            if (longPercentage >= 50) {
-                qualityBonus += 0.4;
-            } else if (longPercentage >= 30) {
-                qualityBonus += 0.25;
-            } else if (longPercentage >= 15) {
-                qualityBonus += 0.1;
-            }
-
-            // 10. ШТРАФ ЗА СЛИШКОМ ВЫСОКИЙ ПРОЦЕНТ ОДИНАКОВЫХ ОЦЕНОК
-            let maxPercentage = 0;
-            Object.values(ratingDistribution).forEach(count => {
-                const percentage = (count / user.count) * 100;
-                if (percentage > maxPercentage) maxPercentage = percentage;
-            });
-
-            if (maxPercentage >= 80 && user.count >= 5) {
-                qualityPenalty += 0.3;
-            } else if (maxPercentage >= 70 && user.count >= 5) {
-                qualityPenalty += 0.15;
-            }
-
-            // 11. БОНУС ЗА СБАЛАНСИРОВАННОСТЬ
-            if (maxPercentage < 40 && user.count >= 5) {
-                qualityBonus += 0.2;
-            }
             
             // ========== НОВЫЕ ШТРАФЫ ==========
             let qualityPenalty = 0;
@@ -2278,6 +2170,15 @@ function calculateUserRatings() {
             }
             if (uniqueRatings <= 2 && user.count >= 5) {
                 qualityPenalty += 0.1; // Только два варианта оценок
+            }
+            
+            // 3. Штраф за неактивность (>30 дней без отзывов)
+            if (user.reviews.length > 0) {
+                const lastDate = new Date(user.reviews.sort((a, b) => new Date(b.date) - new Date(a.date))[0].date);
+                const daysSinceLast = (new Date() - lastDate) / (1000 * 60 * 60 * 24);
+                if (daysSinceLast > 30) {
+                    qualityPenalty += 0.5;
+                }
             }
             
             // ИТОГОВЫЙ СЧЁТ = база + бонусы - штрафы
