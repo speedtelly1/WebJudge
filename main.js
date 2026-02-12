@@ -2298,7 +2298,7 @@ function createSiteRankingCard(site, position) {
         
         ${position <= 3 ? `
         <div class="top-badge" style="background: ${position === 1 ? '#FFD700' : position === 2 ? '#C0C0C0' : '#CD7F32'}; color: ${position === 1 ? '#333' : 'white'};">
-            ${position === 1 ? 'ТОП-1' : position === 2 ? 'ТОП-2' : 'ТОП-3'}
+            ${position === 1 ? 'ЛУЧШИЙ' : position === 2 ? 'Топ-2' : 'Топ-3'}
         </div>
         ` : ''}
     `;
@@ -2578,7 +2578,7 @@ function createUserRankingCard(user, position) {
         
         ${position <= 3 ? `
         <div class="top-badge" style="background: ${position === 1 ? '#FFD700' : position === 2 ? '#C0C0C0' : '#CD7F32'}; color: ${position === 1 ? '#333' : 'white'};">
-            ${position === 1 ? 'ЛУЧШИЙ' : position === 2 ? 'ВТОРОЙ' : 'ТРЕТИЙ'}
+            ${position === 1 ? 'ТОП_РЕЦЕНЗЕНТ' : position === 2 ? 'Топ-2' : 'Топ-3'}
         </div>
         ` : ''}
     `;
