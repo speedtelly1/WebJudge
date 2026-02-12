@@ -2131,12 +2131,12 @@ function calculateUserRatings() {
             
             // 1. Бонус за развёрнутые отзывы (>100 символов)
             const longReviews = user.reviews.filter(r => r.comment.length > 100).length;
-            qualityBonus += longReviews * 0.07;
+            qualityBonus += longReviews * 0.2;
             
             // 2. Бонус за верификацию
             const verifiedCount = user.reviews.filter(r => r.verified === true).length;
             if (verifiedCount > 0) {
-                qualityBonus += (verifiedCount / user.count) * 0.2;
+                qualityBonus += (verifiedCount / user.count) * 0.5;
             }
             
             // 3. Бонус за разнообразие ОЦЕНОК (не только 5 или только 1)
@@ -2177,7 +2177,7 @@ function calculateUserRatings() {
                 const lastDate = new Date(user.reviews.sort((a, b) => new Date(b.date) - new Date(a.date))[0].date);
                 const daysSinceLast = (new Date() - lastDate) / (1000 * 60 * 60 * 24);
                 if (daysSinceLast > 30) {
-                    qualityPenalty += 0.2;
+                    qualityPenalty += 0.5;
                 }
             }
             
