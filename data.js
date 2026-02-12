@@ -630,6 +630,18 @@ const reviews = [
         comment: "Топовая нейронка",
         date: "2026-02-11T19:35:00",
         verified: true
+    },
+    {
+        id: 58,
+        name: "Константин",
+        email: "timosha.sibilev@gmail.com",
+        nickname: "speedtelly1",
+        siteUrl: "https://kick.com/",
+        siteName: "KICK",
+        rating: 3,
+        comment: "Нормальный хостинг для стримов, почему он никому не нравится?",
+        date: "2026-02-12T10:32:00",
+        verified: true
     }
 ];
 
