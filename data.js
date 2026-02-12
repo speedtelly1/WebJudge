@@ -92,7 +92,7 @@ const reviews = [
     },
     {
         id: 9,
-        name: "Федати",
+        name: "Федор",
         email: "1234playergp@gmail.com",
         siteUrl: "https://timoshamoscow.github.io/taiprompts.github.io/",
         siteName: "TAIPrompts",
@@ -124,7 +124,7 @@ const reviews = [
     },
     {
         id: 12,
-        name: "Федати",
+        name: "Федор",
         email: "1234playergp@gmail.com",
         siteUrl: "https://chat.deepseek.com/",
         siteName: "DeepSeek",
