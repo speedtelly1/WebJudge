@@ -751,9 +751,9 @@ function getRecommendedSites() {
         daysSinceLastReview: Math.floor((new Date() - site.lastReview) / (1000 * 60 * 60 * 24))
     }));
     
-    // Фильтруем сайты с хорошим рейтингом (≥ 4.0) и хотя бы 2 отзыва
+    // Фильтруем сайты с хорошим рейтингом
     const recommended = sitesWithRating
-        .filter(site => site.avgRating >= 4.0 && site.count >= 2)
+        .filter(site => site.avgRating >= 4.2 && site.count >= 4)
         .sort((a, b) => b.avgRating - a.avgRating);
     
     return recommended;
