@@ -764,6 +764,9 @@ function getSitesNeedingReviews() {
     const siteMap = {};
     const currentDate = new Date();
     
+    // Сначала получаем список рекомендованных сайтов, чтобы исключить их
+    const recommendedSites = getRecommendedSites().map(site => site.url);
+    
     // Собираем статистику по сайтам
     reviews.forEach(review => {
         if (!siteMap[review.siteUrl]) {
@@ -772,7 +775,8 @@ function getSitesNeedingReviews() {
                 name: review.siteName,
                 lastReview: new Date(review.date),
                 reviewCount: 0,
-                ratings: []
+                ratings: [],
+                avgRating: 0
             };
         }
         
@@ -785,50 +789,48 @@ function getSitesNeedingReviews() {
         siteMap[review.siteUrl].ratings.push(review.rating);
     });
     
-    const sites = Object.values(siteMap).map(site => {
-        // Рассчитываем сколько дней прошло с последнего отзыва
-        const daysSinceLastReview = Math.floor((currentDate - site.lastReview) / (1000 * 60 * 60 * 24));
-        
-        // Рассчитываем средний рейтинг
-        const avgRating = site.ratings.reduce((sum, r) => sum + r, 0) / site.ratings.length;
-        
-        // Определяем приоритет (чем выше, тем больше нуждается)
-        let priority = 0;
-        
-        // Критерий 1: Мало отзывов (высший приоритет)
-        if (site.reviewCount <= 2) {
-            priority += 100 - (site.reviewCount * 10); // 1 отзыв = 90, 2 отзыва = 80
-        }
-        
-        // Критерий 2: Давно не было отзывов (>30 дней)
-        if (daysSinceLastReview > 30) {
-            priority += Math.min(daysSinceLastReview / 10, 50); // Максимум +50 баллов
-        }
-        
-        // Критерий 3: Низкий рейтинг (<3.0)
-        if (avgRating < 3.0) {
-            priority += (3.0 - avgRating) * 20; // Чем ниже рейтинг, тем выше приоритет
-        }
-        
-        // Критерий 4: Противоречивые оценки (высокий разброс)
-        const ratingStd = calculateStandardDeviation(site.ratings);
-        if (ratingStd > 1.5) { // Большой разброс оценок
-            priority += ratingStd * 10;
-        }
-        
-        return {
-            ...site,
-            daysSinceLastReview: daysSinceLastReview,
-            avgRating: avgRating.toFixed(1),
-            priority: priority,
-            needsReviewsReason: getNeedsReason(site.reviewCount, daysSinceLastReview, avgRating)
-        };
+    // Рассчитываем средний рейтинг для каждого сайта
+    Object.values(siteMap).forEach(site => {
+        site.avgRating = site.ratings.reduce((sum, r) => sum + r, 0) / site.ratings.length;
     });
     
-    // Сортируем по приоритету (высший приоритет = больше нуждается)
-    return sites
+    const sites = Object.values(siteMap)
+        .map(site => {
+            const daysSinceLastReview = Math.floor((currentDate - site.lastReview) / (1000 * 60 * 60 * 24));
+            
+            // Определяем приоритет (чем выше, тем больше нуждается)
+            let priority = 0;
+            
+            // Критерий 1: Мало отзывов (высший приоритет)
+            if (site.reviewCount <= 2) {
+                priority += 100 - (site.reviewCount * 10);
+            }
+            
+            // Критерий 2: Давно не было отзывов (>30 дней)
+            if (daysSinceLastReview > 30) {
+                priority += Math.min(daysSinceLastReview / 10, 50);
+            }
+            
+            // Критерий 3: Низкий рейтинг (<3.0)
+            if (site.avgRating < 3.0) {
+                priority += (3.0 - site.avgRating) * 20;
+            }
+            
+            return {
+                ...site,
+                daysSinceLastReview,
+                avgRating: site.avgRating,
+                priority,
+                needsReviewsReason: getNeedsReason(site.reviewCount, daysSinceLastReview, site.avgRating)
+            };
+        })
+        // ❌ ИСКЛЮЧАЕМ РЕКОМЕНДОВАННЫЕ САЙТЫ
+        .filter(site => !recommendedSites.includes(site.url))
+        // 🎯 БЕРЁМ 5 ХУДШИХ (САМЫЙ ВЫСОКИЙ ПРИОРИТЕТ)
         .sort((a, b) => b.priority - a.priority)
-        .slice(0, 5); // Ограничиваем 5 сайтами
+        .slice(0, 5);
+    
+    return sites;
 }
 
 // Вспомогательная функция: рассчитывает стандартное отклонение
