@@ -2280,15 +2280,6 @@ function calculateUserRatings() {
                 qualityPenalty += 0.1; // Только два варианта оценок
             }
             
-            // 3. Штраф за неактивность (>30 дней без отзывов)
-            if (user.reviews.length > 0) {
-                const lastDate = new Date(user.reviews.sort((a, b) => new Date(b.date) - new Date(a.date))[0].date);
-                const daysSinceLast = (new Date() - lastDate) / (1000 * 60 * 60 * 24);
-                if (daysSinceLast > 30) {
-                    qualityPenalty += 0.5;
-                }
-            }
-            
             // ИТОГОВЫЙ СЧЁТ = база + бонусы - штрафы
             let userScore = activityScore + consistencyScore + diversityScore;
             userScore = userScore - authorPenalty + qualityBonus - qualityPenalty;
