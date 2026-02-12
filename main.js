@@ -3220,7 +3220,7 @@ function getSiteCategory(review) {
     
     // Соцсети
     if (text.includes('итд') || text.includes('соцсет') ||
-        text.includes('telegram') || text.includes('телеграм')) {
+        text.includes('telegram')) {
         return 'Соцсеть';
     }
     
