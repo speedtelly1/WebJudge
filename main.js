@@ -3166,18 +3166,18 @@ function getSiteGroup(siteName) {
         name.includes('rutube') || name.includes('рутьюб') ||
         name.includes('twitch') || name.includes('твич') ||
         name.includes('kick')) {
-        return 'Видео/Стримы';
+        return 'Видеохостинги';
     }
     
     // Соцсети
     if (name.includes('итд') || name.includes('telegram') || 
-        name.includes('телеграм')) {
+        name.includes('телеграм')) || comment.includes('мессендж') {
         return 'Соцсети';
     }
     
     // Нейросети
     if (name.includes('deepseek') || name.includes('character.ai') || 
-        name.includes('chat')) {
+        name.includes('chat g')) {
         return 'Нейросети';
     }
     
@@ -3188,9 +3188,8 @@ function getSiteGroup(siteName) {
     }
     
     // Игры/Маркет
-    if (name.includes('launcher') || name.includes('funpay') || 
-        name.includes('tlauncher')) {
-        return 'Игры/Маркет';
+    if (name.includes('launcher') || name.includes('tlauncher')) {
+        return 'Лаунчеры';
     }
     
     // Образование
@@ -3417,7 +3416,7 @@ function finishQuiz() {
             <h3 style="color: var(--secondary-color); margin-bottom: 10px;">Викторина завершена!</h3>
             <p style="color: #666; margin-bottom: 5px;">Ваш счёт: <strong style="font-size: 1.2rem;">${quizState.score}</strong> очков</p>
             <p style="color: #666; margin-bottom: 5px;">Рекорд: <strong>${quizState.highScore}</strong> очков</p>
-            <p style="color: #666;">Правильных ответов: <strong>${quizState.score / 10} из ${quizState.totalQuestions}</strong></p>
+            <p style="color: #666;">Правильных ответов: <strong>${quizState.score / 10}</strong></p>
             
             ${quizState.score === quizState.totalQuestions * 10 ? 
                 '<div style="margin-top: 15px; color: #27ae60;"><i class="fas fa-crown"></i> Идеальный результат!</div>' : 
