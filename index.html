@@ -283,6 +283,32 @@
                 <span>Только позитивные (≥ 4★)</span>
             </label>
         </div>
+
+                <!-- Категории -->
+                <div class="categories-section glass-effect" style="padding: 25px; margin-bottom: 30px;">
+                    <h3 style="margin-bottom: 20px; color: var(--secondary-color);">
+                        <i class="fas fa-filter"></i>Категории отзывов
+                    </h3>
+                    
+                    <div class="categories-filter">
+                        <div class="category-buttons" id="category-buttons" style="display: flex; flex-wrap: wrap; gap: 10px;"></div>
+                        
+                        <div class="selected-category" id="selected-category" style="margin-top: 20px; padding: 15px; background: rgba(52, 152, 219, 0.1); border-radius: 10px; display: none;">
+                            <div style="display: flex; justify-content: space-between; align-items: center;">
+                                <span>
+                                    <strong>Выбрана категория:</strong> 
+                                    <span id="current-category-name">Категория</span>
+                                </span>
+                                <button id="clear-filter" style="background: none; border: none; color: #e74c3c; cursor: pointer; font-size: 1.2rem;">
+                                    <i class="fas fa-times"></i>
+                                </button>
+                            </div>
+                            <div style="margin-top: 10px; font-size: 0.9rem; color: #666;">
+                                <span id="category-count">0</span> отзывов в этой категории
+                            </div>
+                        </div>
+                    </div>
+                </div>
     </div>
     
     <!-- Информация о результатах -->
@@ -312,32 +338,6 @@
         </div>
     </div>
 </div>
-
-                <!-- Категории -->
-                <div class="categories-section glass-effect" style="padding: 25px; margin-bottom: 30px;">
-                    <h3 style="margin-bottom: 20px; color: var(--secondary-color);">
-                        <i class="fas fa-filter"></i> Фильтр по категориям
-                    </h3>
-                    
-                    <div class="categories-filter">
-                        <div class="category-buttons" id="category-buttons" style="display: flex; flex-wrap: wrap; gap: 10px;"></div>
-                        
-                        <div class="selected-category" id="selected-category" style="margin-top: 20px; padding: 15px; background: rgba(52, 152, 219, 0.1); border-radius: 10px; display: none;">
-                            <div style="display: flex; justify-content: space-between; align-items: center;">
-                                <span>
-                                    <strong>Выбрана категория:</strong> 
-                                    <span id="current-category-name">Категория</span>
-                                </span>
-                                <button id="clear-filter" style="background: none; border: none; color: #e74c3c; cursor: pointer; font-size: 1.2rem;">
-                                    <i class="fas fa-times"></i>
-                                </button>
-                            </div>
-                            <div style="margin-top: 10px; font-size: 0.9rem; color: #666;">
-                                <span id="category-count">0</span> отзывов в этой категории
-                            </div>
-                        </div>
-                    </div>
-                </div>
                 
                 <!-- Все отзывы -->
                 <h2 class="section-title">Все отзывы</h2>
