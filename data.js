@@ -653,6 +653,28 @@ const reviews = [
         rating: 1,
         comment: "Самый худший сайт, который я видел. Ужасно неудобный, навигация хромает. Застрял на этапе логина",
         date: "2026-02-12T14:28:00"
+    },
+    {
+        id: 60,
+        name: "Тимофей",
+        nickname: "timoshamoscow",
+        email: "roll3ogurec0@gmail.com",
+        siteUrl: "https://max.ru/",
+        siteName: "MAX",
+        rating: 1,
+        comment: "Приложение Max полный отстой! Выглядит как сырая копия телеграм, нельзя сделать импорт из телеграм, мало настроек, нельзя создавать каналы (группы можно), и это просто капец! Одна звезда",
+        date: "2026-02-13T10:35:00"
+    },
+    {
+        id: 61,
+        name: "Алёна",
+        nickname: "fanalenki",
+        email: "akkumulator950@gmail.com",
+        siteUrl: "https://timoshamoscow.github.io/taiprompts.github.io/",
+        siteName: "TAIPrompts",
+        rating: 4,
+        comment: "Спасибо, что убрали платные тарифы, осталось только улучшить генератор, и отказаться от телеграм бота. А так, все гудик 😉",
+        date: "2026-02-13T10:36:10"
     }
 ];
 
