@@ -277,6 +277,423 @@ window.addEventListener('offline', function() {
 
 log('success', '✅ Система логирования активирована');
 
+// ==================== СИСТЕМА ОТСЛЕЖИВАНИЯ РЕФЕРЕРОВ ====================
+
+// Функция для получения параметра из URL
+function getUrlParameter(name) {
+    const urlParams = new URLSearchParams(window.location.search);
+    return urlParams.get(name);
+}
+
+// Функция для безопасного получения домена
+function getDomainFromUrl(url) {
+    try {
+        if (!url || url === '') return null;
+        const urlObj = new URL(url);
+        return urlObj.hostname.replace('www.', '');
+    } catch (e) {
+        return null;
+    }
+}
+
+// Функция для категоризации источника
+function categorizeSource(domain) {
+    if (!domain) return 'direct';
+    
+    domain = domain.toLowerCase();
+    
+    // Поисковые системы
+    if (domain.includes('google') || domain.includes('yandex') || 
+        domain.includes('bing') || domain.includes('yahoo') || 
+        domain.includes('duckduckgo') || domain.includes('mail.ru') ||
+        domain.includes('rambler')) {
+        return 'search';
+    }
+    
+    // Социальные сети
+    if (domain.includes('youtube') || domain.includes('youtu.be') ||
+        domain.includes('instagram') || domain.includes('facebook') ||
+        domain.includes('fb.com') || domain.includes('twitter') ||
+        domain.includes('x.com') || domain.includes('tiktok') ||
+        domain.includes('vk.com') || domain.includes('vkontakte') ||
+        domain.includes('telegram') || domain.includes('t.me') ||
+        domain.includes('whatsapp') || domain.includes('discord') ||
+        domain.includes('reddit') || domain.includes('pinterest') ||
+        domain.includes('twitch')) {
+        return 'social';
+    }
+    
+    // Мессенджеры
+    if (domain.includes('telegram') || domain.includes('whatsapp') ||
+        domain.includes('viber') || domain.includes('signal')) {
+        return 'messenger';
+    }
+    
+    // Партнерские сайты (можно расширить)
+    const partners = ['github.com', 'timoshamoscow.github.io', 'taiprompts.github.io', 'github.io'];
+    if (partners.some(p => domain.includes(p))) {
+        return 'partner';
+    }
+    
+    // Внутренний переход
+    if (domain.includes('sitereview.github.io', 'speedtelly1.github.io')) {
+        return 'internal';
+    }
+    
+    return 'external';
+}
+
+// Функция для сохранения информации о переходе
+function trackReferrer() {
+    // Получаем referrer
+    const referrer = document.referrer || '';
+    const refParam = getUrlParameter('ref');
+    
+    // Определяем источник
+    let source = 'direct';
+    let sourceDomain = null;
+    let sourceType = 'direct';
+    
+    // Приоритет: параметр ref > referrer
+    if (refParam) {
+        source = refParam;
+        sourceDomain = getDomainFromUrl(refParam);
+        sourceType = categorizeSource(sourceDomain);
+        console.log(`%c🔗 Переход по ссылке с параметром ref: ${source}`, 'color: #3498db; font-weight: bold;');
+    } else if (referrer) {
+        source = referrer;
+        sourceDomain = getDomainFromUrl(referrer);
+        sourceType = categorizeSource(sourceDomain);
+        console.log(`%c🔗 Переход с сайта: ${sourceDomain || source}`, 'color: #27ae60; font-weight: bold;');
+    } else {
+        console.log('%c🔗 Прямой переход или ввод URL', 'color: #95a5a6; font-weight: bold;');
+    }
+    
+    // Сохраняем информацию
+    const referrerInfo = {
+        source: source,
+        domain: sourceDomain,
+        type: sourceType,
+        timestamp: new Date().toISOString(),
+        userAgent: navigator.userAgent,
+        language: navigator.language,
+        screenSize: `${window.screen.width}x${window.screen.height}`
+    };
+    
+    // Сохраняем в localStorage (только последний переход)
+    localStorage.setItem('last_referrer', JSON.stringify(referrerInfo));
+    
+    // Если это поиск - сохраняем поисковый запрос
+    if (sourceType === 'search' && sourceDomain) {
+        try {
+            const urlObj = new URL(source);
+            let searchQuery = '';
+            
+            // Парсим поисковый запрос из разных поисковиков
+            if (sourceDomain.includes('google')) {
+                searchQuery = urlObj.searchParams.get('q');
+            } else if (sourceDomain.includes('yandex')) {
+                searchQuery = urlObj.searchParams.get('text');
+            } else if (sourceDomain.includes('bing')) {
+                searchQuery = urlObj.searchParams.get('q');
+            } else if (sourceDomain.includes('mail.ru')) {
+                searchQuery = urlObj.searchParams.get('q');
+            }
+            
+            if (searchQuery) {
+                referrerInfo.searchQuery = searchQuery;
+                localStorage.setItem('last_search_query', searchQuery);
+                console.log(`%c🔍 Поисковый запрос: "${searchQuery}"`, 'color: #e67e22; font-weight: bold;');
+            }
+        } catch (e) {
+            // Игнорируем ошибки парсинга
+        }
+    }
+    
+    // Показываем информацию в консоли
+    console.log('%c📊 Информация о переходе:', 'font-weight: bold;');
+    console.log(`   Тип: ${sourceType === 'direct' ? '📍 Прямой' : 
+                       sourceType === 'search' ? '🔍 Поиск' : 
+                       sourceType === 'social' ? '👥 Соцсеть' : 
+                       sourceType === 'messenger' ? '💬 Мессенджер' : 
+                       sourceType === 'partner' ? '🤝 Партнер' : '🔗 Внешний'}`);
+    if (sourceDomain) console.log(`   Домен: ${sourceDomain}`);
+    if (referrerInfo.searchQuery) console.log(`   Запрос: "${referrerInfo.searchQuery}"`);
+    
+    // Отправляем аналитику (если есть сервер)
+    sendReferrerAnalytics(referrerInfo);
+    
+    return referrerInfo;
+}
+
+// Функция для отправки аналитики на сервер (заглушка)
+function sendReferrerAnalytics(data) {
+    // Здесь можно добавить отправку на ваш сервер
+    // Например, через fetch API
+    
+    // Пока просто сохраняем в историю
+    const history = JSON.parse(localStorage.getItem('referrer_history') || '[]');
+    history.unshift(data);
+    if (history.length > 20) history.pop(); // Храним последние 20 переходов
+    localStorage.setItem('referrer_history', JSON.stringify(history));
+    
+    console.log('%c📤 Данные сохранены в истории', 'color: #3498db;');
+}
+
+// Функция для получения статистики по переходам
+function getReferrerStats() {
+    const history = JSON.parse(localStorage.getItem('referrer_history') || '[]');
+    
+    const stats = {
+        total: history.length,
+        byType: {},
+        byDomain: {},
+        last7days: 0,
+        last30days: 0
+    };
+    
+    const now = new Date();
+    const sevenDaysAgo = new Date(now - 7 * 24 * 60 * 60 * 1000);
+    const thirtyDaysAgo = new Date(now - 30 * 24 * 60 * 60 * 1000);
+    
+    history.forEach(item => {
+        // По типу
+        stats.byType[item.type] = (stats.byType[item.type] || 0) + 1;
+        
+        // По домену
+        if (item.domain) {
+            stats.byDomain[item.domain] = (stats.byDomain[item.domain] || 0) + 1;
+        }
+        
+        // По датам
+        const itemDate = new Date(item.timestamp);
+        if (itemDate > sevenDaysAgo) stats.last7days++;
+        if (itemDate > thirtyDaysAgo) stats.last30days++;
+    });
+    
+    return stats;
+}
+
+// Функция для добавления ref параметра к ссылкам
+function addRefToLinks() {
+    const currentRef = getUrlParameter('ref') || getDomainFromUrl(document.referrer);
+    
+    if (!currentRef) return;
+    
+    // Находим все внешние ссылки
+    document.querySelectorAll('a[href^="http"]').forEach(link => {
+        // Проверяем, что это не ссылка на наш сайт
+        if (!link.href.includes('sitereview.github.io')) {
+            try {
+                const url = new URL(link.href);
+                
+                // Добавляем ref параметр, если его еще нет
+                if (!url.searchParams.has('ref')) {
+                    url.searchParams.append('ref', window.location.href);
+                    link.href = url.toString();
+                    
+                    // Добавляем атрибут для аналитики кликов
+                    link.setAttribute('data-outgoing', 'true');
+                    link.setAttribute('data-ref-domain', currentRef);
+                    
+                    // Добавляем обработчик клика
+                    link.addEventListener('click', function(e) {
+                        console.log('%c🖱️ Клик по внешней ссылке:', 'color: #e74c3c; font-weight: bold;', {
+                            url: this.href,
+                            ref: currentRef,
+                            timestamp: new Date().toISOString()
+                        });
+                        
+                        // Сохраняем клик
+                        const clickData = {
+                            url: this.href,
+                            ref: currentRef,
+                            timestamp: new Date().toISOString()
+                        };
+                        
+                        const clicks = JSON.parse(localStorage.getItem('outgoing_clicks') || '[]');
+                        clicks.unshift(clickData);
+                        if (clicks.length > 50) clicks.pop();
+                        localStorage.setItem('outgoing_clicks', JSON.stringify(clicks));
+                    });
+                }
+            } catch (e) {
+                // Игнорируем некорректные URL
+            }
+        }
+    });
+}
+
+// Функция для отображения статистики в консоли
+function showReferrerStats() {
+    const stats = getReferrerStats();
+    
+    console.log('%c📊 СТАТИСТИКА ПЕРЕХОДОВ', 'background: #34495e; color: white; padding: 4px 10px; border-radius: 4px; font-size: 14px; font-weight: bold;');
+    console.log(`Всего переходов: ${stats.total}`);
+    console.log(`За 7 дней: ${stats.last7days}`);
+    console.log(`За 30 дней: ${stats.last30days}`);
+    
+    if (Object.keys(stats.byType).length > 0) {
+        console.log('\n📌 По типам:');
+        Object.entries(stats.byType)
+            .sort((a,b) => b[1] - a[1])
+            .forEach(([type, count]) => {
+                const icons = {
+                    direct: '📍',
+                    search: '🔍',
+                    social: '👥',
+                    messenger: '💬',
+                    partner: '🤝',
+                    external: '🔗',
+                    internal: '🏠'
+                };
+                console.log(`   ${icons[type] || '📎'} ${type}: ${count} (${Math.round(count/stats.total*100)}%)`);
+            });
+    }
+    
+    if (Object.keys(stats.byDomain).length > 0) {
+        console.log('\n🌐 Топ домены:');
+        Object.entries(stats.byDomain)
+            .sort((a,b) => b[1] - a[1])
+            .slice(0, 5)
+            .forEach(([domain, count]) => {
+                console.log(`   ${domain}: ${count}`);
+            });
+    }
+}
+
+// Функция для добавления виджета источника в интерфейс
+function addSourceWidget() {
+    const referrerInfo = JSON.parse(localStorage.getItem('last_referrer') || 'null');
+    
+    if (!referrerInfo || referrerInfo.type === 'direct' || referrerInfo.type === 'internal') {
+        return;
+    }
+    
+    // Создаем виджет
+    const widget = document.createElement('div');
+    widget.className = 'source-widget';
+    
+    const icons = {
+        search: '🔍',
+        social: '👥',
+        messenger: '💬',
+        partner: '🤝',
+        external: '🔗'
+    };
+    
+    const icon = icons[referrerInfo.type] || '🌐';
+    
+    let text = '';
+    if (referrerInfo.type === 'search' && referrerInfo.searchQuery) {
+        text = `Вы перешли по запросу: "${referrerInfo.searchQuery}"`;
+    } else if (referrerInfo.domain) {
+        text = `Вы перешли с ${referrerInfo.domain}`;
+    }
+    
+    if (text) {
+        widget.innerHTML = `
+            <div style="
+                position: fixed;
+                top: 20px;
+                right: 20px;
+                background: var(--glass-bg);
+                backdrop-filter: blur(10px);
+                border-radius: 30px;
+                padding: 10px 20px;
+                box-shadow: var(--shadow);
+                border: 1px solid var(--glass-border);
+                z-index: 999;
+                font-size: 0.9rem;
+                display: flex;
+                align-items: center;
+                gap: 10px;
+                animation: slideIn 0.5s ease;
+            ">
+                <span style="font-size: 1.2rem;">${icon}</span>
+                <span style="color: var(--text-color);">${text}</span>
+                <button onclick="this.parentElement.remove()" style="
+                    background: none;
+                    border: none;
+                    color: #999;
+                    cursor: pointer;
+                    padding: 0 5px;
+                    font-size: 1.2rem;
+                ">×</button>
+            </div>
+        `;
+        
+        document.body.appendChild(widget);
+        
+        // Автоматически скрываем через 10 секунд
+        setTimeout(() => {
+            if (widget.parentNode) {
+                widget.style.animation = 'slideOut 0.5s ease forwards';
+                setTimeout(() => widget.remove(), 500);
+            }
+        }, 10000);
+    }
+}
+
+// Добавляем стили для анимации
+const style = document.createElement('style');
+style.textContent = `
+    @keyframes slideIn {
+        from {
+            transform: translateX(100%);
+            opacity: 0;
+        }
+        to {
+            transform: translateX(0);
+            opacity: 1;
+        }
+    }
+    
+    @keyframes slideOut {
+        from {
+            transform: translateX(0);
+            opacity: 1;
+        }
+        to {
+            transform: translateX(100%);
+            opacity: 0;
+        }
+    }
+`;
+document.head.appendChild(style);
+
+// ==================== ИНИЦИАЛИЗАЦИЯ ====================
+
+// Запускаем при загрузке страницы
+document.addEventListener('DOMContentLoaded', function() {
+    // Отслеживаем реферер
+    const referrerInfo = trackReferrer();
+    
+    // Добавляем ref параметры к ссылкам
+    setTimeout(() => {
+        addRefToLinks();
+    }, 500);
+    
+    // Показываем виджет (опционально)
+    addSourceWidget();
+    
+    // Добавляем команду в консоль для просмотра статистики
+    window.showReferrerStats = showReferrerStats;
+    
+    console.log('%c💡 Введите showReferrerStats() для просмотра статистики переходов', 'color: #9b59b6; font-weight: bold;');
+});
+
+// ==================== КОМАНДЫ ДЛЯ КОНСОЛИ ====================
+
+// Добавляем полезные команды
+console.log('\n%s\n%s\n%s',
+    '%cДоступные команды:',
+    'font-weight: bold;',
+    '  • showReferrerStats() - показать статистику переходов',
+    '  • trackReferrer() - показать текущий реферер',
+    '  • getReferrerStats() - получить сырые данные статистики'
+);
+
 // DOM элементы
         const pages = document.querySelectorAll('.page');
         const navLinks = document.querySelectorAll('.nav-link');
