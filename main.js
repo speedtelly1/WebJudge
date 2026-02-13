@@ -3205,12 +3205,12 @@ function getSiteGroup(siteName) {
 function getSiteCategory(review) {
     const text = (review.siteName + ' ' + review.comment).toLowerCase();
     
-    // Видеохостинги
-    if (text.includes('youtube') || text.includes('ютуб') || 
-        text.includes('rutube') || text.includes('рутьюб') ||
-        text.includes('видео') || text.includes('видеохостинг')) {
-        return 'Видеохостинг';
+    if ((text.includes('youtube') || text.includes('ютуб') || text.includes('rutube') || text.includes('рутьюб') || text.includes('видео') || text.includes('видеохостинг')) 
+     && !text.includes('taiprompts') 
+     && !text.includes('генератор')) {
+         return 'Видеохостинг';
     }
+
     
     // Стриминг
     if (text.includes('twitch') || text.includes('твич') ||
@@ -3226,8 +3226,8 @@ function getSiteCategory(review) {
     
     // Инструменты / Генераторы
     if (text.includes('taiprompts') || text.includes('промпт') ||
-        text.includes('генератор') || text.includes('miro') ||
-        text.includes('инструмент')) {
+        text.includes('генер') || text.includes('miro') ||
+        text.includes('инструм')) {
         return 'Инструменты';
     }
     
