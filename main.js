@@ -330,10 +330,10 @@ function categorizeSource(domain) {
     }
     
     // Партнерские сайты (можно расширить)
-    const partners = ['github.com', 'timoshamoscow.github.io', 'taiprompts.github.io', 'github.io'];
-    if (partners.some(p => domain.includes(p))) {
-        return 'partner';
-    }
+//    const partners = ['github.com', 'timoshamoscow.github.io', 'taiprompts.github.io', 'github.io'];
+//    if (partners.some(p => domain.includes(p))) {
+ //       return 'partner';
+ //   }
     
     // Внутренний переход
     if (domain.includes('sitereview.github.io', 'speedtelly1.github.io')) {
@@ -1799,25 +1799,25 @@ function isGitHubPagesAuthor(review) {
             }
 
             // Проверка : Редактор
-            const isRedic = review.email === 'akkumulator950@gmail.com';
-            if (isRedic) {
-                warnings.push({
-                    text: 'Редактор SiteReview',
-                    icon: 'fas fa-user-edit',
-                    color: '#24b500'
-                });
-            }
+//            const isRedic = review.email === 'akkumulator950@gmail.com';
+//            if (isRedic) {
+//                warnings.push({
+//                    text: 'Редактор SiteReview',
+//                    icon: 'fas fa-user-edit',
+//                    color: '#24b500'
+//                });
+//            }
                
             // Проверка : Партнер
-            const isPartner = review.name === 'Тимофей' && 
-                  review.email === 'roll3ogurec0@gmail.com';
-            if (isPartner) {
-                warnings.push({
-                    text: 'Партнер SiteReview',
-                    icon: 'fa-solid fa-handshake',
-                    color: '#1E90FF'
-                });
-            }
+//            const isPartner = review.name === 'Тимофей' && 
+//                  review.email === 'roll3ogurec0@gmail.com';
+//            if (isPartner) {
+//                warnings.push({
+ //                   text: 'Партнер SiteReview',
+ //                   icon: 'fa-solid fa-handshake',
+//                    color: '#1E90FF'
+//                });
+//            }
             
             // Проверка 5: Личная критика
             const personalAttacks = ['дурак', 'идиот', 'тупой', 'грубый', 'глупый', 'грубым', 'глупым', 'тупым', 'глуп', 'туп', 'лох'];
