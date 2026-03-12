@@ -127,6 +127,7 @@ const reviews = [
         id: 12,
         name: "Федор",
         email: "1234playergp@gmail.com",
+        nickname: "1234playergp",
         siteUrl: "https://www.deepseek.com/",
         siteName: "DeepSeek",
         rating: 5,
