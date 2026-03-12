@@ -94,6 +94,7 @@ const reviews = [
         id: 9,
         name: "Федор",
         email: "1234playergp@gmail.com",
+        nickname: "1234playergp",
         siteUrl: "https://timoshamoscow.github.io/taiprompts.github.io/",
         siteName: "TAIPrompts",
         rating: 2,
@@ -675,6 +676,28 @@ const reviews = [
         rating: 4,
         comment: "Спасибо, что убрали платные тарифы, осталось только улучшить генератор, и отказаться от телеграм бота. А так, все гудик 😉",
         date: "2026-02-13T10:36:10"
+    },
+    {
+        id: 62,
+        name: "Федор",
+        email: "1234playergp@gmail.com",
+        nickname: "1234playergp",
+        siteUrl: "https://rutube.ru/",
+        siteName: "Rutube",
+        rating: 4,
+        comment: "В принципе нормальный хостинг, но рекомендации надо чинить",
+        date: "2026-03-12T09:13:00"
+    },
+    {
+        id: 63,
+        name: "Федор",
+        email: "1234playergp@gmail.com",
+        nickname: "1234playergp",
+        siteUrl: "https://max.ru/",
+        siteName: "MAX",
+        rating: 1,
+        comment: "Ну не смешите мои колени, этим кто то будет пользоваться? Качайте телеграм + VPN и ваши проблемы решаться ",
+        date: "2026-03-12T09:14:00"
     }
 ];
 
