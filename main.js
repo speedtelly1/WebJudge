@@ -86,6 +86,21 @@ document.addEventListener('click', function(e) {
     log('debug', `Клик: ${description || 'неизвестный элемент'}`);
 }, true);
 
+// Добавьте после инициализации навигации
+document.addEventListener('click', function(e) {
+    // Проверяем клик по ссылке профиля
+    const profileLink = e.target.closest('#profile-nav-link');
+    if (profileLink) {
+        e.preventDefault();
+        const savedUser = localStorage.getItem('google_user');
+        if (!savedUser) {
+            switchToPage('login');
+        } else {
+            switchToPage('profile');
+        }
+    }
+});
+
 // Логирование загрузки страницы
 window.addEventListener('load', function() {
     log('success', `🚀 Страница полностью загружена за ${performance.now().toFixed(2)}ms`);
