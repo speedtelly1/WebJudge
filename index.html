@@ -47,6 +47,9 @@
         <li><a href="#about" class="nav-link" data-page="about">
             <i class="fas fa-info-circle"></i> О проекте
         </a></li>
+        <li><a href="#login" class="nav-link" data-page="login" id="login-nav-link">
+            <i class="fas fa-sign-in-alt"></i> Вход
+        </a></li>
         <li><a href="#profile" class="nav-link" data-page="profile" style="display: none;">
             <i class="fas fa-user"></i> Профиль
         </a></li>
@@ -516,6 +519,90 @@
             <div class="profile-loading">
                 <div class="loading-spinner"></div>
                 <p>Загрузка профиля...</p>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Страница входа через Google -->
+<section id="login-page" class="page">
+    <div class="login-container glass-effect" style="max-width: 500px; margin: 0 auto; padding: 40px;">
+        <div style="text-align: center; margin-bottom: 30px;">
+            <i class="fas fa-user-circle" style="font-size: 4rem; color: var(--primary-color);"></i>
+            <h2 class="section-title" style="margin-top: 20px;">Вход в SiteReview</h2>
+            <p style="color: #666; margin-top: 10px;">Войдите для доступа к дополнительным функциям</p>
+        </div>
+
+        <!-- Кнопка входа через Google -->
+        <div id="g_id_onload"
+             data-client_id="22364952672-8mqiqmo14pgq3es9thb2bhon1eiqq522.apps.googleusercontent.com"
+             data-context="signin"
+             data-ux_mode="popup"
+             data-callback="handleGoogleSignIn"
+             data-auto_prompt="false">
+        </div>
+
+        <div class="g_id_signin"
+             data-type="standard"
+             data-shape="rectangular"
+             data-theme="outline"
+             data-text="signin_with"
+             data-size="large"
+             data-logo_alignment="left">
+        </div>
+
+        <!-- Альтернативный вход (если Google кнопка не загрузилась) -->
+        <div style="margin-top: 30px; text-align: center; display: none;" id="fallback-login">
+            <p style="color: #999; margin-bottom: 15px;">или</p>
+            <button onclick="simulateLogin()" style="
+                background: var(--secondary-color);
+                color: white;
+                border: none;
+                padding: 12px 25px;
+                border-radius: 25px;
+                font-size: 1rem;
+                cursor: pointer;
+                display: inline-flex;
+                align-items: center;
+                gap: 10px;
+            ">
+                <i class="fas fa-envelope"></i> Демо-вход
+            </button>
+        </div>
+
+        <!-- Информация о пользователе после входа -->
+        <div id="user-info" style="display: none; margin-top: 30px; padding: 20px; background: rgba(52, 152, 219, 0.1); border-radius: 10px;">
+            <div style="display: flex; align-items: center; gap: 15px;">
+                <img id="user-avatar" src="" alt="Avatar" style="width: 60px; height: 60px; border-radius: 50%; border: 2px solid var(--primary-color);">
+                <div>
+                    <h3 id="user-name" style="margin: 0 0 5px 0;"></h3>
+                    <p id="user-email" style="margin: 0; color: #666; font-size: 0.9rem;"></p>
+                    <p id="user-verified" style="margin: 5px 0 0 0; color: #27ae60; font-size: 0.8rem; display: none;">
+                        <i class="fas fa-check-circle"></i> Аккаунт подтвержден
+                    </p>
+                </div>
+            </div>
+            <div style="margin-top: 20px; display: flex; gap: 10px; justify-content: center;">
+                <button onclick="logout()" style="
+                    background: #e74c3c;
+                    color: white;
+                    border: none;
+                    padding: 8px 20px;
+                    border-radius: 20px;
+                    cursor: pointer;
+                ">
+                    <i class="fas fa-sign-out-alt"></i> Выйти
+                </button>
+                <button onclick="switchToPage('home')" style="
+                    background: var(--primary-color);
+                    color: white;
+                    border: none;
+                    padding: 8px 20px;
+                    border-radius: 20px;
+                    cursor: pointer;
+                ">
+                    <i class="fas fa-home"></i> На главную
+                </button>
             </div>
         </div>
     </div>
