@@ -73,6 +73,28 @@ window.onload = function() {
     setTimeout(checkAuth, 100);
 };
 
+// ==================== ОТЛАДКА АВТОРИЗАЦИИ ====================
+console.log('%c🔍 РЕЖИМ ОТЛАДКИ АВТОРИЗАЦИИ ВКЛЮЧЕН', 'background: #ff0000; color: white; font-size: 14px; padding: 4px;');
+
+// Перехватываем все ошибки
+window.addEventListener('error', function(e) {
+    console.error('❌ ГЛОБАЛЬНАЯ ОШИБКА:', {
+        message: e.message,
+        filename: e.filename,
+        lineno: e.lineno,
+        error: e.error
+    });
+});
+
+// Проверяем загрузку Google API
+setInterval(() => {
+    if (window.google?.accounts?.oauth2) {
+        console.log('✅ Google API загружен и доступен');
+    } else {
+        console.log('⏳ Google API еще загружается...');
+    }
+}, 1000);
+
 // ==================== ПЕРЕХВАТЧИКИ СОБЫТИЙ ====================
 
 // Логирование всех кликов
