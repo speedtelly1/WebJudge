@@ -3915,9 +3915,6 @@ function showSiteAfterLogin() {
         mainContent.style.display = 'block';
     }, 500);
     
-    // Показываем кнопку выхода
-    document.getElementById('logout-link').style.display = 'block';
-    
     // Проверяем, нужно ли показать профиль
     const savedUser = JSON.parse(localStorage.getItem('siteReview_user'));
     if (savedUser) {
