@@ -3862,6 +3862,172 @@ function restartQuiz() {
 function updateScore() {
     document.getElementById('current-score').textContent = quizState.score;
 }
+
+// ==================== СИСТЕМА АВТОРИЗАЦИИ ЧЕРЕЗ GOOGLE ====================
+
+// Загружаем Google API
+function loadGoogleAPI() {
+    const script = document.createElement('script');
+    script.src = 'https://accounts.google.com/gsi/client';
+    script.async = true;
+    script.defer = true;
+    document.head.appendChild(script);
+    
+    // Fallback если Google API не загрузился
+    script.onerror = function() {
+        console.warn('Google API не загрузился, показываем fallback');
+        document.getElementById('fallback-login').style.display = 'block';
+    };
+}
+
+// Обработчик успешного входа через Google
+function handleGoogleSignIn(response) {
+    console.log('✅ Google Sign-In успешен');
+    
+    // Декодируем JWT токен
+    const payload = JSON.parse(atob(response.credential.split('.')[1]));
+    
+    // Сохраняем информацию о пользователе
+    const userData = {
+        name: payload.name,
+        email: payload.email,
+        picture: payload.picture,
+        sub: payload.sub,
+        email_verified: payload.email_verified,
+        loginTime: new Date().toISOString()
+    };
+    
+    // Сохраняем в localStorage
+    localStorage.setItem('siteReview_user', JSON.stringify(userData));
+    
+    // Показываем сайт
+    showSiteAfterLogin();
+}
+
+// Показать сайт после входа
+function showSiteAfterLogin() {
+    const overlay = document.getElementById('login-overlay');
+    const mainContent = document.getElementById('main-content');
+    
+    overlay.style.opacity = '0';
+    setTimeout(() => {
+        overlay.style.display = 'none';
+        mainContent.style.display = 'block';
+    }, 500);
+    
+    // Показываем кнопку выхода
+    document.getElementById('logout-link').style.display = 'block';
+    
+    // Проверяем, нужно ли показать профиль
+    const savedUser = JSON.parse(localStorage.getItem('siteReview_user'));
+    if (savedUser) {
+        console.log(`👋 Добро пожаловать, ${savedUser.name}`);
+    }
+}
+
+// Проверка авторизации при загрузке
+function checkAuth() {
+    const savedUser = localStorage.getItem('siteReview_user');
+    const overlay = document.getElementById('login-overlay');
+    const mainContent = document.getElementById('main-content');
+    
+    if (savedUser) {
+        // Пользователь уже авторизован
+        overlay.style.display = 'none';
+        mainContent.style.display = 'block';
+        document.getElementById('logout-link').style.display = 'block';
+        console.log('🔄 Сессия восстановлена');
+    } else {
+        // Не авторизован - показываем оверлей
+        overlay.style.display = 'flex';
+        mainContent.style.display = 'none';
+        document.getElementById('logout-link').style.display = 'none';
+    }
+}
+
+// Демо-вход (если Google не работает)
+function simulateLogin() {
+    const demoUser = {
+        name: 'Демо Пользователь',
+        email: 'demo@sitereview.ru',
+        picture: 'https://www.gravatar.com/avatar/00000000000000000000000000000000?d=mp&f=y',
+        sub: 'demo_' + Date.now(),
+        email_verified: false,
+        loginTime: new Date().toISOString()
+    };
+    
+    localStorage.setItem('siteReview_user', JSON.stringify(demoUser));
+    showSiteAfterLogin();
+}
+
+// Выход
+function logout() {
+    // Удаляем из localStorage
+    localStorage.removeItem('siteReview_user');
+    
+    // Показываем оверлей входа
+    const overlay = document.getElementById('login-overlay');
+    const mainContent = document.getElementById('main-content');
+    
+    overlay.style.display = 'flex';
+    overlay.style.opacity = '1';
+    mainContent.style.display = 'none';
+    
+    // Прячем кнопку выхода
+    document.getElementById('logout-link').style.display = 'none';
+    
+    // Возвращаем Google кнопку
+    document.querySelector('.g_id_signin').style.display = 'block';
+    document.getElementById('fallback-login').style.display = 'none';
+    
+    console.log('👋 Пользователь вышел');
+}
+
+// Защита страниц (перехват переходов)
+function protectNavigation() {
+    const originalSwitchToPage = window.switchToPage;
+    if (originalSwitchToPage) {
+        window.switchToPage = function(pageId, userId = null) {
+            const isLoggedIn = localStorage.getItem('siteReview_user');
+            
+            if (!isLoggedIn) {
+                // Если не авторизован - показываем оверлей
+                document.getElementById('login-overlay').style.display = 'flex';
+                document.getElementById('main-content').style.display = 'none';
+                showNotification('Необходимо войти через Google', 'info');
+                return;
+            }
+            
+            // Если авторизован - выполняем оригинальную функцию
+            originalSwitchToPage(pageId, userId);
+        };
+    }
+}
+
+// Инициализация при загрузке
+document.addEventListener('DOMContentLoaded', function() {
+    loadGoogleAPI();
+    checkAuth();
+    protectNavigation();
+    
+    // Добавляем защиту на все ссылки
+    document.querySelectorAll('a[href]').forEach(link => {
+        link.addEventListener('click', function(e) {
+            const isLoggedIn = localStorage.getItem('siteReview_user');
+            if (!isLoggedIn) {
+                e.preventDefault();
+                document.getElementById('login-overlay').style.display = 'flex';
+                showNotification('Необходимо войти через Google', 'info');
+            }
+        });
+    });
+});
+
+// Делаем функции глобальными
+window.handleGoogleSignIn = handleGoogleSignIn;
+window.logout = logout;
+window.simulateLogin = simulateLogin;
+
 /*!
  * ============================================================
  * SiteReview - Система оценки веб-сайтов
