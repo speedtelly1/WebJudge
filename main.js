@@ -1278,18 +1278,6 @@ function handleProfileHash() {
     }
 }
 
-// Обновляем функцию initNavigation для поддержки профилей
-function initNavigation() {
-    navLinks.forEach(link => {
-        link.addEventListener('click', function(e) {
-            e.preventDefault();
-            
-            const pageId = this.getAttribute('data-page');
-            switchToPage(pageId);
-        });
-    });
-}
-
         // Навигация между страницами
         function initNavigation() {
             navLinks.forEach(link => {
@@ -3966,7 +3954,6 @@ function protectNavigation() {
                 // Если не авторизован - показываем оверлей
                 document.getElementById('login-overlay').style.display = 'flex';
                 document.getElementById('main-content').style.display = 'none';
-                showNotification('Необходимо войти через Google', 'info');
                 return;
             }
             
@@ -3997,7 +3984,6 @@ document.addEventListener('DOMContentLoaded', function() {
 
 // Делаем функции глобальными
 window.handleGoogleSignIn = handleGoogleSignIn;
-window.logout = logout;
 window.simulateLogin = simulateLogin;
 
 /*!
