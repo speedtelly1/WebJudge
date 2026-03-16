@@ -3853,83 +3853,143 @@ function updateScore() {
 
 // ==================== СИСТЕМА АВТОРИЗАЦИИ ЧЕРЕЗ GOOGLE ====================
 
+// Функция для показа уведомлений
+function showNotification(message, type = 'info') {
+    console.log(`[${type}] ${message}`);
+    
+    // Создаем простое уведомление
+    const notification = document.createElement('div');
+    notification.style.cssText = `
+        position: fixed;
+        top: 20px;
+        right: 20px;
+        background: ${type === 'success' ? '#27ae60' : type === 'error' ? '#e74c3c' : '#3498db'};
+        color: white;
+        padding: 12px 20px;
+        border-radius: 8px;
+        z-index: 10001;
+        animation: slideIn 0.3s ease;
+        box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+    `;
+    notification.textContent = message;
+    document.body.appendChild(notification);
+    
+    setTimeout(() => notification.remove(), 3000);
+}
+
 // Загружаем Google API
 function loadGoogleAPI() {
+    // Проверяем, не загружен ли уже скрипт
+    if (document.querySelector('script[src="https://accounts.google.com/gsi/client"]')) {
+        console.log('Google API уже загружен');
+        return;
+    }
+    
     const script = document.createElement('script');
     script.src = 'https://accounts.google.com/gsi/client';
     script.async = true;
     script.defer = true;
-    document.head.appendChild(script);
-    
-    // Fallback если Google API не загрузился
+    script.onload = () => console.log('Google API загружен успешно');
     script.onerror = function() {
         console.warn('Google API не загрузился, показываем fallback');
         document.getElementById('fallback-login').style.display = 'block';
     };
+    document.head.appendChild(script);
 }
 
 // Обработчик успешного входа через Google
 function handleGoogleSignIn(response) {
-    console.log('✅ Google Sign-In успешен');
+    console.log('✅ Google Sign-In успешен', response);
     
-    // Декодируем JWT токен
-    const payload = JSON.parse(atob(response.credential.split('.')[1]));
-    
-    // Сохраняем информацию о пользователе
-    const userData = {
-        name: payload.name,
-        email: payload.email,
-        picture: payload.picture,
-        sub: payload.sub,
-        email_verified: payload.email_verified,
-        loginTime: new Date().toISOString()
-    };
-    
-    // Сохраняем в localStorage
-    localStorage.setItem('siteReview_user', JSON.stringify(userData));
-    
-    // Показываем сайт
-    showSiteAfterLogin();
+    try {
+        // Декодируем JWT токен
+        const payload = JSON.parse(atob(response.credential.split('.')[1]));
+        console.log('Данные пользователя:', payload);
+        
+        // Сохраняем информацию о пользователе
+        const userData = {
+            name: payload.name,
+            email: payload.email,
+            picture: payload.picture,
+            sub: payload.sub,
+            email_verified: payload.email_verified,
+            loginTime: new Date().toISOString()
+        };
+        
+        // Сохраняем в localStorage
+        localStorage.setItem('siteReview_user', JSON.stringify(userData));
+        
+        // Показываем сайт
+        showSiteAfterLogin();
+        
+        // Показываем уведомление
+        showNotification(`Добро пожаловать, ${payload.name}!`, 'success');
+        
+    } catch (error) {
+        console.error('Ошибка при обработке входа:', error);
+        showNotification('Ошибка входа. Попробуйте еще раз.', 'error');
+    }
 }
 
 // Показать сайт после входа
 function showSiteAfterLogin() {
+    console.log('Показываем сайт после входа');
+    
     const overlay = document.getElementById('login-overlay');
     const mainContent = document.getElementById('main-content');
     
+    if (!overlay || !mainContent) {
+        console.error('Элементы не найдены!', {overlay, mainContent});
+        return;
+    }
+    
+    // Прячем оверлей
     overlay.style.opacity = '0';
+    
     setTimeout(() => {
         overlay.style.display = 'none';
         mainContent.style.display = 'block';
+        
+        // Перезагружаем отзывы, чтобы обновить ссылки
+        if (typeof loadReviews === 'function') {
+            loadReviews();
+        }
+        
+        console.log('Сайт открыт, пользователь авторизован');
     }, 500);
-    
-    // Проверяем, нужно ли показать профиль
-    const savedUser = JSON.parse(localStorage.getItem('siteReview_user'));
-    if (savedUser) {
-        console.log(`👋 Добро пожаловать, ${savedUser.name}`);
-    }
 }
 
 // Проверка авторизации при загрузке
 function checkAuth() {
+    console.log('Проверка авторизации...');
+    
     const savedUser = localStorage.getItem('siteReview_user');
     const overlay = document.getElementById('login-overlay');
     const mainContent = document.getElementById('main-content');
     
+    if (!overlay || !mainContent) {
+        console.error('Элементы оверлея не найдены!');
+        return;
+    }
+    
     if (savedUser) {
         // Пользователь уже авторизован
+        console.log('🔄 Сессия восстановлена:', JSON.parse(savedUser).email);
         overlay.style.display = 'none';
         mainContent.style.display = 'block';
-        console.log('🔄 Сессия восстановлена');
     } else {
         // Не авторизован - показываем оверлей
+        console.log('❌ Пользователь не авторизован');
         overlay.style.display = 'flex';
+        overlay.style.opacity = '1';
         mainContent.style.display = 'none';
     }
 }
 
 // Демо-вход (если Google не работает)
 function simulateLogin() {
+    console.log('Демо-вход');
+    
     const demoUser = {
         name: 'Демо Пользователь',
         email: 'demo@sitereview.ru',
@@ -3941,6 +4001,7 @@ function simulateLogin() {
     
     localStorage.setItem('siteReview_user', JSON.stringify(demoUser));
     showSiteAfterLogin();
+    showNotification('Добро пожаловать, Демо Пользователь!', 'success');
 }
 
 // Защита страниц (перехват переходов)
@@ -3954,6 +4015,7 @@ function protectNavigation() {
                 // Если не авторизован - показываем оверлей
                 document.getElementById('login-overlay').style.display = 'flex';
                 document.getElementById('main-content').style.display = 'none';
+                showNotification('Необходимо войти через Google', 'info');
                 return;
             }
             
@@ -3965,21 +4027,29 @@ function protectNavigation() {
 
 // Инициализация при загрузке
 document.addEventListener('DOMContentLoaded', function() {
-    loadGoogleAPI();
+    console.log('DOM загружен, инициализация авторизации...');
+    
+    // Даем время на загрузку Google API
+    setTimeout(() => {
+        loadGoogleAPI();
+    }, 100);
+    
     checkAuth();
     protectNavigation();
     
     // Добавляем защиту на все ссылки
-    document.querySelectorAll('a[href]').forEach(link => {
-        link.addEventListener('click', function(e) {
-            const isLoggedIn = localStorage.getItem('siteReview_user');
-            if (!isLoggedIn) {
-                e.preventDefault();
-                document.getElementById('login-overlay').style.display = 'flex';
-                showNotification('Необходимо войти через Google', 'info');
-            }
+    setTimeout(() => {
+        document.querySelectorAll('a[href]').forEach(link => {
+            link.addEventListener('click', function(e) {
+                const isLoggedIn = localStorage.getItem('siteReview_user');
+                if (!isLoggedIn && !this.href.includes('#')) {
+                    e.preventDefault();
+                    document.getElementById('login-overlay').style.display = 'flex';
+                    showNotification('Необходимо войти через Google', 'info');
+                }
+            });
         });
-    });
+    }, 500);
 });
 
 // Делаем функции глобальными
