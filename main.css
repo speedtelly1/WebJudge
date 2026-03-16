@@ -1502,3 +1502,42 @@ body.dark-theme .verified-badge {
         font-size: 0.95rem;
     }
 }
+
+/* Стили для страницы входа */
+.login-container {
+    animation: fadeIn 0.5s ease;
+}
+
+.g_id_signin {
+    display: flex;
+    justify-content: center;
+    margin: 20px 0;
+}
+
+#user-info {
+    animation: slideIn 0.3s ease;
+}
+
+#user-info img {
+    transition: transform 0.3s ease;
+}
+
+#user-info img:hover {
+    transform: scale(1.1);
+}
+
+/* Адаптивность */
+@media (max-width: 768px) {
+    .login-container {
+        padding: 30px 20px !important;
+    }
+    
+    #user-info > div:first-child {
+        flex-direction: column;
+        text-align: center;
+    }
+    
+    #user-info > div:first-child img {
+        margin-bottom: 10px;
+    }
+}
