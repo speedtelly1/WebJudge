@@ -727,7 +727,7 @@ const reviews = [
         name: "Федор",
         email: "1234playergp@gmail.com",
         nickname: "1234playergp",
-        siteUrl: "https://xn--d1ah4a.com/",
+        siteUrl: "https://xn--d1ah4a.com/feed",
         siteName: "итд.com",
         rating: 3,
         comment: "Телеграм лучше:)",
