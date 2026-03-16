@@ -22,7 +22,79 @@
     <meta name="google-signin-client_id" content="22364952672-8mqiqmo14pgq3es9thb2bhon1eiqq522.apps.googleusercontent.com">
 </head>
 <body>
-    <div class="container">
+    <!-- ОВЕРЛЕЙ ВХОДА (показывается всем, кто не залогинился) -->
+    <div id="login-overlay" style="
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        z-index: 10000;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        transition: opacity 0.5s ease;
+    ">
+        <div class="glass-effect" style="
+            max-width: 450px;
+            width: 90%;
+            padding: 40px 30px;
+            text-align: center;
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+        ">
+            <div style="margin-bottom: 30px;">
+                <i class="fas fa-shield-alt" style="font-size: 4rem; color: #667eea; margin-bottom: 20px;"></i>
+                <h1 style="color: #333; margin-bottom: 10px;">Site<span style="color: #667eea;">Review</span></h1>
+                <p style="color: #666; margin-bottom: 20px;">Войдите через Google для доступа к отзывам</p>
+            </div>
+
+            <!-- Google Sign-In Button -->
+            <div id="g_id_onload"
+                 data-client_id="22364952672-8mqiqmo14pgq3es9thb2bhon1eiqq522.apps.googleusercontent.com"
+                 data-context="signin"
+                 data-ux_mode="popup"
+                 data-callback="handleGoogleSignIn"
+                 data-auto_prompt="false">
+            </div>
+
+            <div class="g_id_signin"
+                 data-type="standard"
+                 data-shape="rectangular"
+                 data-theme="outline"
+                 data-text="signin_with"
+                 data-size="large"
+                 data-logo_alignment="left"
+                 style="display: flex; justify-content: center; margin-bottom: 20px;">
+            </div>
+
+            <!-- Fallback кнопка (если Google не загрузился) -->
+            <div id="fallback-login" style="display: none; margin-top: 15px;">
+                <button onclick="simulateLogin()" style="
+                    background: #333;
+                    color: white;
+                    border: none;
+                    padding: 12px 25px;
+                    border-radius: 25px;
+                    font-size: 1rem;
+                    cursor: pointer;
+                    display: inline-flex;
+                    align-items: center;
+                    gap: 10px;
+                ">
+                    <i class="fas fa-envelope"></i> Демо-вход
+                </button>
+            </div>
+
+            <p style="color: #999; font-size: 0.85rem; margin-top: 20px;">
+                <i class="fas fa-lock"></i> Вход необходим для защиты от ботов
+            </p>
+        </div>
+    </div>
+
+    <div class="container" id="main-content" style="display: none;">
         <!-- Header -->
         <header class="glass-effect">
             <div class="logo">
@@ -33,31 +105,31 @@
             </div>
             
             <!-- Navigation -->
-<nav>
-    <ul class="nav-links">
-        <li><a href="#home" class="nav-link active" data-page="home">
-            <i class="fas fa-home"></i> Главная
-        </a></li>
-        <li><a href="#reviews" class="nav-link" data-page="reviews">
-            <i class="fas fa-comments"></i> Все отзывы
-        </a></li>
-        <li><a href="#add-review" class="nav-link" data-page="add-review">
-            <i class="fas fa-plus-circle"></i> Добавить отзыв
-        </a></li>
-        <li><a href="#stats" class="nav-link" data-page="stats">
-            <i class="fas fa-chart-bar"></i> Статистика
-        </a></li>
-        <li><a href="#about" class="nav-link" data-page="about">
-            <i class="fas fa-info-circle"></i> О проекте
-        </a></li>
-        <li><a href="#login" class="nav-link" data-page="login" id="login-nav-link">
-            <i class="fas fa-sign-in-alt"></i> Вход
-        </a></li>
-        <li><a href="#profile" class="nav-link" data-page="profile" style="display: none;">
-            <i class="fas fa-user"></i> Профиль
-        </a></li>
-    </ul>
-</nav>
+            <nav>
+                <ul class="nav-links">
+                    <li><a href="#home" class="nav-link active" data-page="home">
+                        <i class="fas fa-home"></i> Главная
+                    </a></li>
+                    <li><a href="#reviews" class="nav-link" data-page="reviews">
+                        <i class="fas fa-comments"></i> Все отзывы
+                    </a></li>
+                    <li><a href="#add-review" class="nav-link" data-page="add-review">
+                        <i class="fas fa-plus-circle"></i> Добавить отзыв
+                    </a></li>
+                    <li><a href="#stats" class="nav-link" data-page="stats">
+                        <i class="fas fa-chart-bar"></i> Статистика
+                    </a></li>
+                    <li><a href="#about" class="nav-link" data-page="about">
+                        <i class="fas fa-info-circle"></i> О проекте
+                    </a></li>
+                    <li><a href="#profile" class="nav-link" data-page="profile" style="display: none;">
+                        <i class="fas fa-user"></i> Профиль
+                    </a></li>
+                    <li><a href="#" class="nav-link" id="logout-link" style="display: none;" onclick="logout()">
+                        <i class="fas fa-sign-out-alt"></i> Выйти
+                    </a></li>
+                </ul>
+            </nav>
         </header>
 
         <!-- Main Content -->
@@ -68,31 +140,31 @@
                     <h2 class="section-title">Добро пожаловать на SiteReview</h2>
                     <p style="margin-bottom: 20px; line-height: 1.7;">Платформа для публикации и просмотра отзывов на различные веб-сайты. Здесь вы можете поделиться своим опытом использования разных ресурсов и помочь другим пользователям выбрать лучшие сайты. Все отзывы оставлены реальными пользователями после использования.</p>
 
-<!-- Рекомендованные сайты -->
-<div class="recommended-sites glass-effect" style="padding: 20px; margin-top: 30px;">
-    <h4 style="margin-bottom: 15px; color: #27ae60;">
-        <i class="fas fa-thumbs-up"></i> Рекомендованные сайты
-    </h4>
-    <div id="recommended-sites" style="display: flex; flex-wrap: wrap; gap: 10px;">
-        <div class="loading-spinner" style="width: 20px; height: 20px; margin: 10px auto;"></div>
-    </div>
-    <p style="margin-top: 10px; font-size: 0.9rem; color: #666;">
-        Сайты с высоким рейтингом и несколькими подтверждающими отзывами
-    </p>
-</div>
+                    <!-- Рекомендованные сайты -->
+                    <div class="recommended-sites glass-effect" style="padding: 20px; margin-top: 30px;">
+                        <h4 style="margin-bottom: 15px; color: #27ae60;">
+                            <i class="fas fa-thumbs-up"></i> Рекомендованные сайты
+                        </h4>
+                        <div id="recommended-sites" style="display: flex; flex-wrap: wrap; gap: 10px;">
+                            <div class="loading-spinner" style="width: 20px; height: 20px; margin: 10px auto;"></div>
+                        </div>
+                        <p style="margin-top: 10px; font-size: 0.9rem; color: #666;">
+                            Сайты с высоким рейтингом и несколькими подтверждающими отзывами
+                        </p>
+                    </div>
 
-<!-- Сайты, которым нужны отзывы -->
-<div class="expected-sites glass-effect" style="padding: 20px; margin-top: 30px;">
-    <h4 style="margin-bottom: 15px; color: var(--secondary-color);">
-        <i class="fas fa-hourglass-half"></i> Сайты, которым нужны отзывы
-    </h4>
-    <div id="sites-needing-reviews" style="display: flex; flex-wrap: wrap; gap: 10px;">
-        <div class="loading-spinner" style="width: 20px; height: 20px; margin: 10px auto;"></div>
-    </div>
-    <p style="margin-top: 10px; font-size: 0.9rem; color: #666;">
-        Эти сайты имеют мало отзывов или давно не получали новых оценок
-    </p>
-</div>
+                    <!-- Сайты, которым нужны отзывы -->
+                    <div class="expected-sites glass-effect" style="padding: 20px; margin-top: 30px;">
+                        <h4 style="margin-bottom: 15px; color: var(--secondary-color);">
+                            <i class="fas fa-hourglass-half"></i> Сайты, которым нужны отзывы
+                        </h4>
+                        <div id="sites-needing-reviews" style="display: flex; flex-wrap: wrap; gap: 10px;">
+                            <div class="loading-spinner" style="width: 20px; height: 20px; margin: 10px auto;"></div>
+                        </div>
+                        <p style="margin-top: 10px; font-size: 0.9rem; color: #666;">
+                            Эти сайты имеют мало отзывов или давно не получали новых оценок
+                        </p>
+                    </div>
                     
                 </div>
      
@@ -107,320 +179,317 @@
                     </div>
                 </div>
 
-<!-- После блока с id="featured-reviews" -->
-<div class="glass-effect" style="padding: 25px; margin-top: 30px;">
-    <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 20px;">
-        <h3 style="color: var(--secondary-color); margin: 0;">
-            <i class="fas fa-gamepad"></i> Викторина
-        </h3>
-        <span id="quiz-score" style="
-            background: linear-gradient(135deg, #9b59b6, #8e44ad);
-            color: white;
-            padding: 5px 15px;
-            border-radius: 20px;
-            font-weight: bold;
-            font-size: 0.9rem;
-        ">
-            <i class="fas fa-star"></i> Счёт: <span id="current-score">0</span>
-        </span>
-    </div>
-    
-    <p style="margin-bottom: 20px; color: #666; line-height: 1.6;">
-        Угадай сайт по отзыву! Читай отзыв и выбирай правильный сайт из предложенных вариантов.
-        За каждый правильный ответ получай +10 очков!
-    </p>
-    
-    <div id="quiz-game-area" style="display: none;">
-        <!-- Здесь будет игра -->
-        <div class="glass-effect" style="padding: 20px; margin-bottom: 20px; border-left: 4px solid #9b59b6;">
-            <div id="quiz-question" style="
-                font-style: italic;
-                color: var(--secondary-color);
-                line-height: 1.6;
-                margin-bottom: 20px;
-                padding: 15px;
-                background: rgba(155, 89, 182, 0.05);
-                border-radius: 10px;
-            "></div>
-            
-            <div id="quiz-options" style="display: grid; gap: 10px;"></div>
-            
-            <div id="quiz-feedback" style="
-                margin-top: 20px;
-                padding: 15px;
-                border-radius: 10px;
-                display: none;
-            "></div>
-        </div>
-        
-        <div style="display: flex; gap: 10px; justify-content: center;">
-            <button id="next-question-btn" class="quiz-btn" style="
-                background: var(--primary-color);
-                color: white;
-                border: none;
-                padding: 12px 25px;
-                border-radius: 25px;
-                font-weight: 600;
-                cursor: pointer;
-                display: none;
-            ">
-                <i class="fas fa-forward"></i> Следующий вопрос
-            </button>
-            
-            <button id="restart-quiz-btn" class="quiz-btn" style="
-                background: #95a5a6;
-                color: white;
-                border: none;
-                padding: 12px 25px;
-                border-radius: 25px;
-                font-weight: 600;
-                cursor: pointer;
-            ">
-                <i class="fas fa-redo"></i> Начать заново
-            </button>
-        </div>
-    </div>
-    
-    <div id="quiz-start-screen" style="text-align: center;">
-        <div style="margin-bottom: 25px;">
-            <i class="fas fa-brain" style="font-size: 3rem; color: #9b59b6; margin-bottom: 15px;"></i>
-            <h4 style="color: var(--secondary-color); margin-bottom: 10px;">Готов проверить свои знания?</h4>
-            <p style="color: #666; margin-bottom: 5px;">В викторине: <strong>5 вопросов</strong></p>
-            <p style="color: #666; margin-bottom: 5px;">Сложность: <span style="color: #e74c3c;">Средняя</span></p>
-            <p style="color: #666;">Рекорд: <span id="quiz-highscore">0</span> очков</p>
-        </div>
-        
-        <button id="start-quiz-btn" style="
-            background: linear-gradient(135deg, #9b59b6, #8e44ad);
-            color: white;
-            border: none;
-            padding: 15px 35px;
-            border-radius: 25px;
-            font-size: 1.1rem;
-            font-weight: 600;
-            cursor: pointer;
-            display: inline-flex;
-            align-items: center;
-            gap: 10px;
-            box-shadow: 0 4px 15px rgba(155, 89, 182, 0.3);
-            transition: all 0.3s ease;
-        ">
-            <i class="fas fa-play-circle"></i> Начать викторину
-        </button>
-    </div>
-</div>
+                <!-- Викторина -->
+                <div class="glass-effect" style="padding: 25px; margin-top: 30px;">
+                    <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 20px;">
+                        <h3 style="color: var(--secondary-color); margin: 0;">
+                            <i class="fas fa-gamepad"></i> Викторина
+                        </h3>
+                        <span id="quiz-score" style="
+                            background: linear-gradient(135deg, #9b59b6, #8e44ad);
+                            color: white;
+                            padding: 5px 15px;
+                            border-radius: 20px;
+                            font-weight: bold;
+                            font-size: 0.9rem;
+                        ">
+                            <i class="fas fa-star"></i> Счёт: <span id="current-score">0</span>
+                        </span>
+                    </div>
+                    
+                    <p style="margin-bottom: 20px; color: #666; line-height: 1.6;">
+                        Угадай сайт по отзыву! Читай отзыв и выбирай правильный сайт из предложенных вариантов.
+                        За каждый правильный ответ получай +10 очков!
+                    </p>
+                    
+                    <div id="quiz-game-area" style="display: none;">
+                        <div class="glass-effect" style="padding: 20px; margin-bottom: 20px; border-left: 4px solid #9b59b6;">
+                            <div id="quiz-question" style="
+                                font-style: italic;
+                                color: var(--secondary-color);
+                                line-height: 1.6;
+                                margin-bottom: 20px;
+                                padding: 15px;
+                                background: rgba(155, 89, 182, 0.05);
+                                border-radius: 10px;
+                            "></div>
+                            
+                            <div id="quiz-options" style="display: grid; gap: 10px;"></div>
+                            
+                            <div id="quiz-feedback" style="
+                                margin-top: 20px;
+                                padding: 15px;
+                                border-radius: 10px;
+                                display: none;
+                            "></div>
+                        </div>
+                        
+                        <div style="display: flex; gap: 10px; justify-content: center;">
+                            <button id="next-question-btn" class="quiz-btn" style="
+                                background: var(--primary-color);
+                                color: white;
+                                border: none;
+                                padding: 12px 25px;
+                                border-radius: 25px;
+                                font-weight: 600;
+                                cursor: pointer;
+                                display: none;
+                            ">
+                                <i class="fas fa-forward"></i> Следующий вопрос
+                            </button>
+                            
+                            <button id="restart-quiz-btn" class="quiz-btn" style="
+                                background: #95a5a6;
+                                color: white;
+                                border: none;
+                                padding: 12px 25px;
+                                border-radius: 25px;
+                                font-weight: 600;
+                                cursor: pointer;
+                            ">
+                                <i class="fas fa-redo"></i> Начать заново
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <div id="quiz-start-screen" style="text-align: center;">
+                        <div style="margin-bottom: 25px;">
+                            <i class="fas fa-brain" style="font-size: 3rem; color: #9b59b6; margin-bottom: 15px;"></i>
+                            <h4 style="color: var(--secondary-color); margin-bottom: 10px;">Готов проверить свои знания?</h4>
+                            <p style="color: #666; margin-bottom: 5px;">В викторине: <strong>5 вопросов</strong></p>
+                            <p style="color: #666; margin-bottom: 5px;">Сложность: <span style="color: #e74c3c;">Средняя</span></p>
+                            <p style="color: #666;">Рекорд: <span id="quiz-highscore">0</span> очков</p>
+                        </div>
+                        
+                        <button id="start-quiz-btn" style="
+                            background: linear-gradient(135deg, #9b59b6, #8e44ad);
+                            color: white;
+                            border: none;
+                            padding: 15px 35px;
+                            border-radius: 25px;
+                            font-size: 1.1rem;
+                            font-weight: 600;
+                            cursor: pointer;
+                            display: inline-flex;
+                            align-items: center;
+                            gap: 10px;
+                            box-shadow: 0 4px 15px rgba(155, 89, 182, 0.3);
+                            transition: all 0.3s ease;
+                        ">
+                            <i class="fas fa-play-circle"></i> Начать викторину
+                        </button>
+                    </div>
+                </div>
                 
             </section>
 
             <!-- Все отзывы -->
             <section id="reviews-page" class="page">
-<!-- Поиск и фильтры -->
-<div class="search-section glass-effect" style="padding: 25px;">
-    <h2 class="section-title">Поиск отзывов</h2>
-    
-    <!-- Основной поиск -->
-    <div class="search-box" style="margin-bottom: 20px;">
-        <input type="text" id="search-input" placeholder="Введите текст отзыва, название сайта или имя автора...">
-        <button id="search-btn"><i class="fas fa-search"></i> Поиск</button>
-        <button id="reset-search-btn" style="background: #95a5a6; margin-left: 10px;">
-            <i class="fas fa-times"></i> Сбросить
-        </button>
-    </div>
-    
-    <!-- Расширенные фильтры -->
-    <div class="advanced-filters" style="margin-top: 20px;">
-        <h4 style="margin-bottom: 15px; color: var(--secondary-color);">
-            <i class="fas fa-sliders-h"></i> Фильтры
-        </h4>
-        
-        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px; margin-bottom: 15px;">
-            <!-- Фильтр по рейтингу -->
-            <div class="filter-group">
-                <label style="display: block; margin-bottom: 8px; font-weight: 600; color: #555;">
-                    <i class="fas fa-star"></i> Рейтинг
-                </label>
-                <select id="rating-filter" style="width: 100%; padding: 10px; border-radius: 8px; border: 1px solid rgba(0,0,0,0.1); background: white;">
-                    <option value="all">Все рейтинги</option>
-                    <option value="5">★★★★★ (5 звёзд)</option>
-                    <option value="4">★★★★☆ (4 звезды)</option>
-                    <option value="3">★★★☆☆ (3 звезды)</option>
-                    <option value="2">★★☆☆☆ (2 звезды)</option>
-                    <option value="1">★☆☆☆☆ (1 звезда)</option>
-                </select>
-            </div>
-            
-            <!-- Фильтр по автору -->
-            <div class="filter-group">
-                <label style="display: block; margin-bottom: 8px; font-weight: 600; color: #555;">
-                    <i class="fas fa-user"></i> Автор
-                </label>
-                <select id="author-filter" style="width: 100%; padding: 10px; border-radius: 8px; border: 1px solid rgba(0,0,0,0.1); background: white;">
-                    <option value="all">Все авторы</option>
-                    <!-- Авторы заполнятся JavaScript -->
-                </select>
-            </div>
-            
-            <!-- Фильтр по сайту -->
-            <div class="filter-group">
-                <label style="display: block; margin-bottom: 8px; font-weight: 600; color: #555;">
-                    <i class="fas fa-globe"></i> Сайт
-                </label>
-                <select id="site-filter" style="width: 100%; padding: 10px; border-radius: 8px; border: 1px solid rgba(0,0,0,0.1); background: white;">
-                    <option value="all">Все сайты</option>
-                    <!-- Сайты заполнятся JavaScript -->
-                </select>
-            </div>
-        </div>
-        
-        <!-- Дополнительные фильтры -->
-        <div style="display: flex; gap: 15px; flex-wrap: wrap; margin-top: 10px;">
-            <label style="display: flex; align-items: center; gap: 8px; cursor: pointer;">
-                <input type="checkbox" id="verified-only" style="width: 18px; height: 18px;">
-                <span>Только проверенные <i class="fas fa-check-circle" style="color: #3498db;"></i></span>
-            </label>
-            
-            <label style="display: flex; align-items: center; gap: 8px; cursor: pointer;">
-                <input type="checkbox" id="critical-only" style="width: 18px; height: 18px;">
-                <span>Только критические (≤ 2★)</span>
-            </label>
-            
-            <label style="display: flex; align-items: center; gap: 8px; cursor: pointer;">
-                <input type="checkbox" id="positive-only" style="width: 18px; height: 18px;">
-                <span>Только позитивные (≥ 4★)</span>
-            </label>
-        </div>
-
-<div style="height: 30px;"></div>
-
-                <!-- Категории -->
-                <div class="categories-section glass-effect" style="padding: 25px; margin-bottom: 30px;">
-                    <h3 style="margin-bottom: 20px; color: var(--secondary-color);">
-                        <i class="fas fa-filter"></i>Категории отзывов
-                    </h3>
+                <!-- Поиск и фильтры -->
+                <div class="search-section glass-effect" style="padding: 25px;">
+                    <h2 class="section-title">Поиск отзывов</h2>
                     
-                    <div class="categories-filter">
-                        <div class="category-buttons" id="category-buttons" style="display: flex; flex-wrap: wrap; gap: 10px;"></div>
+                    <!-- Основной поиск -->
+                    <div class="search-box" style="margin-bottom: 20px;">
+                        <input type="text" id="search-input" placeholder="Введите текст отзыва, название сайта или имя автора...">
+                        <button id="search-btn"><i class="fas fa-search"></i> Поиск</button>
+                        <button id="reset-search-btn" style="background: #95a5a6; margin-left: 10px;">
+                            <i class="fas fa-times"></i> Сбросить
+                        </button>
+                    </div>
+                    
+                    <!-- Расширенные фильтры -->
+                    <div class="advanced-filters" style="margin-top: 20px;">
+                        <h4 style="margin-bottom: 15px; color: var(--secondary-color);">
+                            <i class="fas fa-sliders-h"></i> Фильтры
+                        </h4>
                         
-                        <div class="selected-category" id="selected-category" style="margin-top: 20px; padding: 15px; background: rgba(52, 152, 219, 0.1); border-radius: 10px; display: none;">
-                            <div style="display: flex; justify-content: space-between; align-items: center;">
-                                <span>
-                                    <strong>Выбрана категория:</strong> 
-                                    <span id="current-category-name">Категория</span>
-                                </span>
-                                <button id="clear-filter" style="background: none; border: none; color: #e74c3c; cursor: pointer; font-size: 1.2rem;">
-                                    <i class="fas fa-times"></i>
-                                </button>
+                        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px; margin-bottom: 15px;">
+                            <!-- Фильтр по рейтингу -->
+                            <div class="filter-group">
+                                <label style="display: block; margin-bottom: 8px; font-weight: 600; color: #555;">
+                                    <i class="fas fa-star"></i> Рейтинг
+                                </label>
+                                <select id="rating-filter" style="width: 100%; padding: 10px; border-radius: 8px; border: 1px solid rgba(0,0,0,0.1); background: white;">
+                                    <option value="all">Все рейтинги</option>
+                                    <option value="5">★★★★★ (5 звёзд)</option>
+                                    <option value="4">★★★★☆ (4 звезды)</option>
+                                    <option value="3">★★★☆☆ (3 звезды)</option>
+                                    <option value="2">★★☆☆☆ (2 звезды)</option>
+                                    <option value="1">★☆☆☆☆ (1 звезда)</option>
+                                </select>
                             </div>
-                            <div style="margin-top: 10px; font-size: 0.9rem; color: #666;">
-                                <span id="category-count">0</span> отзывов в этой категории
+                            
+                            <!-- Фильтр по автору -->
+                            <div class="filter-group">
+                                <label style="display: block; margin-bottom: 8px; font-weight: 600; color: #555;">
+                                    <i class="fas fa-user"></i> Автор
+                                </label>
+                                <select id="author-filter" style="width: 100%; padding: 10px; border-radius: 8px; border: 1px solid rgba(0,0,0,0.1); background: white;">
+                                    <option value="all">Все авторы</option>
+                                </select>
+                            </div>
+                            
+                            <!-- Фильтр по сайту -->
+                            <div class="filter-group">
+                                <label style="display: block; margin-bottom: 8px; font-weight: 600; color: #555;">
+                                    <i class="fas fa-globe"></i> Сайт
+                                </label>
+                                <select id="site-filter" style="width: 100%; padding: 10px; border-radius: 8px; border: 1px solid rgba(0,0,0,0.1); background: white;">
+                                    <option value="all">Все сайты</option>
+                                </select>
+                            </div>
+                        </div>
+                        
+                        <!-- Дополнительные фильтры -->
+                        <div style="display: flex; gap: 15px; flex-wrap: wrap; margin-top: 10px;">
+                            <label style="display: flex; align-items: center; gap: 8px; cursor: pointer;">
+                                <input type="checkbox" id="verified-only" style="width: 18px; height: 18px;">
+                                <span>Только проверенные <i class="fas fa-check-circle" style="color: #3498db;"></i></span>
+                            </label>
+                            
+                            <label style="display: flex; align-items: center; gap: 8px; cursor: pointer;">
+                                <input type="checkbox" id="critical-only" style="width: 18px; height: 18px;">
+                                <span>Только критические (≤ 2★)</span>
+                            </label>
+                            
+                            <label style="display: flex; align-items: center; gap: 8px; cursor: pointer;">
+                                <input type="checkbox" id="positive-only" style="width: 18px; height: 18px;">
+                                <span>Только позитивные (≥ 4★)</span>
+                            </label>
+                        </div>
+
+                        <div style="height: 30px;"></div>
+
+                        <!-- Категории -->
+                        <div class="categories-section glass-effect" style="padding: 25px; margin-bottom: 30px;">
+                            <h3 style="margin-bottom: 20px; color: var(--secondary-color);">
+                                <i class="fas fa-filter"></i> Категории отзывов
+                            </h3>
+                            
+                            <div class="categories-filter">
+                                <div class="category-buttons" id="category-buttons" style="display: flex; flex-wrap: wrap; gap: 10px;"></div>
+                                
+                                <div class="selected-category" id="selected-category" style="margin-top: 20px; padding: 15px; background: rgba(52, 152, 219, 0.1); border-radius: 10px; display: none;">
+                                    <div style="display: flex; justify-content: space-between; align-items: center;">
+                                        <span>
+                                            <strong>Выбрана категория:</strong> 
+                                            <span id="current-category-name">Категория</span>
+                                        </span>
+                                        <button id="clear-filter" style="background: none; border: none; color: #e74c3c; cursor: pointer; font-size: 1.2rem;">
+                                            <i class="fas fa-times"></i>
+                                        </button>
+                                    </div>
+                                    <div style="margin-top: 10px; font-size: 0.9rem; color: #666;">
+                                        <span id="category-count">0</span> отзывов в этой категории
+                                    </div>
+                                </div>
                             </div>
                         </div>
                     </div>
+                    
+                    <!-- Информация о результатах -->
+                    <div id="search-results-info" style="
+                        margin-top: 20px;
+                        padding: 15px;
+                        background: rgba(52, 152, 219, 0.1);
+                        border-radius: 10px;
+                        border-left: 4px solid var(--primary-color);
+                        display: none;
+                    ">
+                        <div style="display: flex; align-items: center; gap: 10px;">
+                            <i class="fas fa-info-circle" style="color: var(--primary-color);"></i>
+                            <span>Найдено <strong id="results-count">0</strong> отзывов</span>
+                            <button id="clear-all-filters" style="
+                                margin-left: auto;
+                                background: rgba(231, 76, 60, 0.1);
+                                color: #e74c3c;
+                                border: none;
+                                padding: 6px 12px;
+                                border-radius: 6px;
+                                cursor: pointer;
+                                font-size: 0.9rem;
+                            ">
+                                <i class="fas fa-times"></i> Очистить все фильтры
+                            </button>
+                        </div>
+                    </div>
                 </div>
-    </div>
-    
-    <!-- Информация о результатах -->
-    <div id="search-results-info" style="
-        margin-top: 20px;
-        padding: 15px;
-        background: rgba(52, 152, 219, 0.1);
-        border-radius: 10px;
-        border-left: 4px solid var(--primary-color);
-        display: none;
-    ">
-        <div style="display: flex; align-items: center; gap: 10px;">
-            <i class="fas fa-info-circle" style="color: var(--primary-color);"></i>
-            <span>Найдено <strong id="results-count">0</strong> отзывов</span>
-            <button id="clear-all-filters" style="
-                margin-left: auto;
-                background: rgba(231, 76, 60, 0.1);
-                color: #e74c3c;
-                border: none;
-                padding: 6px 12px;
-                border-radius: 6px;
-                cursor: pointer;
-                font-size: 0.9rem;
-            ">
-                <i class="fas fa-times"></i> Очистить все фильтры
-            </button>
-        </div>
-    </div>
-</div>
                 
                 <!-- Все отзывы -->
                 <h2 class="section-title">Все отзывы</h2>
                 <div class="reviews-container" id="all-reviews"></div>
             </section>
 
-<!-- Добавить отзыв -->
-<section id="add-review-page" class="page">
-    <div style="display: grid; grid-template-columns: 1fr 2fr; gap: 25px; align-items: start;">
-        <!-- ЛЕВАЯ КОЛОНКА: ПРАВИЛА -->
-        <div class="glass-effect" style="padding: 25px;">
-            <h3 style="margin-bottom: 20px; color: var(--secondary-color); display: flex; align-items: center; gap: 10px;">
-                <i class="fas fa-list"></i> Правила публикации
-            </h3>
-            <div style="display: flex; flex-direction: column; gap: 15px;">
-                <div style="display: flex; gap: 10px; align-items: baseline;">
-                    <span style="font-weight: bold; color: var(--primary-color); min-width: 25px;">1.</span>
-                    <span style="color: var(--text-color);">Без личных оскорблений — критикуем сайты, а не авторов</span>
-                </div>
-                <div style="display: flex; gap: 10px; align-items: baseline;">
-                    <span style="font-weight: bold; color: var(--primary-color); min-width: 25px;">2.</span>
-                    <span style="color: var(--text-color);">Запрещены реклама и спам</span>
-                </div>
-                <div style="display: flex; gap: 10px; align-items: baseline;">
-                    <span style="font-weight: bold; color: var(--primary-color); min-width: 25px;">3.</span>
-                    <span style="color: var(--text-color);">Не используйте ненормативную лексику</span>
-                </div>
-                <div style="display: flex; gap: 10px; align-items: baseline;">
-                    <span style="font-weight: bold; color: var(--primary-color); min-width: 25px;">4.</span>
-                    <span style="color: var(--text-color);">Только реальный опыт использования</span>
-                </div>
-                <div style="display: flex; gap: 10px; align-items: baseline;">
-                    <span style="font-weight: bold; color: var(--primary-color); min-width: 25px;">5.</span>
-                    <span style="color: var(--text-color);">Один сайт — один отзыв (При изменении мнения не отклоняется)</span>
-                </div>
-            </div>
-            <div style="margin-top: 25px; padding-top: 20px; border-top: 1px solid rgba(0,0,0,0.1);">
-                <p style="color: #666; font-size: 0.9rem; display: flex; align-items: center; gap: 8px;">
-                    <i class="fas fa-shield-alt"></i> 
-                    Нарушение правил — отклонение отзыва
-                </p>
-            </div>
-        </div>
-        
-        <!-- ПРАВАЯ КОЛОНКА: ФОРМА -->
-        <div class="form-container glass-effect" style="margin: 0;">
-            <h2 class="section-title">Добавить отзыв о сайте</h2>
-            <div class="form-note">
-                <p><strong>Внимание:</strong> Эта форма интегрирована через Google Forms. После отправки отзыва, он будет проверен и добавлен в общий список на сайте в течение 24 часов.</p>
-                <p>Все поля обязательны для заполения. Убедитесь, что URL сайта указан корректно.</p>
-            </div>
+            <!-- Добавить отзыв -->
+            <section id="add-review-page" class="page">
+                <div style="display: grid; grid-template-columns: 1fr 2fr; gap: 25px; align-items: start;">
+                    <!-- ЛЕВАЯ КОЛОНКА: ПРАВИЛА -->
+                    <div class="glass-effect" style="padding: 25px;">
+                        <h3 style="margin-bottom: 20px; color: var(--secondary-color); display: flex; align-items: center; gap: 10px;">
+                            <i class="fas fa-list"></i> Правила публикации
+                        </h3>
+                        <div style="display: flex; flex-direction: column; gap: 15px;">
+                            <div style="display: flex; gap: 10px; align-items: baseline;">
+                                <span style="font-weight: bold; color: var(--primary-color); min-width: 25px;">1.</span>
+                                <span style="color: var(--text-color);">Без личных оскорблений — критикуем сайты, а не авторов</span>
+                            </div>
+                            <div style="display: flex; gap: 10px; align-items: baseline;">
+                                <span style="font-weight: bold; color: var(--primary-color); min-width: 25px;">2.</span>
+                                <span style="color: var(--text-color);">Запрещены реклама и спам</span>
+                            </div>
+                            <div style="display: flex; gap: 10px; align-items: baseline;">
+                                <span style="font-weight: bold; color: var(--primary-color); min-width: 25px;">3.</span>
+                                <span style="color: var(--text-color);">Не используйте ненормативную лексику</span>
+                            </div>
+                            <div style="display: flex; gap: 10px; align-items: baseline;">
+                                <span style="font-weight: bold; color: var(--primary-color); min-width: 25px;">4.</span>
+                                <span style="color: var(--text-color);">Только реальный опыт использования</span>
+                            </div>
+                            <div style="display: flex; gap: 10px; align-items: baseline;">
+                                <span style="font-weight: bold; color: var(--primary-color); min-width: 25px;">5.</span>
+                                <span style="color: var(--text-color);">Один сайт — один отзыв (При изменении мнения не отклоняется)</span>
+                            </div>
+                        </div>
+                        <div style="margin-top: 25px; padding-top: 20px; border-top: 1px solid rgba(0,0,0,0.1);">
+                            <p style="color: #666; font-size: 0.9rem; display: flex; align-items: center; gap: 8px;">
+                                <i class="fas fa-shield-alt"></i> 
+                                Нарушение правил — отклонение отзыва
+                            </p>
+                        </div>
+                    </div>
+                    
+                    <!-- ПРАВАЯ КОЛОНКА: ФОРМА -->
+                    <div class="form-container glass-effect" style="margin: 0;">
+                        <h2 class="section-title">Добавить отзыв о сайте</h2>
+                        <div class="form-note">
+                            <p><strong>Внимание:</strong> Эта форма интегрирована через Google Forms. После отправки отзыва, он будет проверен и добавлен в общий список на сайте в течение 24 часов.</p>
+                            <p>Все поля обязательны для заполения. Убедитесь, что URL сайта указан корректно.</p>
+                        </div>
 
-            <!-- Подсказки по сайтам -->
-            <div class="site-suggestions" style="margin-bottom: 20px;">
-                <p><strong>Не знаете о чем писать?</strong> Предлагаем оценить:</p>
-                <div style="display: flex; gap: 10px; flex-wrap: wrap; margin-top: 10px;">
-                    <button onclick="suggestSite('YouTube', 'https://youtube.com')" style="padding: 8px 15px; background: #FF0000; color: white; border: none; border-radius: 5px;">
-                        YouTube
-                    </button>
-                    <button onclick="suggestSite('TAIPrompts', 'https://timoshamoscow.github.io/taiprompts.github.io/')" style="padding: 8px 15px; background: #000000; color: white; border: none; border-radius: 5px;">
-                        TAIPrompts
-                    </button>
-                    <button onclick="suggestSite('Telegram', 'https://web.telegram.org')" style="padding: 8px 15px; background: #0088cc; color: white; border: none; border-radius: 5px;">
-                        Telegram Web
-                    </button>
+                        <!-- Подсказки по сайтам -->
+                        <div class="site-suggestions" style="margin-bottom: 20px;">
+                            <p><strong>Не знаете о чем писать?</strong> Предлагаем оценить:</p>
+                            <div style="display: flex; gap: 10px; flex-wrap: wrap; margin-top: 10px;">
+                                <button onclick="suggestSite('YouTube', 'https://youtube.com')" style="padding: 8px 15px; background: #FF0000; color: white; border: none; border-radius: 5px;">
+                                    YouTube
+                                </button>
+                                <button onclick="suggestSite('TAIPrompts', 'https://timoshamoscow.github.io/taiprompts.github.io/')" style="padding: 8px 15px; background: #000000; color: white; border: none; border-radius: 5px;">
+                                    TAIPrompts
+                                </button>
+                                <button onclick="suggestSite('Telegram', 'https://web.telegram.org')" style="padding: 8px 15px; background: #0088cc; color: white; border: none; border-radius: 5px;">
+                                    Telegram Web
+                                </button>
+                            </div>
+                        </div>
+                        
+                        <!-- Google Form -->
+                        <div class="iframe-container glass-effect">
+                            <iframe src="https://docs.google.com/forms/d/e/1FAIpQLScnJgoAtfAcGdH8HljAYEoEKfJ_f7uqNaL4el8g8rC6OsmJnw/viewform?embedded=true" width="100%" height="1124" frameborder="0" marginheight="0" marginwidth="0">Загрузка…</iframe>
+                        </div>
+                    </div>
                 </div>
-            </div>
-            
-            <!-- Google Form -->
-            <div class="iframe-container glass-effect">
-                <iframe src="https://docs.google.com/forms/d/e/1FAIpQLScnJgoAtfAcGdH8HljAYEoEKfJ_f7uqNaL4el8g8rC6OsmJnw/viewform?embedded=true" width="100%" height="1124" frameborder="0" marginheight="0" marginwidth="0">Загрузка…</iframe>
-            </div>
-        </div>
-    </div>
-</section>
+            </section>
 
             <!-- Статистика -->
             <section id="stats-page" class="page">
@@ -456,18 +525,18 @@
                         <div id="rating-distribution" style="display: grid; gap: 15px;"></div>
                     </div>
                     
-<!-- В stats-page после рейтинга пользователей -->
-<div style="margin-top: 40px;">
-    <h3 style="margin-bottom: 20px; color: var(--secondary-color);">
-        <i class="fas fa-clock"></i> Статистика по времени
-    </h3>
-    <div id="time-stats" class="glass-effect" style="padding: 20px;">
-        <div class="loading">
-            <div class="loading-spinner"></div>
-            <p>Анализируем активность...</p>
-        </div>
-    </div>
-</div>
+                    <!-- В stats-page после рейтинга пользователей -->
+                    <div style="margin-top: 40px;">
+                        <h3 style="margin-bottom: 20px; color: var(--secondary-color);">
+                            <i class="fas fa-clock"></i> Статистика по времени
+                        </h3>
+                        <div id="time-stats" class="glass-effect" style="padding: 20px;">
+                            <div class="loading">
+                                <div class="loading-spinner"></div>
+                                <p>Анализируем активность...</p>
+                            </div>
+                        </div>
+                    </div>
                     
                 </div>
             </section>
@@ -514,102 +583,18 @@
                 </div>
             </section>
 
-<!-- В основном контейнере (после секции "О проекте") -->
-<section id="profile-page" class="page">
-    <div class="profile-container glass-effect">
-        <h2 class="section-title">Профиль пользователя</h2>
-        <div id="profile-content">
-            <div class="profile-loading">
-                <div class="loading-spinner"></div>
-                <p>Загрузка профиля...</p>
-            </div>
-        </div>
-    </div>
-</section>
-
-<!-- Страница входа через Google -->
-<section id="login-page" class="page">
-    <div class="login-container glass-effect" style="max-width: 500px; margin: 0 auto; padding: 40px;">
-        <div style="text-align: center; margin-bottom: 30px;">
-            <i class="fas fa-user-circle" style="font-size: 4rem; color: var(--primary-color);"></i>
-            <h2 class="section-title" style="margin-top: 20px;">Вход в SiteReview</h2>
-            <p style="color: #666; margin-top: 10px;">Войдите для доступа к дополнительным функциям</p>
-        </div>
-
-        <!-- Кнопка входа через Google -->
-        <div id="g_id_onload"
-             data-client_id="22364952672-8mqiqmo14pgq3es9thb2bhon1eiqq522.apps.googleusercontent.com"
-             data-context="signin"
-             data-ux_mode="popup"
-             data-callback="handleGoogleSignIn"
-             data-auto_prompt="false">
-        </div>
-
-        <div class="g_id_signin"
-             data-type="standard"
-             data-shape="rectangular"
-             data-theme="outline"
-             data-text="signin_with"
-             data-size="large"
-             data-logo_alignment="left">
-        </div>
-
-        <!-- Альтернативный вход (если Google кнопка не загрузилась) -->
-        <div style="margin-top: 30px; text-align: center; display: none;" id="fallback-login">
-            <p style="color: #999; margin-bottom: 15px;">или</p>
-            <button onclick="simulateLogin()" style="
-                background: var(--secondary-color);
-                color: white;
-                border: none;
-                padding: 12px 25px;
-                border-radius: 25px;
-                font-size: 1rem;
-                cursor: pointer;
-                display: inline-flex;
-                align-items: center;
-                gap: 10px;
-            ">
-                <i class="fas fa-envelope"></i> Демо-вход
-            </button>
-        </div>
-
-        <!-- Информация о пользователе после входа -->
-        <div id="user-info" style="display: none; margin-top: 30px; padding: 20px; background: rgba(52, 152, 219, 0.1); border-radius: 10px;">
-            <div style="display: flex; align-items: center; gap: 15px;">
-                <img id="user-avatar" src="" alt="Avatar" style="width: 60px; height: 60px; border-radius: 50%; border: 2px solid var(--primary-color);">
-                <div>
-                    <h3 id="user-name" style="margin: 0 0 5px 0;"></h3>
-                    <p id="user-email" style="margin: 0; color: #666; font-size: 0.9rem;"></p>
-                    <p id="user-verified" style="margin: 5px 0 0 0; color: #27ae60; font-size: 0.8rem; display: none;">
-                        <i class="fas fa-check-circle"></i> Аккаунт подтвержден
-                    </p>
+            <!-- Профиль пользователя -->
+            <section id="profile-page" class="page">
+                <div class="profile-container glass-effect">
+                    <h2 class="section-title">Профиль пользователя</h2>
+                    <div id="profile-content">
+                        <div class="profile-loading">
+                            <div class="loading-spinner"></div>
+                            <p>Загрузка профиля...</p>
+                        </div>
+                    </div>
                 </div>
-            </div>
-            <div style="margin-top: 20px; display: flex; gap: 10px; justify-content: center;">
-                <button onclick="logout()" style="
-                    background: #e74c3c;
-                    color: white;
-                    border: none;
-                    padding: 8px 20px;
-                    border-radius: 20px;
-                    cursor: pointer;
-                ">
-                    <i class="fas fa-sign-out-alt"></i> Выйти
-                </button>
-                <button onclick="switchToPage('home')" style="
-                    background: var(--primary-color);
-                    color: white;
-                    border: none;
-                    padding: 8px 20px;
-                    border-radius: 20px;
-                    cursor: pointer;
-                ">
-                    <i class="fas fa-home"></i> На главную
-                </button>
-            </div>
-        </div>
-    </div>
-</section>
+            </section>
             
         </main>
     </div>
@@ -641,58 +626,58 @@
     <!-- Скрипт баннера (после HTML баннера) -->
     <script src="banner.js"></script>
 
-<script>
-// Автоматическое обновление Service Worker
-if ('serviceWorker' in navigator) {
-  let refreshing = false;
-  
-  // Слушаем сообщения от Service Worker
-  navigator.serviceWorker.addEventListener('message', event => {
-    if (event.data === 'reload' && !refreshing) {
-      refreshing = true;
-      window.location.reload();
-    }
-  });
-
-  // Регистрация с проверкой обновлений
-  async function registerServiceWorker() {
-    try {
-      const registration = await navigator.serviceWorker.register('/sitereview.github.io/service-worker.js');
+    <script>
+    // Автоматическое обновление Service Worker
+    if ('serviceWorker' in navigator) {
+      let refreshing = false;
       
-      console.log('Service Worker registered:', registration.scope);
-      
-      // Проверяем обновления при загрузке страницы
-      registration.update();
-      
-      // Проверяем обновления каждые 30 минут
-      setInterval(() => {
-        registration.update();
-        console.log('Checking for SW updates...');
-      }, 30 * 60 * 1000);
-      
-      // Автоматическое обновление при обнаружении новой версии
-      registration.addEventListener('updatefound', () => {
-        const newWorker = registration.installing;
-        
-        newWorker.addEventListener('statechange', () => {
-          if (newWorker.state === 'installed' && navigator.serviceWorker.controller) {
-            // Показываем уведомление о доступном обновлении
-            if (confirm('Доступна новая версия сайта. Обновить?')) {
-              newWorker.postMessage('update');
-            }
-          }
-        });
+      // Слушаем сообщения от Service Worker
+      navigator.serviceWorker.addEventListener('message', event => {
+        if (event.data === 'reload' && !refreshing) {
+          refreshing = true;
+          window.location.reload();
+        }
       });
-      
-    } catch (error) {
-      console.error('Service Worker registration failed:', error);
-    }
-  }
 
-  // Регистрируем при загрузке
-  window.addEventListener('load', registerServiceWorker);
-}
-</script>
+      // Регистрация с проверкой обновлений
+      async function registerServiceWorker() {
+        try {
+          const registration = await navigator.serviceWorker.register('/sitereview.github.io/service-worker.js');
+          
+          console.log('Service Worker registered:', registration.scope);
+          
+          // Проверяем обновления при загрузке страницы
+          registration.update();
+          
+          // Проверяем обновления каждые 30 минут
+          setInterval(() => {
+            registration.update();
+            console.log('Checking for SW updates...');
+          }, 30 * 60 * 1000);
+          
+          // Автоматическое обновление при обнаружении новой версии
+          registration.addEventListener('updatefound', () => {
+            const newWorker = registration.installing;
+            
+            newWorker.addEventListener('statechange', () => {
+              if (newWorker.state === 'installed' && navigator.serviceWorker.controller) {
+                // Показываем уведомление о доступном обновлении
+                if (confirm('Доступна новая версия сайта. Обновить?')) {
+                  newWorker.postMessage('update');
+                }
+              }
+            });
+          });
+          
+        } catch (error) {
+          console.error('Service Worker registration failed:', error);
+        }
+      }
+
+      // Регистрируем при загрузке
+      window.addEventListener('load', registerServiceWorker);
+    }
+    </script>
     
 </body>
 </html>
