@@ -3931,17 +3931,31 @@ function handleGoogleSignIn(response) {
     console.log('✅ Google Sign-In успешен', response);
     
     try {
+        // Проверяем, что response содержит credential
+        if (!response.credential) {
+            throw new Error('Нет credential в ответе');
+        }
+        
         // Декодируем JWT токен
-        const payload = JSON.parse(atob(response.credential.split('.')[1]));
-        console.log('Данные пользователя:', payload);
+        const base64Url = response.credential.split('.')[1];
+        if (!base64Url) {
+            throw new Error('Неверный формат JWT токена');
+        }
+        
+        // Заменяем символы для base64
+        const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
+        
+        // Декодируем
+        const payload = JSON.parse(atob(base64));
+        console.log('✅ Данные пользователя:', payload);
         
         // Сохраняем информацию о пользователе
         const userData = {
-            name: payload.name,
+            name: payload.name || 'Пользователь Google',
             email: payload.email,
             picture: payload.picture,
             sub: payload.sub,
-            email_verified: payload.email_verified,
+            email_verified: payload.email_verified || false,
             loginTime: new Date().toISOString()
         };
         
@@ -3952,10 +3966,11 @@ function handleGoogleSignIn(response) {
         showSiteAfterLogin();
         
         // Показываем уведомление
-        showNotification(`Добро пожаловать, ${payload.name}!`, 'success');
+        showNotification(`Добро пожаловать, ${userData.name}!`, 'success');
         
     } catch (error) {
-        console.error('Ошибка при обработке входа:', error);
+        console.error('❌ Ошибка при обработке входа:', error);
+        console.error('Проблемный response:', response);
         showNotification('Ошибка входа. Попробуйте еще раз.', 'error');
     }
 }
