@@ -699,6 +699,39 @@ const reviews = [
         rating: 1,
         comment: "Ну не смешите мои колени, этим кто то будет пользоваться? Качайте телеграм + VPN и ваши проблемы решаться ",
         date: "2026-03-12T09:14:00"
+    },
+    {
+        id: 64,
+        name: "Алёна",
+        nickname: "fanalenki",
+        email: "akkumulator950@gmail.com",
+        siteUrl: "https://suno.com/",
+        siteName: "Suno",
+        rating: 4,
+        comment: "Сайт топовый, но платные подписки конечно манят...",
+        date: "2026-03-16T19:31:10"
+    },
+    {
+        id: 65,
+        name: "Роман",
+        nickname: "morfiks689",
+        email: "morfiks689@gmail.com",
+        siteUrl: "https://boosty.to/",
+        siteName: "Boosty",
+        rating: 5,
+        comment: "Очень топовый сайт для блогеров, недооценен.",
+        date: "2026-03-16T19:38:00"
+    },
+    {
+        id: 66,
+        name: "Федор",
+        email: "1234playergp@gmail.com",
+        nickname: "1234playergp",
+        siteUrl: "https://xn--d1ah4a.com/",
+        siteName: "итд.com",
+        rating: 3,
+        comment: "Телеграм лучше:)",
+        date: "2026-03-16T19:39:00"
     }
 ];
 
