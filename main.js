@@ -3932,13 +3932,11 @@ function checkAuth() {
         // Пользователь уже авторизован
         overlay.style.display = 'none';
         mainContent.style.display = 'block';
-        document.getElementById('logout-link').style.display = 'block';
         console.log('🔄 Сессия восстановлена');
     } else {
         // Не авторизован - показываем оверлей
         overlay.style.display = 'flex';
         mainContent.style.display = 'none';
-        document.getElementById('logout-link').style.display = 'none';
     }
 }
 
@@ -3955,29 +3953,6 @@ function simulateLogin() {
     
     localStorage.setItem('siteReview_user', JSON.stringify(demoUser));
     showSiteAfterLogin();
-}
-
-// Выход
-function logout() {
-    // Удаляем из localStorage
-    localStorage.removeItem('siteReview_user');
-    
-    // Показываем оверлей входа
-    const overlay = document.getElementById('login-overlay');
-    const mainContent = document.getElementById('main-content');
-    
-    overlay.style.display = 'flex';
-    overlay.style.opacity = '1';
-    mainContent.style.display = 'none';
-    
-    // Прячем кнопку выхода
-    document.getElementById('logout-link').style.display = 'none';
-    
-    // Возвращаем Google кнопку
-    document.querySelector('.g_id_signin').style.display = 'block';
-    document.getElementById('fallback-login').style.display = 'none';
-    
-    console.log('👋 Пользователь вышел');
 }
 
 // Защита страниц (перехват переходов)
