@@ -765,6 +765,17 @@ const reviews = [
         rating: 4,
         comment: "Сайт прикольный, но бесят вотермарки по площади всего лого! 😡🤬",
         date: "2026-03-17T10:51:00"
+    },
+    {
+        id: 70,
+        name: "Федати",
+        email: "1234playergp@gmail.com",
+        nickname: "1234playergp",
+        siteUrl: "https://speedtelly1.github.io/sitereview.github.io/",
+        siteName: "SiteReview",
+        rating: 4,
+        comment: "Хотел я уже писать плохой отзыв на этот сайт из-за того, что мне поставили имя Федор, хотя я Федати! Фе-Да-Ти! Но мне сменили на Федати, так что отзовик топовый, хотя и есть странные отзывы",
+        date: "2026-03-17T11:23:00"
     }
 ];
 
