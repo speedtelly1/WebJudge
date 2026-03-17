@@ -92,7 +92,7 @@ const reviews = [
     },
     {
         id: 9,
-        name: "Федор",
+        name: "Федати",
         email: "1234playergp@gmail.com",
         nickname: "1234playergp",
         siteUrl: "https://timoshamoscow.github.io/taiprompts.github.io/",
@@ -125,7 +125,7 @@ const reviews = [
     },
     {
         id: 12,
-        name: "Федор",
+        name: "Федати",
         email: "1234playergp@gmail.com",
         nickname: "1234playergp",
         siteUrl: "https://www.deepseek.com/",
@@ -680,7 +680,7 @@ const reviews = [
     },
     {
         id: 62,
-        name: "Федор",
+        name: "Федати",
         email: "1234playergp@gmail.com",
         nickname: "1234playergp",
         siteUrl: "https://rutube.ru/",
@@ -691,7 +691,7 @@ const reviews = [
     },
     {
         id: 63,
-        name: "Федор",
+        name: "Федати",
         email: "1234playergp@gmail.com",
         nickname: "1234playergp",
         siteUrl: "https://max.ru/",
@@ -724,7 +724,7 @@ const reviews = [
     },
     {
         id: 66,
-        name: "Федор",
+        name: "Федати",
         email: "1234playergp@gmail.com",
         nickname: "1234playergp",
         siteUrl: "https://xn--d1ah4a.com/feed",
