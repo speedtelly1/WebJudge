@@ -732,6 +732,39 @@ const reviews = [
         rating: 3,
         comment: "Телеграм лучше:)",
         date: "2026-03-16T19:39:00"
+    },
+    {
+        id: 67,
+        name: "Тимоша",
+        nickname: "timsib",
+        email: "timi.sibi.maxi2010@gmail.com",
+        siteUrl: "https://yandex.ru/images/",
+        siteName: "Яндекс.Картинки",
+        rating: 5,
+        comment: "Яндекс картинки топ. Даже придраться не к чему",
+        date: "2026-03-17T10:49:00"
+    },
+    {
+        id: 68,
+        name: "Тимоша",
+        nickname: "timsib",
+        email: "timi.sibi.maxi2010@gmail.com",
+        siteUrl: "https://www.canva.com/",
+        siteName: "Canva",
+        rating: 1,
+        comment: "Сайт недоступен в РФ!!! 😡😡",
+        date: "2026-03-17T10:50:00"
+    },
+    {
+        id: 69,
+        name: "Тимоша",
+        nickname: "timsib",
+        email: "timi.sibi.maxi2010@gmail.com",
+        siteUrl: "https://turbologo.ru/",
+        siteName: "Turbologo",
+        rating: 4,
+        comment: "Сайт прикольный, но бесят вотермарки по площади всего лого! 😡🤬",
+        date: "2026-03-17T10:51:00"
     }
 ];
 
