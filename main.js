@@ -69,7 +69,6 @@ function endTimer(label) {
 // Очищаем старые обработчики при перезагрузке
 window.onload = function() {
     console.log('Очистка старых обработчиков...');
-    // Принудительно проверяем авторизацию
     setTimeout(checkAuth, 100);
 };
 
@@ -181,600 +180,48 @@ window.addReview = function(newReview) {
     }
 };
 
-// Добавляем логирование в ключевые функции
-document.addEventListener('DOMContentLoaded', function() {
-    log('success', '📄 DOM полностью загружен');
-    
-    // Считаем отзывы
-    if (typeof reviews !== 'undefined') {
-        log('info', `📊 Всего отзывов в data.js: ${reviews.length}`);
-        
-        // Статистика по рейтингам
-        const ratingCounts = {5:0,4:0,3:0,2:0,1:0};
-        reviews.forEach(r => ratingCounts[r.rating]++);
-        log('info', '📈 Распределение оценок:', ratingCounts);
-        
-        // Топ-3 сайта по количеству отзывов
-        const siteCounts = {};
-        reviews.forEach(r => {
-            siteCounts[r.siteName] = (siteCounts[r.siteName] || 0) + 1;
-        });
-        const topSites = Object.entries(siteCounts)
-            .sort((a,b) => b[1] - a[1])
-            .slice(0, 3);
-        log('info', '🏆 Топ-3 сайта по отзывам:', Object.fromEntries(topSites));
-    } else {
-        log('warning', '⚠️ Массив reviews не найден!');
-    }
-    
-    // Логируем localStorage
-    const bannerHidden = localStorage.getItem('bannerHidden_v1.1.4');
-    const bannerTime = localStorage.getItem('bannerHiddenTime_v1.1.4');
-    if (bannerHidden || bannerTime) {
-        log('debug', '🔄 Состояние баннера:', {
-            навсегда: bannerHidden === 'true' ? 'Скрыт' : 'Показан',
-            на24часа: bannerTime ? new Date(parseInt(bannerTime)).toLocaleString() : 'Нет'
-        });
-    }
-});
+// ==================== DOM ЭЛЕМЕНТЫ ====================
+const pages = document.querySelectorAll('.page');
+const navLinks = document.querySelectorAll('.nav-link');
+const searchInput = document.getElementById('search-input');
+const searchBtn = document.getElementById('search-btn');
+const filterBtns = document.querySelectorAll('.filter-btn');
+const featuredReviewsContainer = document.getElementById('featured-reviews');
+const allReviewsContainer = document.getElementById('all-reviews');
+const ratingDistribution = document.getElementById('rating-distribution');
 
-// ==================== ЛОГИРОВАНИЕ ПРОИЗВОДИТЕЛЬНОСТИ ====================
+// Элементы для статистики
+const totalReviewsEl = document.getElementById('total-reviews');
+const uniqueSitesEl = document.getElementById('unique-sites');
+const totalReviewersEl = document.getElementById('total-reviewers');
+const avgRatingEl = document.getElementById('avg-rating');
 
-// Логируем время рендеринга карточек
-const originalCreateReviewCard = window.createReviewCard;
-window.createReviewCard = function(review) {
-    startTimer(`render-card-${review.id}`);
-    const card = originalCreateReviewCard.apply(this, arguments);
-    const time = endTimer(`render-card-${review.id}`);
-    
-    if (time > 50) {
-        log('warning', `⚠️ Медленный рендеринг карточки #${review.id}: ${time}ms`);
-    }
-    
-    return card;
-};
+const statsTotalReviewsEl = document.getElementById('stats-total-reviews');
+const statsAvgRatingEl = document.getElementById('stats-avg-rating');
+const statsReviewersEl = document.getElementById('stats-reviewers');
+const statsSitesEl = document.getElementById('stats-sites');
 
-// Логируем поиск
-const originalPerformSearch = window.performSearch;
-window.performSearch = function() {
-    const searchTerm = document.getElementById('search-input')?.value || '';
-    log('info', `🔍 Поиск: "${searchTerm}"`);
-    startTimer('search');
-    const result = originalPerformSearch.apply(this, arguments);
-    const time = endTimer('search');
-    log('debug', `⏱️ Поиск выполнен за ${time}ms`);
-    return result;
-};
-
-// ==================== ЛОГИРОВАНИЕ СЕТИ ====================
-
-// Мониторинг сетевых запросов
-const originalFetch = window.fetch;
-window.fetch = function() {
-    const url = arguments[0];
-    log('debug', `🌐 Fetch запрос: ${url}`);
-    startTimer(`fetch-${url}`);
-    
-    return originalFetch.apply(this, arguments)
-        .then(response => {
-            const time = endTimer(`fetch-${url}`);
-            log('success', `✅ Fetch успешен (${time}ms): ${url}`);
-            return response;
-        })
-        .catch(error => {
-            const time = endTimer(`fetch-${url}`);
-            log('error', `❌ Fetch ошибка (${time}ms): ${url} — ${error.message}`);
-            throw error;
-        });
-};
-
-// ==================== ЛОГИРОВАНИЕ СОСТОЯНИЯ ПРИЛОЖЕНИЯ ====================
-
-// Периодический лог состояния
-setInterval(() => {
-    if (document.visibilityState === 'visible') {
-        log('debug', `💓 Heartbeat — страница активна, отзывов: ${reviews?.length || 0}`);
-        
-        // Проверяем память (если доступно)
-        if (performance.memory) {
-            log('debug', '🧠 Использование памяти:', {
-                usedJSHeapSize: `${(performance.memory.usedJSHeapSize / 1048576).toFixed(2)} MB`,
-                totalJSHeapSize: `${(performance.memory.totalJSHeapSize / 1048576).toFixed(2)} MB`,
-                jsHeapSizeLimit: `${(performance.memory.jsHeapSizeLimit / 1048576).toFixed(2)} MB`
-            });
-        }
-    }
-}, 30000); // Каждые 30 секунд
-
-// Логирование изменения видимости страницы
-document.addEventListener('visibilitychange', function() {
-    if (document.hidden) {
-        log('debug', '😴 Страница скрыта');
-    } else {
-        log('debug', '👋 Страница снова видима');
-    }
-});
-
-// Логирование онлайн/офлайн статуса
-window.addEventListener('online', function() {
-    log('success', '🌍 Соединение восстановлено');
-});
-
-window.addEventListener('offline', function() {
-    log('warning', '⚠️ Нет соединения с интернетом');
-});
-
-log('success', '✅ Система логирования активирована');
-
-// ==================== СИСТЕМА ОТСЛЕЖИВАНИЯ РЕФЕРЕРОВ ====================
-
-// Функция для получения параметра из URL
-function getUrlParameter(name) {
-    const urlParams = new URLSearchParams(window.location.search);
-    return urlParams.get(name);
-}
-
-// Функция для безопасного получения домена
-function getDomainFromUrl(url) {
-    try {
-        if (!url || url === '') return null;
-        const urlObj = new URL(url);
-        return urlObj.hostname.replace('www.', '');
-    } catch (e) {
-        return null;
-    }
-}
-
-// Функция для категоризации источника
-function categorizeSource(domain) {
-    if (!domain) return 'direct';
-    
-    domain = domain.toLowerCase();
-    
-    // Поисковые системы
-    if (domain.includes('google') || domain.includes('yandex') || 
-        domain.includes('bing') || domain.includes('yahoo') || 
-        domain.includes('duckduckgo') || domain.includes('mail.ru') ||
-        domain.includes('rambler')) {
-        return 'search';
-    }
-    
-    // Социальные сети
-    if (domain.includes('youtube') || domain.includes('youtu.be') ||
-        domain.includes('instagram') || domain.includes('facebook') ||
-        domain.includes('fb.com') || domain.includes('twitter') ||
-        domain.includes('x.com') || domain.includes('tiktok') ||
-        domain.includes('vk.com') || domain.includes('vkontakte') ||
-        domain.includes('telegram') || domain.includes('t.me') ||
-        domain.includes('whatsapp') || domain.includes('discord') ||
-        domain.includes('reddit') || domain.includes('pinterest') ||
-        domain.includes('twitch')) {
-        return 'social';
-    }
-    
-    // Мессенджеры
-    if (domain.includes('telegram') || domain.includes('whatsapp') ||
-        domain.includes('viber') || domain.includes('signal')) {
-        return 'messenger';
-    }
-    
-    // Партнерские сайты (можно расширить)
-//    const partners = ['github.com', 'timoshamoscow.github.io', 'taiprompts.github.io', 'github.io'];
-//    if (partners.some(p => domain.includes(p))) {
- //       return 'partner';
- //   }
-    
-    // Внутренний переход
-    // Внутренний переход
-    if (domain.includes('sitereview.github.io') || domain.includes('speedtelly1.github.io')) {
-        return 'internal';
-    }
-    
-    return 'external';
-}
-
-// Функция для сохранения информации о переходе
-function trackReferrer() {
-    // Получаем referrer
-    const referrer = document.referrer || '';
-    const refParam = getUrlParameter('ref');
-    
-    // Определяем источник
-    let source = 'direct';
-    let sourceDomain = null;
-    let sourceType = 'direct';
-    
-    // Приоритет: параметр ref > referrer
-    if (refParam) {
-        source = refParam;
-        sourceDomain = getDomainFromUrl(refParam);
-        sourceType = categorizeSource(sourceDomain);
-        console.log(`%c🔗 Переход по ссылке с параметром ref: ${source}`, 'color: #3498db; font-weight: bold;');
-    } else if (referrer) {
-        source = referrer;
-        sourceDomain = getDomainFromUrl(referrer);
-        sourceType = categorizeSource(sourceDomain);
-        console.log(`%c🔗 Переход с сайта: ${sourceDomain || source}`, 'color: #27ae60; font-weight: bold;');
-    } else {
-        console.log('%c🔗 Прямой переход или ввод URL', 'color: #95a5a6; font-weight: bold;');
-    }
-    
-    // Сохраняем информацию
-    const referrerInfo = {
-        source: source,
-        domain: sourceDomain,
-        type: sourceType,
-        timestamp: new Date().toISOString(),
-        userAgent: navigator.userAgent,
-        language: navigator.language,
-        screenSize: `${window.screen.width}x${window.screen.height}`
-    };
-    
-    // Сохраняем в localStorage (только последний переход)
-    localStorage.setItem('last_referrer', JSON.stringify(referrerInfo));
-    
-    // Если это поиск - сохраняем поисковый запрос
-    if (sourceType === 'search' && sourceDomain) {
-        try {
-            const urlObj = new URL(source);
-            let searchQuery = '';
-            
-            // Парсим поисковый запрос из разных поисковиков
-            if (sourceDomain.includes('google')) {
-                searchQuery = urlObj.searchParams.get('q');
-            } else if (sourceDomain.includes('yandex')) {
-                searchQuery = urlObj.searchParams.get('text');
-            } else if (sourceDomain.includes('bing')) {
-                searchQuery = urlObj.searchParams.get('q');
-            } else if (sourceDomain.includes('mail.ru')) {
-                searchQuery = urlObj.searchParams.get('q');
-            }
-            
-            if (searchQuery) {
-                referrerInfo.searchQuery = searchQuery;
-                localStorage.setItem('last_search_query', searchQuery);
-                console.log(`%c🔍 Поисковый запрос: "${searchQuery}"`, 'color: #e67e22; font-weight: bold;');
-            }
-        } catch (e) {
-            // Игнорируем ошибки парсинга
-        }
-    }
-    
-    // Показываем информацию в консоли
-    console.log('%c📊 Информация о переходе:', 'font-weight: bold;');
-    console.log(`   Тип: ${sourceType === 'direct' ? '📍 Прямой' : 
-                       sourceType === 'search' ? '🔍 Поиск' : 
-                       sourceType === 'social' ? '👥 Соцсеть' : 
-                       sourceType === 'messenger' ? '💬 Мессенджер' : 
-                       sourceType === 'partner' ? '🤝 Партнер' : '🔗 Внешний'}`);
-    if (sourceDomain) console.log(`   Домен: ${sourceDomain}`);
-    if (referrerInfo.searchQuery) console.log(`   Запрос: "${referrerInfo.searchQuery}"`);
-    
-    // Отправляем аналитику (если есть сервер)
-    sendReferrerAnalytics(referrerInfo);
-    
-    return referrerInfo;
-}
-
-// Функция для отправки аналитики на сервер (заглушка)
-function sendReferrerAnalytics(data) {
-    // Здесь можно добавить отправку на ваш сервер
-    // Например, через fetch API
-    
-    // Пока просто сохраняем в историю
-    const history = JSON.parse(localStorage.getItem('referrer_history') || '[]');
-    history.unshift(data);
-    if (history.length > 20) history.pop(); // Храним последние 20 переходов
-    localStorage.setItem('referrer_history', JSON.stringify(history));
-    
-    console.log('%c📤 Данные сохранены в истории', 'color: #3498db;');
-}
-
-// Функция для получения статистики по переходам
-function getReferrerStats() {
-    const history = JSON.parse(localStorage.getItem('referrer_history') || '[]');
-    
-    const stats = {
-        total: history.length,
-        byType: {},
-        byDomain: {},
-        last7days: 0,
-        last30days: 0
-    };
-    
-    const now = new Date();
-    const sevenDaysAgo = new Date(now - 7 * 24 * 60 * 60 * 1000);
-    const thirtyDaysAgo = new Date(now - 30 * 24 * 60 * 60 * 1000);
-    
-    history.forEach(item => {
-        // По типу
-        stats.byType[item.type] = (stats.byType[item.type] || 0) + 1;
-        
-        // По домену
-        if (item.domain) {
-            stats.byDomain[item.domain] = (stats.byDomain[item.domain] || 0) + 1;
-        }
-        
-        // По датам
-        const itemDate = new Date(item.timestamp);
-        if (itemDate > sevenDaysAgo) stats.last7days++;
-        if (itemDate > thirtyDaysAgo) stats.last30days++;
-    });
-    
-    return stats;
-}
-
-// Функция для добавления ref параметра к ссылкам
-function addRefToLinks() {
-    const currentRef = getUrlParameter('ref') || getDomainFromUrl(document.referrer);
-    
-    if (!currentRef) return;
-    
-    // Находим все внешние ссылки
-    document.querySelectorAll('a[href^="http"]').forEach(link => {
-        // Проверяем, что это не ссылка на наш сайт
-        if (!link.href.includes('sitereview.github.io')) {
-            try {
-                const url = new URL(link.href);
-                
-                // Добавляем ref параметр, если его еще нет
-                if (!url.searchParams.has('ref')) {
-                    url.searchParams.append('ref', window.location.href);
-                    link.href = url.toString();
-                    
-                    // Добавляем атрибут для аналитики кликов
-                    link.setAttribute('data-outgoing', 'true');
-                    link.setAttribute('data-ref-domain', currentRef);
-                    
-                    // Добавляем обработчик клика
-                    link.addEventListener('click', function(e) {
-                        console.log('%c🖱️ Клик по внешней ссылке:', 'color: #e74c3c; font-weight: bold;', {
-                            url: this.href,
-                            ref: currentRef,
-                            timestamp: new Date().toISOString()
-                        });
-                        
-                        // Сохраняем клик
-                        const clickData = {
-                            url: this.href,
-                            ref: currentRef,
-                            timestamp: new Date().toISOString()
-                        };
-                        
-                        const clicks = JSON.parse(localStorage.getItem('outgoing_clicks') || '[]');
-                        clicks.unshift(clickData);
-                        if (clicks.length > 50) clicks.pop();
-                        localStorage.setItem('outgoing_clicks', JSON.stringify(clicks));
-                    });
-                }
-            } catch (e) {
-                // Игнорируем некорректные URL
-            }
-        }
-    });
-}
-
-// Функция для отображения статистики в консоли
-function showReferrerStats() {
-    const stats = getReferrerStats();
-    
-    console.log('%c📊 СТАТИСТИКА ПЕРЕХОДОВ', 'background: #34495e; color: white; padding: 4px 10px; border-radius: 4px; font-size: 14px; font-weight: bold;');
-    console.log(`Всего переходов: ${stats.total}`);
-    console.log(`За 7 дней: ${stats.last7days}`);
-    console.log(`За 30 дней: ${stats.last30days}`);
-    
-    if (Object.keys(stats.byType).length > 0) {
-        console.log('\n📌 По типам:');
-        Object.entries(stats.byType)
-            .sort((a,b) => b[1] - a[1])
-            .forEach(([type, count]) => {
-                const icons = {
-                    direct: '📍',
-                    search: '🔍',
-                    social: '👥',
-                    messenger: '💬',
-                    partner: '🤝',
-                    external: '🔗',
-                    internal: '🏠'
-                };
-                console.log(`   ${icons[type] || '📎'} ${type}: ${count} (${Math.round(count/stats.total*100)}%)`);
-            });
-    }
-    
-    if (Object.keys(stats.byDomain).length > 0) {
-        console.log('\n🌐 Топ домены:');
-        Object.entries(stats.byDomain)
-            .sort((a,b) => b[1] - a[1])
-            .slice(0, 3)
-            .forEach(([domain, count]) => {
-                console.log(`   ${domain}: ${count}`);
-            });
-    }
-}
-
-// Функция для добавления виджета источника в интерфейс
-function addSourceWidget() {
-    const referrerInfo = JSON.parse(localStorage.getItem('last_referrer') || 'null');
-    
-    if (!referrerInfo || referrerInfo.type === 'direct' || referrerInfo.type === 'internal') {
-        return;
-    }
-    
-    // Создаем виджет
-    const widget = document.createElement('div');
-    widget.className = 'source-widget';
-    
-    const icons = {
-        search: '🔍',
-        social: '👥',
-        messenger: '💬',
-        partner: '🤝',
-        external: '🔗'
-    };
-    
-    const icon = icons[referrerInfo.type] || '🌐';
-    
-    let text = '';
-    if (referrerInfo.type === 'search' && referrerInfo.searchQuery) {
-        text = `Вы перешли по запросу: "${referrerInfo.searchQuery}"`;
-    } else if (referrerInfo.domain) {
-        text = `Вы перешли с ${referrerInfo.domain}`;
-    }
-    
-    if (text) {
-        widget.innerHTML = `
-            <div style="
-                position: fixed;
-                top: 20px;
-                right: 20px;
-                background: var(--glass-bg);
-                backdrop-filter: blur(10px);
-                border-radius: 30px;
-                padding: 10px 20px;
-                box-shadow: var(--shadow);
-                border: 1px solid var(--glass-border);
-                z-index: 999;
-                font-size: 0.9rem;
-                display: flex;
-                align-items: center;
-                gap: 10px;
-                animation: slideIn 0.5s ease;
-            ">
-                <span style="font-size: 1.2rem;">${icon}</span>
-                <span style="color: var(--text-color);">${text}</span>
-                <button onclick="this.parentElement.remove()" style="
-                    background: none;
-                    border: none;
-                    color: #999;
-                    cursor: pointer;
-                    padding: 0 5px;
-                    font-size: 1.2rem;
-                ">×</button>
-            </div>
-        `;
-        
-        document.body.appendChild(widget);
-        
-        // Автоматически скрываем через 10 секунд
-        setTimeout(() => {
-            if (widget.parentNode) {
-                widget.style.animation = 'slideOut 0.5s ease forwards';
-                setTimeout(() => widget.remove(), 500);
-            }
-        }, 10000);
-    }
-}
-
-// Добавляем стили для анимации
-const style = document.createElement('style');
-style.textContent = `
-    @keyframes slideIn {
-        from {
-            transform: translateX(100%);
-            opacity: 0;
-        }
-        to {
-            transform: translateX(0);
-            opacity: 1;
-        }
-    }
-    
-    @keyframes slideOut {
-        from {
-            transform: translateX(0);
-            opacity: 1;
-        }
-        to {
-            transform: translateX(100%);
-            opacity: 0;
-        }
-    }
-`;
-document.head.appendChild(style);
-
-// ==================== ИНИЦИАЛИЗАЦИЯ ====================
-
-// Запускаем при загрузке страницы
-document.addEventListener('DOMContentLoaded', function() {
-    // Отслеживаем реферер
-    const referrerInfo = trackReferrer();
-    
-    // Добавляем ref параметры к ссылкам
-    setTimeout(() => {
-        addRefToLinks();
-    }, 500);
-    
-    // Показываем виджет (опционально)
-    addSourceWidget();
-    
-    // Добавляем команду в консоль для просмотра статистики
-    window.showReferrerStats = showReferrerStats;
-    
-    console.log('%c💡 Введите showReferrerStats() для просмотра статистики переходов', 'color: #9b59b6; font-weight: bold;');
-});
-
-// ==================== КОМАНДЫ ДЛЯ КОНСОЛИ ====================
-
-// Добавляем полезные команды
-console.log('\n%s\n%s\n%s',
-    '%cДоступные команды:',
-    'font-weight: bold;',
-    '  • showReferrerStats() - показать статистику переходов',
-    '  • trackReferrer() - показать текущий реферер',
-    '  • getReferrerStats() - получить сырые данные статистики'
-);
-
-// DOM элементы
-        const pages = document.querySelectorAll('.page');
-        const navLinks = document.querySelectorAll('.nav-link');
-        const searchInput = document.getElementById('search-input');
-        const searchBtn = document.getElementById('search-btn');
-        const filterBtns = document.querySelectorAll('.filter-btn');
-        const featuredReviewsContainer = document.getElementById('featured-reviews');
-        const allReviewsContainer = document.getElementById('all-reviews');
-        const ratingDistribution = document.getElementById('rating-distribution');
-        
-        // Элементы для статистики
-        const totalReviewsEl = document.getElementById('total-reviews');
-        const uniqueSitesEl = document.getElementById('unique-sites');
-        const totalReviewersEl = document.getElementById('total-reviewers');
-        const avgRatingEl = document.getElementById('avg-rating');
-        
-        const statsTotalReviewsEl = document.getElementById('stats-total-reviews');
-        const statsAvgRatingEl = document.getElementById('stats-avg-rating');
-        const statsReviewersEl = document.getElementById('stats-reviewers');
-        const statsSitesEl = document.getElementById('stats-sites');
+// ==================== ВСПОМОГАТЕЛЬНЫЕ ФУНКЦИИ ====================
 
 function isUserVerified(email) {
-    // Проверяем, есть ли у этого пользователя хотя бы один верифицированный отзыв
     return reviews.some(review => review.email === email && review.verified === true);
 }
 
-// Функция для получения отображаемого никнейма (ОБНОВЛЕННАЯ ВЕРСИЯ)
 function getDisplayNickname(review) {
-    // 1. Если у отзыва есть nickname, используем его
     if (review.nickname && review.nickname.trim() !== '') {
         return review.nickname;
     }
-    
-    // 2. Если есть email, генерируем анонимный ник из email
     if (review.email && review.email.trim() !== '') {
         return generateAnonimNickname(review.email);
     }
-    
-    // 3. Если нет email, создаем ник из имени + случайных цифр
     if (review.name && review.name.trim() !== '') {
         return generateNicknameFromName(review.name);
     }
-    
-    // 4. Если вообще ничего нет - дефолтный ник
     return 'anonim_0000';
 }
 
-// Новая функция: создает английский никнейм из имени
 function generateNicknameFromName(name) {
     try {
-        // Транслитерация русского имени в английское
         const translitMap = {
             'а': 'a', 'б': 'b', 'в': 'v', 'г': 'g', 'д': 'd',
             'е': 'e', 'ё': 'yo', 'ж': 'zh', 'з': 'z', 'и': 'i',
@@ -785,48 +232,32 @@ function generateNicknameFromName(name) {
             'э': 'e', 'ю': 'yu', 'я': 'ya'
         };
         
-        // Приводим имя к нижнему регистру
         let cleanName = name.trim().toLowerCase();
-        
-        // Транслитерируем русские буквы в английские
         let englishName = '';
+        
         for (let char of cleanName) {
             if (translitMap[char]) {
                 englishName += translitMap[char];
             } else if (char.match(/[a-z0-9]/)) {
-                // Оставляем английские буквы и цифры как есть
                 englishName += char;
             }
-            // Игнорируем другие символы (пробелы, знаки препинания)
         }
         
-        // Если после транслитерации имя пустое
         if (!englishName) {
             return 'user_' + Math.floor(Math.random() * 10000).toString().padStart(4, '0');
         }
         
-        // Ограничиваем длину и убираем возможные двойные символы
-        englishName = englishName
-            .replace(/(.)\1+/g, '$1') // Убираем повторяющиеся символы
-            .substring(0, 12); // Ограничиваем длину
-        
-        // Добавляем случайные цифры для уникальности
+        englishName = englishName.replace(/(.)\1+/g, '$1').substring(0, 12);
         const randomNum = Math.floor(Math.random() * 1000).toString().padStart(3, '0');
         
-        // Формируем ник: englishname_числа
         return `${englishName}_${randomNum}`;
-        
     } catch (e) {
-        // В случае ошибки возвращаем дефолтный
-        console.warn('Ошибка создания ника из имени:', e);
         return 'user_' + Math.floor(Math.random() * 10000).toString().padStart(4, '0');
     }
 }
 
-// Функция создания хеша для анонимного никнейма
 function generateAnonimNickname(email) {
     if (!email) return 'anonim_0000';
-    
     try {
         let hash = 0;
         for (let i = 0; i < email.length; i++) {
@@ -840,46 +271,79 @@ function generateAnonimNickname(email) {
     }
 }
 
-// Извлекает username из email (можно оставить, если где-то ещё используется)
 function extractUsername(email) {
     return email.split('@')[0];
 }
 
-        // Инициализация приложения
-        document.addEventListener('DOMContentLoaded', function() {
-            console.log('Загружено отзывов:', reviews.length);
-            
-            initNavigation();
-            loadReviews();
-            createCategoryButtons();
-            updateStatistics();
-            setupSearchAndFilters();
-
-            // Добавляем обработчики для профилей
-            setupUserProfileLinks();
+// ==================== ИНИЦИАЛИЗАЦИЯ ====================
+document.addEventListener('DOMContentLoaded', function() {
+    console.log('Загружено отзывов:', reviews.length);
     
-            // Проверяем хэш URL при загрузке
-            handleProfileHash();
+    initNavigation();
+    loadReviews();
+    createCategoryButtons();
+    updateStatistics();
+    setupSearchAndFilters();
+    setupUserProfileLinks();
+    handleProfileHash();
+    updateProgress();
+    initQuiz();
+    
+    if (!window.location.hash && document.querySelector('#profile-page.active')) {
+        switchToPage('home');
+    }
+});
+
+// ==================== НАВИГАЦИЯ ====================
+function initNavigation() {
+    navLinks.forEach(link => {
+        link.addEventListener('click', function(e) {
+            e.preventDefault();
             
-            // Инициализация прогресс-бара
-            updateProgress();
+            navLinks.forEach(item => item.classList.remove('active'));
+            this.classList.add('active');
+            
+            pages.forEach(page => page.classList.remove('active'));
+            
+            const pageId = this.getAttribute('data-page');
+            document.getElementById(`${pageId}-page`).classList.add('active');
+            
+            if (pageId === 'reviews') {
+                displayAllReviews(reviews);
+            }
+            if (pageId === 'home') {
+                displaySitesNeedingReviews();
+                displayRecommendedSites();
+                displaySitesToAvoid();
+            }
+            if (pageId === 'stats') {
+                updateStatistics();
+                displayRatingDistribution();
+                displayTopSites();
+                setTimeout(() => {
+                    analyzeTimeStats();
+                }, 100);
+            }
+        });
+    });
+}
 
-            initQuiz();
-           // Если загрузили страницу без хэша, но активна страница профиля - переключаем
-           if (!window.location.hash && document.querySelector('#profile-page.active')) {
-               switchToPage('home');
-           }
-           setTimeout(() => {
-               // Функции временно отключены
-               console.log('Автосинхронизация отключена');
-           }, 3000);
+// ==================== ЗАГРУЗКА ОТЗЫВОВ ====================
+function loadReviews() {
+    displayFeaturedReviews();
+    displayAllReviews(reviews);
+    displaySitesNeedingReviews();
+    displayRecommendedSites();
+    displaySitesToAvoid();
+    
+    setTimeout(() => {
+        updateReviewCardsWithLinks();
+    }, 100);
+}
 
-// ==================== ФУНКЦИИ ДЛЯ РАБОТЫ С ПРОФИЛЯМИ ====================
-
-// Функция для генерации уникального ID пользователя (без email)
+// ==================== ПРОФИЛИ ПОЛЬЗОВАТЕЛЕЙ ====================
 function generateUserId(email) {
     if (!email) return 'user_0000';
-    
     try {
         let hash = 0;
         for (let i = 0; i < email.length; i++) {
@@ -892,7 +356,6 @@ function generateUserId(email) {
     }
 }
 
-// Функция для генерации аватара на основе имени
 function generateAvatar(name) {
     if (!name) return '';
     
@@ -930,9 +393,7 @@ function generateAvatar(name) {
     `;
 }
 
-// Функция для получения статистики пользователя
 function getUserStats(userId) {
-    // Находим пользователя по ID
     const userReviews = reviews.filter(review => {
         const reviewUserId = generateUserId(review.email);
         return reviewUserId === userId;
@@ -944,7 +405,6 @@ function getUserStats(userId) {
     const avgRating = (userReviews.reduce((sum, review) => sum + review.rating, 0) / totalReviews).toFixed(1);
     const uniqueSites = [...new Set(userReviews.map(review => review.siteUrl))].length;
     
-    // Группируем по сайтам
     const sites = {};
     userReviews.forEach(review => {
         if (!sites[review.siteUrl]) {
@@ -959,12 +419,10 @@ function getUserStats(userId) {
         sites[review.siteUrl].count++;
     });
     
-    // Рассчитываем средний рейтинг для каждого сайта
     Object.keys(sites).forEach(url => {
         sites[url].avgRating = (sites[url].ratings.reduce((a, b) => a + b, 0) / sites[url].count).toFixed(1);
     });
     
-    // Находим самый частый рейтинг
     const ratingCounts = {};
     userReviews.forEach(review => {
         ratingCounts[review.rating] = (ratingCounts[review.rating] || 0) + 1;
@@ -994,7 +452,6 @@ function getUserStats(userId) {
     };
 }
 
-// Функция для определения стиля оценок
 function getRatingStyle(avgRating) {
     if (avgRating >= 4.5) return 'Добряк';
     if (avgRating >= 4.0) return 'Позитивный';
@@ -1003,7 +460,6 @@ function getRatingStyle(avgRating) {
     return 'Строгий';
 }
 
-// Функция для отображения профиля
 function displayUserProfile(userId) {
     const profileContent = document.getElementById('profile-content');
     if (!profileContent) return;
@@ -1039,14 +495,10 @@ function displayUserProfile(userId) {
         return;
     }
     
-    // Генерируем аватар
     const avatarHTML = generateAvatar(userStats.name);
-    
-    // Форматируем даты
     const firstReviewDate = new Date(userStats.firstReviewDate).toLocaleDateString('ru-RU');
     const lastReviewDate = new Date(userStats.lastReviewDate).toLocaleDateString('ru-RU');
     
-    // Рассчитываем тип пользователя
     let userType = '';
     let typeColor = '#3498db';
     
@@ -1064,7 +516,6 @@ function displayUserProfile(userId) {
         typeColor = '#e74c3c';
     }
     
-    // Определяем цвет стиля оценок
     let ratingStyleColor = '#3498db';
     switch(userStats.ratingStyle) {
         case 'Добряк': ratingStyleColor = '#27ae60'; break;
@@ -1077,16 +528,16 @@ function displayUserProfile(userId) {
     profileContent.innerHTML = `
         <div class="profile-header" style="text-align: center; margin-bottom: 30px;">
             ${avatarHTML}
-<div style="display: flex; align-items: center; justify-content: center; gap: 10px; margin-bottom: 10px;">
-    <h2 style="margin: 0; display: flex; align-items: center; gap: 8px;">
-        ${userStats.name}
-        ${userStats.isVerified ? '<i class="fas fa-check-circle verified-badge" title="Проверенный пользователь"></i>' : ''}
-    </h2>
-</div>
-<div style="display: flex; align-items: center; justify-content: center; gap: 15px; margin-bottom: 15px; flex-wrap: wrap;">
-    <span style="color: #666;">
-        <i class="fas fa-at"></i> ${userStats.nickname}
-    </span>
+            <div style="display: flex; align-items: center; justify-content: center; gap: 10px; margin-bottom: 10px;">
+                <h2 style="margin: 0; display: flex; align-items: center; gap: 8px;">
+                    ${userStats.name}
+                    ${userStats.isVerified ? '<i class="fas fa-check-circle verified-badge" title="Проверенный пользователь"></i>' : ''}
+                </h2>
+            </div>
+            <div style="display: flex; align-items: center; justify-content: center; gap: 15px; margin-bottom: 15px; flex-wrap: wrap;">
+                <span style="color: #666;">
+                    <i class="fas fa-at"></i> ${userStats.nickname}
+                </span>
                 <span style="background: ${typeColor}15; color: ${typeColor}; padding: 4px 12px; border-radius: 20px; font-size: 0.9rem;">
                     ${userType}
                 </span>
@@ -1138,13 +589,11 @@ function displayUserProfile(userId) {
         </div>
     `;
     
-    // Отображаем отзывы пользователя
     const userReviewsContainer = document.getElementById('user-reviews-container');
     if (userReviewsContainer) {
         userReviewsContainer.innerHTML = '';
         userStats.reviews.forEach(review => {
             const card = createReviewCard(review);
-            // Убираем кликабельность, так как мы уже в профиле
             const nameElement = card.querySelector('[data-user-id]');
             if (nameElement) {
                 nameElement.style.cursor = 'default';
@@ -1157,13 +606,10 @@ function displayUserProfile(userId) {
     }
 }
 
-// Функция для обработки кликов на имена пользователей
 function setupUserProfileLinks() {
     document.addEventListener('click', function(e) {
-        // Проверяем, кликнули ли на имя пользователя или никнейм
         let target = e.target;
         
-        // Ищем ближайший элемент с данными пользователя
         while (target && !target.hasAttribute('data-user-id') && target !== document.body) {
             target = target.parentElement;
         }
@@ -1171,40 +617,30 @@ function setupUserProfileLinks() {
         if (target && target.hasAttribute('data-user-id')) {
             e.preventDefault();
             const userId = target.getAttribute('data-user-id');
-            
-            // Переключаемся на страницу профиля
             switchToPage('profile', userId);
         }
     });
 }
 
-// Вспомогательная функция для переключения страниц
 function switchToPage(pageId, userId = null) {
-    // Сбрасываем активные элементы
     navLinks.forEach(link => link.classList.remove('active'));
     pages.forEach(page => page.classList.remove('active'));
     
-    // Находим и активируем нужную ссылку
     const pageLink = document.querySelector(`.nav-link[data-page="${pageId}"]`);
     if (pageLink) {
         pageLink.classList.add('active');
     }
     
-    // Находим и показываем нужную страницу
     const targetPage = document.getElementById(`${pageId}-page`);
     if (targetPage) {
         targetPage.classList.add('active');
     }
 
-    // Если переходим с профиля на другую страницу - очищаем URL
     if (pageId !== 'profile') {
-        // Очищаем хэш профиля в URL
         window.history.pushState({}, '', window.location.pathname);
-        // Очищаем сохраненный профиль
         localStorage.removeItem('currentProfileId');
     }
     
-    // Обработка конкретных страниц
     switch(pageId) {
         case 'reviews':
             displayAllReviews(reviews);
@@ -1212,6 +648,7 @@ function switchToPage(pageId, userId = null) {
         case 'home':
             displaySitesNeedingReviews();
             displayRecommendedSites();
+            displaySitesToAvoid();
             break;
         case 'stats':
             updateStatistics();
@@ -1224,11 +661,9 @@ function switchToPage(pageId, userId = null) {
         case 'profile':
             if (userId) {
                 displayUserProfile(userId);
-                // Обновляем URL
                 window.history.pushState({}, '', `#profile/${userId}`);
                 localStorage.setItem('currentProfileId', userId);
             } else {
-                // Показываем сообщение о выборе пользователя
                 document.getElementById('profile-content').innerHTML = `
                     <div style="text-align: center; padding: 40px;">
                         <i class="fas fa-user" style="font-size: 3rem; color: #ddd; margin-bottom: 20px;"></i>
@@ -1258,21 +693,17 @@ function switchToPage(pageId, userId = null) {
     }
 }
 
-// Функция для обновления карточек отзывов с кликабельными именами
 function updateReviewCardsWithLinks() {
     document.querySelectorAll('.review-card').forEach(card => {
-        // Находим элементы с именем и никнеймом
         const nameElement = card.querySelector('.reviewer-info h3');
         const nicknameElement = card.querySelector('.reviewer-username');
         
-        // Находим ID отзыва
         const reviewId = parseInt(card.getAttribute('data-review-id') || '0');
         const review = reviews.find(r => r.id === reviewId);
         
         if (review && review.email) {
             const userId = generateUserId(review.email);
             
-            // Добавляем атрибут с ID к имени
             if (nameElement) {
                 nameElement.setAttribute('data-user-id', userId);
                 nameElement.style.cursor = 'pointer';
@@ -1282,7 +713,6 @@ function updateReviewCardsWithLinks() {
                 nameElement.title = 'Посмотреть профиль пользователя';
             }
             
-            // Также делаем кликабельным никнейм
             if (nicknameElement) {
                 nicknameElement.setAttribute('data-user-id', userId);
                 nicknameElement.style.cursor = 'pointer';
@@ -1295,86 +725,34 @@ function updateReviewCardsWithLinks() {
     });
 }
 
-// Обработка загрузки страницы с хэшем профиля
 function handleProfileHash() {
     const hash = window.location.hash;
     
     if (hash.startsWith('#profile/')) {
         const userId = hash.split('/')[1];
-        
-        // Переключаемся на страницу профиля
         switchToPage('profile', userId);
     }
 }
 
-        // Навигация между страницами
-        function initNavigation() {
-            navLinks.forEach(link => {
-                link.addEventListener('click', function(e) {
-                    e.preventDefault();
-                    
-                    navLinks.forEach(item => item.classList.remove('active'));
-                    this.classList.add('active');
-                    
-                    pages.forEach(page => page.classList.remove('active'));
-                    
-                    const pageId = this.getAttribute('data-page');
-                    document.getElementById(`${pageId}-page`).classList.add('active');
-                    
-                    if (pageId === 'reviews') {
-                        displayAllReviews(reviews);
-                    }
-
-                    if (pageId === 'home') {
-                        displaySitesNeedingReviews();
-                        displayRecommendedSites();
-                    }
-                    
-                    if (pageId === 'stats') {
-                       updateStatistics();
-                       displayRatingDistribution();
-                       displayTopSites(); // Добавляем эту строку
-                           setTimeout(() => {
-                               analyzeTimeStats(); // ЭТО ДОЛЖНО БЫТЬ!
-                           }, 100);
-                    }
-                });
-            });
-        }
-
-        // Функция для подсказок сайтов
-        function suggestSite(siteName, siteUrl) {
-            alert(`Предлагаем оценить: ${siteName}\n\nURL: ${siteUrl}\n\nПри переходе в форму, вставьте этот URL в поле "URL сайта"`);
-        }
-
-        // Функция обновления прогресс-бара
-        function updateProgress() {
-            const currentCount = reviews.length;
-            const percentage = (currentCount / 50) * 100;
-            const progressBar = document.getElementById('progress-bar');
-            const currentCountEl = document.getElementById('current-count');
-            
-            if (progressBar && currentCountEl) {
-                progressBar.style.width = Math.min(percentage, 100) + '%';
-                currentCountEl.textContent = currentCount;
-            }
-        }
-
-        // Загрузка и отображение отзывов
-// Загрузка и отображение отзывов (ОБНОВЛЕННАЯ)
-function loadReviews() {
-    displayFeaturedReviews(); // Это теперь будет показывать рекомендации
-    displayAllReviews(reviews);
-    displaySitesNeedingReviews();
-    displayRecommendedSites();
-    displaySitesToAvoid();
-    
-    setTimeout(() => {
-        updateReviewCardsWithLinks();
-    }, 100);
+// ==================== ПОДСКАЗКИ САЙТОВ ====================
+function suggestSite(siteName, siteUrl) {
+    alert(`Предлагаем оценить: ${siteName}\n\nURL: ${siteUrl}\n\nПри переходе в форму, вставьте этот URL в поле "URL сайта"`);
 }
 
-// Функция для отображения сайтов, которым нужны отзывы
+// ==================== ПРОГРЕСС-БАР ====================
+function updateProgress() {
+    const currentCount = reviews.length;
+    const percentage = (currentCount / 50) * 100;
+    const progressBar = document.getElementById('progress-bar');
+    const currentCountEl = document.getElementById('current-count');
+    
+    if (progressBar && currentCountEl) {
+        progressBar.style.width = Math.min(percentage, 100) + '%';
+        currentCountEl.textContent = currentCount;
+    }
+}
+
+// ==================== ОТОБРАЖЕНИЕ САЙТОВ ====================
 function displaySitesNeedingReviews() {
     const container = document.getElementById('sites-needing-reviews');
     if (!container) return;
@@ -1392,42 +770,20 @@ function displaySitesNeedingReviews() {
         const siteElement = document.createElement('div');
         siteElement.className = 'site-needing-review';
         
-        // Определяем текст в зависимости от количества отзывов
-        let infoText = '';
-        if (site.reviewCount === 1) {
-            infoText = '1 отзыв';
-        } else if (site.reviewCount === 0) {
-            infoText = 'нет отзывов';
-        } else {
-            infoText = `${site.reviewCount} отзыва`;
-        }
-        
-        // Добавляем информацию о давности, если больше 30 дней
-        if (site.daysSinceLastReview > 30) {
-            infoText += ` • ${Math.floor(site.daysSinceLastReview / 30)} мес.`;
-        }
-        
+        const reasonIcon = getReasonIcon(site.reviewCount, site.daysSinceLastReview, site.avgRating);
         siteElement.innerHTML = `
+            <span style="margin-right: 8px; color: #666;">${reasonIcon}</span>
             <span class="site-name">${site.name}</span>
             <span class="site-info">${site.needsReviewsReason}</span>
         `;
 
-       // И добавим иконки в зависимости от причины
-       const reasonIcon = getReasonIcon(site.reviewCount, site.daysSinceLastReview, site.avgRating);
-       siteElement.innerHTML = `
-           <span style="margin-right: 8px; color: #666;">${reasonIcon}</span>
-           <span class="site-name">${site.name}</span>
-           <span class="site-info">${site.needsReviewsReason}</span>
-        `;
-
-         function getReasonIcon(count, days, rating) {
-             if (count <= 2) return '<i class="fas fa-exclamation-circle" style="color: #e74c3c;"></i>';
-             if (days > 30) return '<i class="fas fa-clock" style="color: #f39c12;"></i>';
-             if (rating < 3.0) return '<i class="fas fa-thermometer-empty" style="color: #e74c3c;"></i>';
-             return '<i class="fas fa-question-circle" style="color: #3498db;"></i>';
-          }
+        function getReasonIcon(count, days, rating) {
+            if (count <= 2) return '<i class="fas fa-exclamation-circle" style="color: #e74c3c;"></i>';
+            if (days > 30) return '<i class="fas fa-clock" style="color: #f39c12;"></i>';
+            if (rating < 3.0) return '<i class="fas fa-thermometer-empty" style="color: #e74c3c;"></i>';
+            return '<i class="fas fa-question-circle" style="color: #3498db;"></i>';
+        }
         
-        // Добавляем обработчик клика для быстрой оценки
         siteElement.addEventListener('click', () => {
             suggestSite(site.name, site.url);
         });
@@ -1436,7 +792,6 @@ function displaySitesNeedingReviews() {
     });
 }
 
-// Функция для отображения рекомендованных сайтов
 function displayRecommendedSites() {
     const container = document.getElementById('recommended-sites');
     if (!container) return;
@@ -1450,7 +805,6 @@ function displayRecommendedSites() {
     
     container.innerHTML = '';
     
-    // Ограничиваем 3 лучшими сайтами
     const topSites = recommendedSites.slice(0, 3);
     
     topSites.forEach(site => {
@@ -1460,10 +814,8 @@ function displayRecommendedSites() {
         siteElement.target = '_blank';
         siteElement.rel = 'noopener noreferrer';
         
-        // Форматируем рейтинг
         const formattedRating = site.avgRating.toFixed(1);
         
-        // Создаем звезды для рейтинга
         let starsHTML = '';
         for (let i = 0; i < 5; i++) {
             if (i < Math.floor(site.avgRating)) {
@@ -1483,7 +835,6 @@ function displayRecommendedSites() {
             <span class="site-count">${site.count} отзыв${site.count === 1 ? '' : site.count >= 5 ? 'ов' : 'а'}</span>
         `;
         
-        // Добавляем бейдж для топ-1 сайта
         if (recommendedSites.indexOf(site) === 0) {
             const badge = document.createElement('span');
             badge.className = 'recommended-badge';
@@ -1495,15 +846,11 @@ function displayRecommendedSites() {
     });
 }
 
-// Также добавьте вызов при смене страниц, если нужно обновлять данные:
-
-// ОБНОВЛЕННАЯ функция для главной страницы
 function displayFeaturedReviews() {
     const container = document.getElementById('featured-reviews');
     if (!container) return;
     
-    // Получаем персонализированные рекомендации
-    const recommended = getPersonalizedReviews(6);
+    const recommended = typeof getPersonalizedReviews !== 'undefined' ? getPersonalizedReviews(3) : getPopularReviews(3);
     
     container.innerHTML = '';
     
@@ -1512,7 +859,6 @@ function displayFeaturedReviews() {
         return;
     }
     
-    // Добавляем заголовок в зависимости от авторизации
     const user = localStorage.getItem('siteReview_user');
     const header = document.createElement('div');
     header.style.cssText = `
@@ -1526,7 +872,7 @@ function displayFeaturedReviews() {
     if (user) {
         header.innerHTML = `
             <i class="fas fa-magic" style="color: #9b59b6; font-size: 1.2rem;"></i>
-            <h3 style="margin: 0; color: var(--secondary-color);">Рекомендовано для вас</h3>
+            <h3 style="margin: 0; color: var(--secondary-color);">Может вам понравится</h3>
             <span style="
                 background: #9b59b6;
                 color: white;
@@ -1556,11 +902,9 @@ function displayFeaturedReviews() {
     });
 }
 
-// 1. Отображение всех отзывов (обновлено)
 function displayAllReviews(reviewsArray) {
     if (!allReviewsContainer) return;
     
-    // Сортируем отзывы по дате (новые → старые)
     const sortedReviews = [...reviewsArray].sort((a, b) => {
         return new Date(b.date) - new Date(a.date);
     });
@@ -1576,80 +920,74 @@ function displayAllReviews(reviewsArray) {
         allReviewsContainer.appendChild(createReviewCard(review));
     });
 
-    // ДОБАВЬ ЭТО ↓↓↓
     setTimeout(() => {
         updateReviewCardsWithLinks();
     }, 100);
 }
 
-        // Функция определения категорий для конкретного отзыва
-        function getReviewCategories(review) {
-            const cats = [];
-            
-            // Определяем по названию и комментарию
-            const text = (review.siteName + ' ' + review.comment).toLowerCase();
-            
-            // Проверяем все категории из data.js
-            Object.entries(categories).forEach(([catName, filterFunc]) => {
-                if (catName !== 'Все' && catName !== 'Критические' && catName !== 'Позитивные') {
-                    try {
-                        if (filterFunc(review)) {
-                            cats.push(catName);
-                        }
-                    } catch (e) {
-                        console.warn('Ошибка в категории', catName, e);
+function getPopularReviews(limit = 3) {
+    return [...reviews].sort((a, b) => new Date(b.date) - new Date(a.date)).slice(0, limit);
+}
+
+// ==================== КАТЕГОРИИ ====================
+function getReviewCategories(review) {
+    const cats = [];
+    const text = (review.siteName + ' ' + review.comment).toLowerCase();
+    
+    if (typeof categories !== 'undefined') {
+        Object.entries(categories).forEach(([catName, filterFunc]) => {
+            if (catName !== 'Все' && catName !== 'Критические' && catName !== 'Позитивные') {
+                try {
+                    if (filterFunc(review)) {
+                        cats.push(catName);
                     }
-                }
-            });
-            
-            // Добавляем Критические и Позитивные в зависимости от рейтинга
-            if (review.rating <= 2 || review.comment.toLowerCase().includes('цензур') || 
-                review.comment.toLowerCase().includes('груб') || review.comment.toLowerCase().includes('глуп')) {
-                cats.push('Критические');
-            } else if (review.rating >= 4 && (review.comment.toLowerCase().includes('лучш') ||
-                review.comment.toLowerCase().includes('хорош') || review.comment.toLowerCase().includes('отличн'))) {
-                cats.push('Позитивные');
+                } catch (e) {}
             }
-            
-            return cats;
-        }
+        });
+    }
+    
+    if (review.rating <= 2 || review.comment.toLowerCase().includes('цензур') || 
+        review.comment.toLowerCase().includes('груб') || review.comment.toLowerCase().includes('глуп')) {
+        cats.push('Критические');
+    } else if (review.rating >= 4 && (review.comment.toLowerCase().includes('лучш') ||
+        review.comment.toLowerCase().includes('хорош') || review.comment.toLowerCase().includes('отличн'))) {
+        cats.push('Позитивные');
+    }
+    
+    return cats;
+}
 
-        // Цвета для категорий
-        function getCategoryColor(category) {
-            const colors = {
-                'Соцсети': '#3498db',
-                'Игры': '#9b59b6',
-                'Инструменты': '#2ecc71',
-                'Магазины': '#e74c3c',
-                'Критические': '#f39c12',
-                'Позитивные': '#1abc9c',
-                'Авторские': '#1abc9c',
-                'Все': '#95a5a6'
-            };
-            return colors[category] || '#95a5a6';
-        }
+function getCategoryColor(category) {
+    const colors = {
+        'Соцсети': '#3498db',
+        'Игры': '#9b59b6',
+        'Инструменты': '#2ecc71',
+        'Магазины': '#e74c3c',
+        'Критические': '#f39c12',
+        'Позитивные': '#1abc9c',
+        'Авторские': '#1abc9c',
+        'Все': '#95a5a6'
+    };
+    return colors[category] || '#95a5a6';
+}
 
-        // Функция генерации случайного времени
-        function generateRandomTime() {
-            // Рабочее время с 9 до 18 для реалистичности
-            const hour = 9 + Math.floor(Math.random() * 9); // 9-17
-            const minute = Math.floor(Math.random() * 60); // 0-59
-            return `${String(hour).padStart(2, '0')}:${String(minute).padStart(2, '0')}`;
-        }
+function generateRandomTime() {
+    const hour = 9 + Math.floor(Math.random() * 9);
+    const minute = Math.floor(Math.random() * 60);
+    return `${String(hour).padStart(2, '0')}:${String(minute).padStart(2, '0')}`;
+}
 
-// Создание карточки отзыва (ОБНОВЛЕННАЯ)
+// ==================== КАРТОЧКА ОТЗЫВА ====================
 function createReviewCard(review) {
     const card = document.createElement('div');
     card.className = 'review-card glass-effect';
 
     card.setAttribute('data-review-id', review.id);
 
-    // Добавляем класс для критических отзывов
     if (review.rating <= 2) {
         card.classList.add('critical');
     }
     
-    // Форматирование даты
     const date = new Date(review.date);
     const formattedDate = date.toLocaleDateString('ru-RU', {
         year: 'numeric',
@@ -1657,17 +995,14 @@ function createReviewCard(review) {
         day: 'numeric'
     });
 
-    // Добавляем время
     let formattedTime = '';
     if (review.date.includes('T')) {
         const timeParts = review.date.split('T')[1];
         formattedTime = timeParts.substring(0, 5);
     } else {
-        // Если времени нет, добавляем случайное
         formattedTime = generateRandomTime();
     }
     
-    // Создание звезд рейтинга
     let starsHTML = '';
     for (let i = 1; i <= 5; i++) {
         if (i <= review.rating) {
@@ -1677,31 +1012,26 @@ function createReviewCard(review) {
         }
     }
     
-    // Извлечение домена из URL для отображения
     let domain = review.siteUrl;
     try {
         const url = new URL(review.siteUrl);
         domain = url.hostname.replace('www.', '');
-    } catch (e) {
-        // Если URL некорректный, оставляем как есть
-    }
+    } catch (e) {}
 
     const displayNickname = getDisplayNickname(review);
     
-// Получаем статистику лайков
-let likeStats = { likes: 0, dislikes: 0 };
-let userVote = null;
-
-// Проверяем, что likesStorage существует и это объект
-if (typeof likesStorage !== 'undefined' && likesStorage) {
-    try {
-        likeStats = likesStorage.getReviewStats ? likesStorage.getReviewStats(review.id) : { likes: 0, dislikes: 0 };
-        const userLikes = likesStorage.getUserLikes ? likesStorage.getUserLikes() : {};
-        userVote = userLikes[review.id];
-    } catch (e) {
-        console.warn('Ошибка получения лайков:', e);
+    let likeStats = { likes: 0, dislikes: 0 };
+    let userVote = null;
+    
+    if (typeof likesStorage !== 'undefined' && likesStorage) {
+        try {
+            likeStats = likesStorage.getReviewStats ? likesStorage.getReviewStats(review.id) : { likes: 0, dislikes: 0 };
+            const userLikes = likesStorage.getUserLikes ? likesStorage.getUserLikes() : {};
+            userVote = userLikes[review.id];
+        } catch (e) {
+            console.warn('Ошибка получения лайков:', e);
+        }
     }
-}
             
     card.innerHTML = `
         <div class="review-header">
@@ -1728,7 +1058,6 @@ if (typeof likesStorage !== 'undefined' && likesStorage) {
         
         <div class="review-text">${review.comment}</div>
         
-        <!-- ЛАЙКИ И ДИЗЛАЙКИ -->
         <div class="review-actions" style="
             display: flex;
             align-items: center;
@@ -1785,10 +1114,8 @@ if (typeof likesStorage !== 'undefined' && likesStorage) {
         <div class="review-date">${formattedDate} • ${formattedTime}</div>
     `;
 
-    // Добавляем предупреждения
     addWarningLabels(card, review);
 
-    // Добавляем категории как теги
     const reviewCategories = getReviewCategories(review);
     if (reviewCategories.length > 0) {
         const tagsHtml = reviewCategories.map(cat => 
@@ -1804,113 +1131,94 @@ if (typeof likesStorage !== 'undefined' && likesStorage) {
             ">${cat}</span>`
         ).join('');
         
-        // Вставляем теги после названия сайта
         const tagsDiv = `<div class="review-tags" style="margin: 8px 0 12px 0;">${tagsHtml}</div>`;
-        
-        // Модифицируем HTML карточки
         const reviewTextDiv = card.querySelector('.review-text');
         if (reviewTextDiv) {
             reviewTextDiv.insertAdjacentHTML('beforebegin', tagsDiv);
         }
     }
     
-// Добавляем обработчики для лайков и похожих
-setTimeout(() => {
-    const likeBtn = card.querySelector('.like-btn');
-    const dislikeBtn = card.querySelector('.dislike-btn');
-    const similarBtn = card.querySelector('.similar-btn');
-    
-    if (likeBtn) {
-        likeBtn.addEventListener('click', (e) => {
-            e.preventDefault();
-            e.stopPropagation();
-            if (typeof handleLikeClick !== 'undefined') {
-                handleLikeClick(e, card);
-            } else {
-                console.warn('Функция handleLikeClick не найдена');
-                alert('Функция лайков временно недоступна');
-            }
-        });
-    }
-    
-    if (dislikeBtn) {
-        dislikeBtn.addEventListener('click', (e) => {
-            e.preventDefault();
-            e.stopPropagation();
-            if (typeof handleLikeClick !== 'undefined') {
-                handleLikeClick(e, card);
-            } else {
-                console.warn('Функция handleLikeClick не найдена');
-                alert('Функция дизлайков временно недоступна');
-            }
-        });
-    }
-    
-    if (similarBtn) {
-        similarBtn.addEventListener('click', (e) => {
-            e.preventDefault();
-            e.stopPropagation();
-            if (typeof showSimilarReviews !== 'undefined') {
-                showSimilarReviews(review.id);
-            } else {
-                console.warn('Функция showSimilarReviews не найдена');
-                alert('Функция похожих отзывов временно недоступна');
-            }
-        });
-    }
-}, 0);
+    setTimeout(() => {
+        const likeBtn = card.querySelector('.like-btn');
+        const dislikeBtn = card.querySelector('.dislike-btn');
+        const similarBtn = card.querySelector('.similar-btn');
+        
+        if (likeBtn) {
+            likeBtn.addEventListener('click', (e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                if (typeof handleLikeClick !== 'undefined') {
+                    handleLikeClick(e, card);
+                } else {
+                    console.warn('Функция handleLikeClick не найдена');
+                    alert('Функция лайков временно недоступна');
+                }
+            });
+        }
+        
+        if (dislikeBtn) {
+            dislikeBtn.addEventListener('click', (e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                if (typeof handleLikeClick !== 'undefined') {
+                    handleLikeClick(e, card);
+                } else {
+                    console.warn('Функция handleLikeClick не найдена');
+                    alert('Функция дизлайков временно недоступна');
+                }
+            });
+        }
+        
+        if (similarBtn) {
+            similarBtn.addEventListener('click', (e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                if (typeof showSimilarReviews !== 'undefined') {
+                    showSimilarReviews(review.id);
+                } else {
+                    console.warn('Функция showSimilarReviews не найдена');
+                    alert('Функция похожих отзывов временно недоступна');
+                }
+            });
+        }
+    }, 0);
     
     return card;
 }
 
-// ==================== ФУНКЦИЯ ДЛЯ ОПРЕДЕЛЕНИЯ АВТОРОВ GITHUB PAGES ====================
-
+// ==================== ОПРЕДЕЛЕНИЕ АВТОРОВ GITHUB PAGES ====================
 function isGitHubPagesAuthor(review) {
     try {
         const url = new URL(review.siteUrl);
         const hostname = url.hostname.toLowerCase();
         
-        // Проверяем, это GitHub Pages?
         if (hostname.endsWith('.github.io')) {
-            // Извлекаем username из домена
-            // Пример: timoshamoscow.github.io → timoshamoscow
             const githubUsername = hostname.replace('.github.io', '').toLowerCase();
             
-            // 1. Проверяем никнейм (основная проверка)
             const displayNickname = getDisplayNickname(review).toLowerCase();
-            if (displayNickname.includes(githubUsername) || 
-                githubUsername.includes(displayNickname)) {
+            if (displayNickname.includes(githubUsername) || githubUsername.includes(displayNickname)) {
                 return true;
             }
             
-            // 2. Проверяем email
             if (review.email) {
                 const emailLower = review.email.toLowerCase();
-                // Ищем username в email (до @ или полностью)
                 const emailUser = emailLower.split('@')[0];
                 
-                if (emailUser.includes(githubUsername) || 
-                    githubUsername.includes(emailUser) ||
-                    emailLower.includes(githubUsername)) {
+                if (emailUser.includes(githubUsername) || githubUsername.includes(emailUser) || emailLower.includes(githubUsername)) {
                     return true;
                 }
             }
             
-            // 3. Проверяем явный nickname из данных
             if (review.nickname) {
                 const nicknameLower = review.nickname.toLowerCase();
-                if (nicknameLower.includes(githubUsername) || 
-                    githubUsername.includes(nicknameLower)) {
+                if (nicknameLower.includes(githubUsername) || githubUsername.includes(nicknameLower)) {
                     return true;
                 }
             }
             
-            // 4. Проверяем имя
             if (review.name) {
                 const nameLower = review.name.toLowerCase();
-                // Иногда имя может совпадать (timo → timoshamoscow)
-                if (nameLower.includes(githubUsername) || 
-                    githubUsername.includes(nameLower)) {
+                if (nameLower.includes(githubUsername) || githubUsername.includes(nameLower)) {
                     return true;
                 }
             }
@@ -1918,134 +1226,95 @@ function isGitHubPagesAuthor(review) {
         
         return false;
     } catch (e) {
-        // Если URL некорректный
-        console.debug('Ошибка проверки GitHub Pages авторства:', e);
         return false;
     }
 }
-                
-        // Функция добавления предупреждений
-        function addWarningLabels(cardElement, review) {
-            const warnings = [];
-            
-            // Проверка 1: Очень низкий рейтинг
-            if (review.rating <= 2) {
-                warnings.push({
-                    text: 'Низкий рейтинг',
-                    icon: 'fas fa-exclamation-triangle',
-                    color: '#e74c3c'
-                });
-            }
-            
-            // Проверка 2: Длинный негативный текст
-            const negativeWords = ['плохой', 'ужасный', 'кошмар', 'не советую', 'избегайте', 'мусор', 'говно', 'дерьмо', 'отстой'];
-            const hasNegative = negativeWords.some(word => 
-                review.comment.toLowerCase().includes(word)
-            );
-            if (hasNegative && review.rating <= 3) {
-                warnings.push({
-                    text: 'Резко негативный',
-                    icon: 'fas fa-fire',
-                    color: '#f39c12'
-                });
-            }
-            
-            // Проверка 3: Конфликт интересов (автор сайта)
-            const isAuthor = review.comment.includes('мой сайт') || 
-                            review.comment.includes('я автор') ||
-                            isGitHubPagesAuthor(review);
-            if (isAuthor && review.rating >= 4) {
-                warnings.push({
-                    text: 'Автор оцениваемого сайта',
-                    icon: 'fas fa-user-edit',
-                    color: '#3CB371'
-                });
-            }
 
-            // Проверка 4: Автор SiteReview
-            const isOwner = review.name === 'Константин' && review.email === 'timosha.sibilev@gmail.com';
-            if (isOwner) {
-                warnings.push({
-                    text: 'Автор SiteReview',
-                    icon: 'fas fa-user-edit',
-                    color: '#1E90FF'
-                });
-            }
+// ==================== ПРЕДУПРЕЖДЕНИЯ ====================
+function addWarningLabels(cardElement, review) {
+    const warnings = [];
+    
+    if (review.rating <= 2) {
+        warnings.push({
+            text: 'Низкий рейтинг',
+            icon: 'fas fa-exclamation-triangle',
+            color: '#e74c3c'
+        });
+    }
+    
+    const negativeWords = ['плохой', 'ужасный', 'кошмар', 'не советую', 'избегайте', 'мусор', 'говно', 'дерьмо', 'отстой'];
+    const hasNegative = negativeWords.some(word => review.comment.toLowerCase().includes(word));
+    if (hasNegative && review.rating <= 3) {
+        warnings.push({
+            text: 'Резко негативный',
+            icon: 'fas fa-fire',
+            color: '#f39c12'
+        });
+    }
+    
+    const isAuthor = review.comment.includes('мой сайт') || review.comment.includes('я автор') || isGitHubPagesAuthor(review);
+    if (isAuthor && review.rating >= 4) {
+        warnings.push({
+            text: 'Автор оцениваемого сайта',
+            icon: 'fas fa-user-edit',
+            color: '#3CB371'
+        });
+    }
 
-            // Проверка : Редактор
-//            const isRedic = review.email === 'akkumulator950@gmail.com';
-//            if (isRedic) {
-//                warnings.push({
-//                    text: 'Редактор SiteReview',
-//                    icon: 'fas fa-user-edit',
-//                    color: '#24b500'
-//                });
-//            }
-               
-            // Проверка : Партнер
-//            const isPartner = review.name === 'Тимофей' && 
-//                  review.email === 'roll3ogurec0@gmail.com';
-//            if (isPartner) {
-//                warnings.push({
- //                   text: 'Партнер SiteReview',
- //                   icon: 'fa-solid fa-handshake',
-//                    color: '#1E90FF'
-//                });
-//            }
-            
-            // Проверка 5: Личная критика
-            const personalAttacks = ['дурак', 'идиот', 'тупой', 'грубый', 'глупый', 'грубым', 'глупым', 'тупым', 'глуп', 'туп', 'лох'];
-            const hasPersonal = personalAttacks.some(word => 
-                review.comment.toLowerCase().includes(word)
-            );
-            if (hasPersonal) {
-                warnings.push({
-                    text: 'Личный конфликт',
-                    icon: 'fas fa-user-times',
-                    color: '#9b59b6'
-                });
-            }
-            
-            // Добавляем предупреждения в карточку
-            if (warnings.length > 0) {
-                const warningContainer = document.createElement('div');
-                warningContainer.className = 'warning-container';
-                
-                warnings.forEach(warning => {
-                    const badge = document.createElement('span');
-                    badge.className = 'warning-badge';
-                    badge.style.cssText = `
-                        display: inline-flex;
-                        align-items: center;
-                        gap: 5px;
-                        background: ${warning.color}15;
-                        color: ${warning.color};
-                        padding: 4px 10px;
-                        border-radius: 12px;
-                        font-size: 0.8rem;
-                        border: 1px solid ${warning.color}30;
-                        white-space: nowrap;
-                        margin: 2px 0;
-                    `;
-                    badge.innerHTML = `<i class="${warning.icon}"></i> ${warning.text}`;
-                    warningContainer.appendChild(badge);
-                });
-                
-                // Вставляем после имени пользователя
-                const header = cardElement.querySelector('.review-header');
-                if (header) {
-                    header.parentNode.insertBefore(warningContainer, header.nextSibling);
-                }
-            }
+    const isOwner = review.name === 'Константин' && review.email === 'timosha.sibilev@gmail.com';
+    if (isOwner) {
+        warnings.push({
+            text: 'Автор SiteReview',
+            icon: 'fas fa-user-edit',
+            color: '#1E90FF'
+        });
+    }
+    
+    const personalAttacks = ['дурак', 'идиот', 'тупой', 'грубый', 'глупый', 'грубым', 'глупым', 'тупым', 'глуп', 'туп', 'лох'];
+    const hasPersonal = personalAttacks.some(word => review.comment.toLowerCase().includes(word));
+    if (hasPersonal) {
+        warnings.push({
+            text: 'Личный конфликт',
+            icon: 'fas fa-user-times',
+            color: '#9b59b6'
+        });
+    }
+    
+    if (warnings.length > 0) {
+        const warningContainer = document.createElement('div');
+        warningContainer.className = 'warning-container';
+        
+        warnings.forEach(warning => {
+            const badge = document.createElement('span');
+            badge.className = 'warning-badge';
+            badge.style.cssText = `
+                display: inline-flex;
+                align-items: center;
+                gap: 5px;
+                background: ${warning.color}15;
+                color: ${warning.color};
+                padding: 4px 10px;
+                border-radius: 12px;
+                font-size: 0.8rem;
+                border: 1px solid ${warning.color}30;
+                white-space: nowrap;
+                margin: 2px 0;
+            `;
+            badge.innerHTML = `<i class="${warning.icon}"></i> ${warning.text}`;
+            warningContainer.appendChild(badge);
+        });
+        
+        const header = cardElement.querySelector('.review-header');
+        if (header) {
+            header.parentNode.insertBefore(warningContainer, header.nextSibling);
         }
+    }
+}
 
-// ==================== РАСШИРЕННЫЙ ПОИСК ====================
-
+// ==================== ПОИСК И ФИЛЬТРЫ ====================
 function setupSearchAndFilters() {
-    // Заполняем фильтры авторов и сайтов
     populateFilterOptions();
     
-    // Основной поиск
     if (searchBtn && searchInput) {
         searchBtn.addEventListener('click', performAdvancedSearch);
         searchInput.addEventListener('keyup', function(e) {
@@ -2053,34 +1322,22 @@ function setupSearchAndFilters() {
         });
     }
     
-    // Кнопка сброса поиска
     document.getElementById('reset-search-btn')?.addEventListener('click', resetAllFilters);
-    
-    // Фильтры
     document.getElementById('rating-filter')?.addEventListener('change', performAdvancedSearch);
     document.getElementById('author-filter')?.addEventListener('change', performAdvancedSearch);
     document.getElementById('site-filter')?.addEventListener('change', performAdvancedSearch);
-    
-    // Чекбоксы
     document.getElementById('verified-only')?.addEventListener('change', performAdvancedSearch);
     document.getElementById('critical-only')?.addEventListener('change', performAdvancedSearch);
     document.getElementById('positive-only')?.addEventListener('change', performAdvancedSearch);
-    
-    // Очистить все фильтры
     document.getElementById('clear-all-filters')?.addEventListener('click', resetAllFilters);
 }
 
-// Заполнение фильтров авторов и сайтов
 function populateFilterOptions() {
-    // Уникальные авторы
     const uniqueAuthors = [...new Set(reviews.map(review => review.name))];
     const authorSelect = document.getElementById('author-filter');
     
     if (authorSelect) {
-        // Сохраняем выбранное значение
         const selectedAuthor = authorSelect.value;
-        
-        // Очищаем и добавляем авторов
         authorSelect.innerHTML = '<option value="all">Все авторы</option>';
         uniqueAuthors.sort().forEach(author => {
             const option = document.createElement('option');
@@ -2088,20 +1345,16 @@ function populateFilterOptions() {
             option.textContent = author;
             authorSelect.appendChild(option);
         });
-        
-        // Восстанавливаем выбранное значение
         if (selectedAuthor && selectedAuthor !== 'all') {
             authorSelect.value = selectedAuthor;
         }
     }
     
-    // Уникальные сайты
     const uniqueSites = [...new Set(reviews.map(review => review.siteName))];
     const siteSelect = document.getElementById('site-filter');
     
     if (siteSelect) {
         const selectedSite = siteSelect.value;
-        
         siteSelect.innerHTML = '<option value="all">Все сайты</option>';
         uniqueSites.sort().forEach(site => {
             const option = document.createElement('option');
@@ -2109,14 +1362,12 @@ function populateFilterOptions() {
             option.textContent = site;
             siteSelect.appendChild(option);
         });
-        
         if (selectedSite && selectedSite !== 'all') {
             siteSelect.value = selectedSite;
         }
     }
 }
 
-// Расширенный поиск
 function performAdvancedSearch() {
     const searchTerm = searchInput.value.toLowerCase().trim();
     const ratingFilter = document.getElementById('rating-filter').value;
@@ -2126,9 +1377,7 @@ function performAdvancedSearch() {
     const criticalOnly = document.getElementById('critical-only').checked;
     const positiveOnly = document.getElementById('positive-only').checked;
     
-    // Фильтруем отзывы
     let filteredReviews = reviews.filter(review => {
-        // Поисковый запрос
         let matchesSearch = true;
         if (searchTerm) {
             const displayNickname = getDisplayNickname(review).toLowerCase();
@@ -2140,59 +1389,47 @@ function performAdvancedSearch() {
             );
         }
         
-        // Фильтр по рейтингу
         let matchesRating = true;
         if (ratingFilter !== 'all') {
             matchesRating = review.rating === parseInt(ratingFilter);
         }
         
-        // Фильтр по автору
         let matchesAuthor = true;
         if (authorFilter !== 'all') {
             matchesAuthor = review.name === authorFilter;
         }
         
-        // Фильтр по сайту
         let matchesSite = true;
         if (siteFilter !== 'all') {
             matchesSite = review.siteName === siteFilter;
         }
         
-        // Только проверенные
         let matchesVerified = true;
         if (verifiedOnly) {
             matchesVerified = review.verified === true;
         }
         
-        // Только критические
         let matchesCritical = true;
         if (criticalOnly) {
             matchesCritical = review.rating <= 2;
         }
         
-        // Только позитивные
         let matchesPositive = true;
         if (positiveOnly) {
             matchesPositive = review.rating >= 4;
         }
         
-        return matchesSearch && matchesRating && matchesAuthor && 
-               matchesSite && matchesVerified && matchesCritical && matchesPositive;
+        return matchesSearch && matchesRating && matchesAuthor && matchesSite && matchesVerified && matchesCritical && matchesPositive;
     });
     
-    // Сортируем по дате (новые → старые)
     filteredReviews = filteredReviews.sort((a, b) => {
         return new Date(b.date) - new Date(a.date);
     });
     
-    // Отображаем результаты
     displayAllReviews(filteredReviews);
-    
-    // Показываем информацию о результатах
     showSearchResultsInfo(filteredReviews.length, searchTerm);
 }
 
-// Показать информацию о результатах
 function showSearchResultsInfo(count, searchTerm) {
     const resultsInfo = document.getElementById('search-results-info');
     const resultsCount = document.getElementById('results-count');
@@ -2208,7 +1445,6 @@ function showSearchResultsInfo(count, searchTerm) {
     }
 }
 
-// Проверка активных фильтров
 function hasActiveFilters() {
     const ratingFilter = document.getElementById('rating-filter').value;
     const authorFilter = document.getElementById('author-filter').value;
@@ -2227,45 +1463,28 @@ function hasActiveFilters() {
     );
 }
 
-// Сбросить все фильтры
 function resetAllFilters() {
-    // Очистить поисковую строку
     if (searchInput) {
         searchInput.value = '';
     }
     
-    // Сбросить выпадающие списки
     document.getElementById('rating-filter').value = 'all';
     document.getElementById('author-filter').value = 'all';
     document.getElementById('site-filter').value = 'all';
-    
-    // Сбросить чекбоксы
     document.getElementById('verified-only').checked = false;
     document.getElementById('critical-only').checked = false;
     document.getElementById('positive-only').checked = false;
-    
-    // Скрыть информацию о результатах
     document.getElementById('search-results-info').style.display = 'none';
     
-    // Показать все отзывы
     displayAllReviews(reviews);
 }
 
-// Обновить фильтры при добавлении новых отзывов
-function updateSearchFilters() {
-    populateFilterOptions();
-}
-
-// Функция для обновления счетчика результатов поиска
 function updateSearchResultsCount(count, searchTerm) {
-    // Удаляем старый счетчик, если есть
     const oldCountEl = document.getElementById('search-results-count');
     if (oldCountEl) oldCountEl.remove();
     
-    // Если нет результатов, не показываем счетчик
     if (count === 0) return;
     
-    // Создаем новый элемент с количеством результатов
     const resultsCountEl = document.createElement('div');
     resultsCountEl.id = 'search-results-count';
     resultsCountEl.className = 'search-results-info';
@@ -2287,7 +1506,6 @@ function updateSearchResultsCount(count, searchTerm) {
         <span>Найдено <strong style="color: var(--primary-color);">${count}</strong> отзывов по запросу "<strong style="color: #2c3e50;">${searchTerm}</strong>"</span>
     `;
     
-    // Добавляем кнопку сброса поиска
     const resetBtn = document.createElement('button');
     resetBtn.innerHTML = '<i class="fas fa-times"></i> Очистить поиск';
     resetBtn.style.cssText = `
@@ -2319,20 +1537,17 @@ function updateSearchResultsCount(count, searchTerm) {
     
     resultsCountEl.appendChild(resetBtn);
     
-    // Вставляем после заголовка раздела с отзывами
     const reviewsPage = document.getElementById('reviews-page');
     if (reviewsPage) {
         const allReviewsHeader = reviewsPage.querySelector('.page-header h1, .section-header');
         if (allReviewsHeader) {
             allReviewsHeader.parentNode.insertBefore(resultsCountEl, allReviewsHeader.nextSibling);
         } else {
-            // Если не нашли заголовок, вставляем в начало контейнера с отзывами
             allReviewsContainer.insertBefore(resultsCountEl, allReviewsContainer.firstChild);
         }
     }
 }
 
-// 8. Сброс поиска (обновлено для корректного отображения после сброса)
 function resetSearch() {
     if (searchInput) {
         searchInput.value = '';
@@ -2342,13 +1557,11 @@ function resetSearch() {
         }
         displayAllReviews(reviews);
         
-        // Также сбрасываем активную категорию на "Все"
         const allCategoryBtn = document.querySelector('.category-btn[data-category="Все"]');
         if (allCategoryBtn) {
             allCategoryBtn.click();
         }
         
-        // Сбрасываем активный фильтр на "Сначала новые"
         const filterBtns = document.querySelectorAll('.filter-btn');
         filterBtns.forEach(btn => btn.classList.remove('active'));
         const recentFilter = document.querySelector('.filter-btn[data-filter="recent"]');
@@ -2358,9 +1571,8 @@ function resetSearch() {
     }
 }
 
-// 2. Применение фильтров (обновлено)
 function applyFilters() {
-    const activeFilter = document.querySelector('.filter-btn.active').getAttribute('data-filter');
+    const activeFilter = document.querySelector('.filter-btn.active')?.getAttribute('data-filter') || 'recent';
     let filteredReviews = [...reviews];
     
     switch (activeFilter) {
@@ -2371,7 +1583,6 @@ function applyFilters() {
             filteredReviews = [...reviews].sort((a, b) => new Date(a.date) - new Date(b.date));
             break;
         case 'all':
-            // "Все отзывы" теперь тоже сортируем по новизне
             filteredReviews = [...reviews].sort((a, b) => new Date(b.date) - new Date(a.date));
             break;
     }
@@ -2379,65 +1590,57 @@ function applyFilters() {
     displayAllReviews(filteredReviews);
 }
 
-        // Функция создания кнопок категорий
-        function createCategoryButtons() {
-            const container = document.getElementById('category-buttons');
-            if (!container) return;
-            
-            // Считаем количество отзывов в каждой категории
-            const categoryCounts = {};
-            Object.keys(categories).forEach(category => {
-                if (category === 'Все') {
-                    categoryCounts[category] = reviews.length;
-                } else {
-                    categoryCounts[category] = reviews.filter(categories[category]).length;
-                }
-            });
-            
-            // Создаём кнопки
-            container.innerHTML = '';
-            
-            Object.entries(categoryCounts).forEach(([category, count]) => {
-                if (count === 0 && category !== 'Все') return;
-                
-                const button = document.createElement('button');
-                button.className = 'category-btn';
-                button.dataset.category = category;
-                button.innerHTML = `
-                    <span class="category-name">${category}</span>
-                    <span class="category-count">${count}</span>
-                `;
-                
-                // Активная кнопка
-                if (category === 'Все') {
-                    button.classList.add('active');
-                    button.style.backgroundColor = 'var(--primary-color)';
-                    button.style.color = 'white';
-                }
-                
-                // Обработчик клика
-                button.addEventListener('click', () => {
-                    filterByCategory(category);
-                    updateActiveButton(button);
-                    updateCategoryInfo(category, count);
-                });
-                
-                container.appendChild(button);
-            });
+// ==================== КАТЕГОРИИ КНОПКИ ====================
+function createCategoryButtons() {
+    const container = document.getElementById('category-buttons');
+    if (!container || typeof categories === 'undefined') return;
+    
+    const categoryCounts = {};
+    Object.keys(categories).forEach(category => {
+        if (category === 'Все') {
+            categoryCounts[category] = reviews.length;
+        } else {
+            categoryCounts[category] = reviews.filter(categories[category]).length;
         }
+    });
+    
+    container.innerHTML = '';
+    
+    Object.entries(categoryCounts).forEach(([category, count]) => {
+        if (count === 0 && category !== 'Все') return;
+        
+        const button = document.createElement('button');
+        button.className = 'category-btn';
+        button.dataset.category = category;
+        button.innerHTML = `
+            <span class="category-name">${category}</span>
+            <span class="category-count">${count}</span>
+        `;
+        
+        if (category === 'Все') {
+            button.classList.add('active');
+            button.style.backgroundColor = 'var(--primary-color)';
+            button.style.color = 'white';
+        }
+        
+        button.addEventListener('click', () => {
+            filterByCategory(category);
+            updateActiveButton(button);
+            updateCategoryInfo(category, count);
+        });
+        
+        container.appendChild(button);
+    });
+}
 
-// 4. Фильтрация по категориям (обновлено)
 function filterByCategory(category) {
     const filteredReviews = reviews.filter(categories[category]);
-    
-    // Сортируем по новизне
     const sortedReviews = [...filteredReviews].sort((a, b) => {
         return new Date(b.date) - new Date(a.date);
     });
     
     displayAllReviews(sortedReviews);
     
-    // Показываем информацию о выбранной категории
     const infoPanel = document.getElementById('selected-category');
     if (category === 'Все') {
         infoPanel.style.display = 'none';
@@ -2446,127 +1649,118 @@ function filterByCategory(category) {
     }
 }
 
-        // Обновление активной кнопки
-        function updateActiveButton(clickedButton) {
-            document.querySelectorAll('.category-btn').forEach(btn => {
-                btn.classList.remove('active');
-                btn.style.backgroundColor = 'rgba(52, 152, 219, 0.1)';
-                btn.style.color = 'var(--secondary-color)';
-            });
-            
-            clickedButton.classList.add('active');
-            clickedButton.style.backgroundColor = 'var(--primary-color)';
-            clickedButton.style.color = 'white';
-        }
+function updateActiveButton(clickedButton) {
+    document.querySelectorAll('.category-btn').forEach(btn => {
+        btn.classList.remove('active');
+        btn.style.backgroundColor = 'rgba(52, 152, 219, 0.1)';
+        btn.style.color = 'var(--secondary-color)';
+    });
+    
+    clickedButton.classList.add('active');
+    clickedButton.style.backgroundColor = 'var(--primary-color)';
+    clickedButton.style.color = 'white';
+}
 
-        // Обновление информации о категории
-        function updateCategoryInfo(category, count) {
-            document.getElementById('current-category-name').textContent = category;
-            document.getElementById('category-count').textContent = count;
-        }
+function updateCategoryInfo(category, count) {
+    document.getElementById('current-category-name').textContent = category;
+    document.getElementById('category-count').textContent = count;
+}
 
-        // Очистка фильтра
-        document.getElementById('clear-filter')?.addEventListener('click', () => {
-            filterByCategory('Все');
-            document.querySelectorAll('.category-btn').forEach(btn => {
-                btn.classList.remove('active');
-                btn.style.backgroundColor = 'rgba(52, 152, 219, 0.1)';
-                btn.style.color = 'var(--secondary-color)';
-            });
-            
-            const allButton = document.querySelector('.category-btn[data-category="Все"]');
-            if (allButton) {
-                allButton.classList.add('active');
-                allButton.style.backgroundColor = 'var(--primary-color)';
-                allButton.style.color = 'white';
-            }
-            
-            document.getElementById('selected-category').style.display = 'none';
-        });
+document.getElementById('clear-filter')?.addEventListener('click', () => {
+    filterByCategory('Все');
+    document.querySelectorAll('.category-btn').forEach(btn => {
+        btn.classList.remove('active');
+        btn.style.backgroundColor = 'rgba(52, 152, 219, 0.1)';
+        btn.style.color = 'var(--secondary-color)';
+    });
+    
+    const allButton = document.querySelector('.category-btn[data-category="Все"]');
+    if (allButton) {
+        allButton.classList.add('active');
+        allButton.style.backgroundColor = 'var(--primary-color)';
+        allButton.style.color = 'white';
+    }
+    
+    document.getElementById('selected-category').style.display = 'none';
+});
 
-        // Обновление статистики
-        function updateStatistics() {
-            const totalReviews = reviews.length;
-            const avgRating = (reviews.reduce((sum, review) => sum + review.rating, 0) / totalReviews).toFixed(1);
-            const uniqueSites = [...new Set(reviews.map(review => review.siteUrl))].length;
-            const uniqueAuthors = [...new Set(reviews.map(review => review.email))].length;
-            
-            // Обновляем элементы
-            if (totalReviewsEl) totalReviewsEl.textContent = totalReviews;
-            if (uniqueSitesEl) uniqueSitesEl.textContent = uniqueSites;
-            if (totalReviewersEl) totalReviewersEl.textContent = uniqueAuthors;
-            if (avgRatingEl) avgRatingEl.textContent = avgRating;
-            
-            if (statsTotalReviewsEl) statsTotalReviewsEl.textContent = totalReviews;
-            if (statsAvgRatingEl) statsAvgRatingEl.textContent = avgRating;
-            if (statsReviewersEl) statsReviewersEl.textContent = uniqueAuthors;
-            if (statsSitesEl) statsSitesEl.textContent = uniqueSites;
+// ==================== СТАТИСТИКА ====================
+function updateStatistics() {
+    const totalReviews = reviews.length;
+    const avgRating = (reviews.reduce((sum, review) => sum + review.rating, 0) / totalReviews).toFixed(1);
+    const uniqueSites = [...new Set(reviews.map(review => review.siteUrl))].length;
+    const uniqueAuthors = [...new Set(reviews.map(review => review.email))].length;
+    
+    if (totalReviewsEl) totalReviewsEl.textContent = totalReviews;
+    if (uniqueSitesEl) uniqueSitesEl.textContent = uniqueSites;
+    if (totalReviewersEl) totalReviewersEl.textContent = uniqueAuthors;
+    if (avgRatingEl) avgRatingEl.textContent = avgRating;
+    
+    if (statsTotalReviewsEl) statsTotalReviewsEl.textContent = totalReviews;
+    if (statsAvgRatingEl) statsAvgRatingEl.textContent = avgRating;
+    if (statsReviewersEl) statsReviewersEl.textContent = uniqueAuthors;
+    if (statsSitesEl) statsSitesEl.textContent = uniqueSites;
 
-            // Добавляем отображение топ-сайтов
-            setTimeout(() => {
-                displayTopSites();
-                displayTopUsers();
-                displayRatingDistribution();
-            }, 100);
-        }
+    setTimeout(() => {
+        displayTopSites();
+        displayTopUsers();
+        displayRatingDistribution();
+    }, 100);
+}
 
-        // Отображение распределения рейтингов
-        function displayRatingDistribution() {
-            if (!ratingDistribution) return;
-            
-            const ratingCounts = {5: 0, 4: 0, 3: 0, 2: 0, 1: 0};
-            
-            reviews.forEach(review => {
-                ratingCounts[review.rating]++;
-            });
-            
-            ratingDistribution.innerHTML = '';
-            
-            for (let rating = 5; rating >= 1; rating--) {
-                const count = ratingCounts[rating];
-                const percentage = reviews.length > 0 ? Math.round((count / reviews.length) * 100) : 0;
-                
-                const bar = document.createElement('div');
-                bar.style.cssText = 'display: flex; align-items: center; gap: 15px;';
-                
-                let starsHTML = '';
-                for (let i = 1; i <= 5; i++) {
-                    if (i <= rating) {
-                        starsHTML += '<i class="fas fa-star" style="color: #FFD700;"></i>';
-                    } else {
-                        starsHTML += '<i class="far fa-star" style="color: #ddd;"></i>';
-                    }
-                }
-                
-                bar.innerHTML = `
-                    <div style="width: 100px; text-align: center;">${starsHTML}</div>
-                    <div style="flex-grow: 1; height: 20px; background: rgba(0,0,0,0.1); border-radius: 10px; overflow: hidden;">
-                        <div style="width: ${percentage}%; height: 100%; background: linear-gradient(90deg, var(--primary-light), var(--primary-color)); border-radius: 10px;"></div>
-                    </div>
-                    <div style="width: 80px; text-align: right; font-weight: 600;">${count} (${percentage}%)</div>
-                `;
-                
-                ratingDistribution.appendChild(bar);
+function displayRatingDistribution() {
+    if (!ratingDistribution) return;
+    
+    const ratingCounts = {5: 0, 4: 0, 3: 0, 2: 0, 1: 0};
+    
+    reviews.forEach(review => {
+        ratingCounts[review.rating]++;
+    });
+    
+    ratingDistribution.innerHTML = '';
+    
+    for (let rating = 5; rating >= 1; rating--) {
+        const count = ratingCounts[rating];
+        const percentage = reviews.length > 0 ? Math.round((count / reviews.length) * 100) : 0;
+        
+        const bar = document.createElement('div');
+        bar.style.cssText = 'display: flex; align-items: center; gap: 15px;';
+        
+        let starsHTML = '';
+        for (let i = 1; i <= 5; i++) {
+            if (i <= rating) {
+                starsHTML += '<i class="fas fa-star" style="color: #FFD700;"></i>';
+            } else {
+                starsHTML += '<i class="far fa-star" style="color: #ddd;"></i>';
             }
         }
+        
+        bar.innerHTML = `
+            <div style="width: 100px; text-align: center;">${starsHTML}</div>
+            <div style="flex-grow: 1; height: 20px; background: rgba(0,0,0,0.1); border-radius: 10px; overflow: hidden;">
+                <div style="width: ${percentage}%; height: 100%; background: linear-gradient(90deg, var(--primary-light), var(--primary-color)); border-radius: 10px;"></div>
+            </div>
+            <div style="width: 80px; text-align: right; font-weight: 600;">${count} (${percentage}%)</div>
+        `;
+        
+        ratingDistribution.appendChild(bar);
+    }
+}
 
-// ==================== ОБНОВЛЁННАЯ ФУНКЦИЯ ДЛЯ ОТОБРАЖЕНИЯ ТОП-САЙТОВ ====================
+// ==================== ТОП САЙТОВ ====================
 function displayTopSites() {
-    // Создаем контейнер если его нет
     let topSitesContainer = document.getElementById('top-sites-container');
     
     if (!topSitesContainer) {
         const statsPage = document.getElementById('stats-page');
         if (!statsPage) return;
         
-        // Создаем новый раздел для двухколоночного рейтинга
         const sectionHTML = `
             <div style="margin-top: 40px;">
                 <h3 style="margin-bottom: 20px; color: var(--secondary-color);">
                     <i class="fas fa-trophy"></i> Рейтинги сайтов и пользователей
                 </h3>
                 <div class="two-columns-container">
-                    <!-- Левая колонка: Топ сайтов -->
                     <div class="ranking-column sites-ranking">
                         <div class="ranking-header glass-effect" style="padding: 15px 20px;">
                             <h3>
@@ -2577,7 +1771,6 @@ function displayTopSites() {
                         <div id="top-sites-container"></div>
                     </div>
                     
-                    <!-- Правая колонка: Топ пользователей -->
                     <div class="ranking-column users-ranking">
                         <div class="ranking-header glass-effect" style="padding: 15px 20px;">
                             <h3>
@@ -2591,15 +1784,12 @@ function displayTopSites() {
             </div>
         `;
         
-        // Находим конец статистики и вставляем новый раздел
         const statsContainer = statsPage.querySelector('.glass-effect');
         if (statsContainer) {
-            // Вставляем после распределения рейтингов
             const ratingDist = statsPage.querySelector('#rating-distribution');
             if (ratingDist && ratingDist.parentNode) {
                 ratingDist.parentNode.insertAdjacentHTML('afterend', sectionHTML);
             } else {
-                // Или просто в конец контейнера
                 statsContainer.insertAdjacentHTML('beforeend', sectionHTML);
             }
         }
@@ -2607,7 +1797,8 @@ function displayTopSites() {
         topSitesContainer = document.getElementById('top-sites-container');
     }
     
-    // Получаем данные о сайтах
+    if (typeof calculateSiteRatings === 'undefined') return;
+    
     const siteStats = calculateSiteRatings();
     
     if (siteStats.length === 0) {
@@ -2615,30 +1806,24 @@ function displayTopSites() {
         return;
     }
     
-    // Обновляем количество сайтов
     document.getElementById('sites-count').textContent = `${Math.min(siteStats.length, 10)} сайтов`;
-    
-    // Ограничиваем 10 топ-сайтами
     const topSites = siteStats.slice(0, 10);
     
-    // Очищаем контейнер
     topSitesContainer.innerHTML = '';
     
-    // Создаем карточки
     topSites.forEach((site, index) => {
         const siteCard = createSiteRankingCard(site, index + 1);
         topSitesContainer.appendChild(siteCard);
     });
     
-    // Также отображаем топ пользователей
     displayTopUsers();
 }
 
-// ==================== НОВАЯ ФУНКЦИЯ ДЛЯ РАСЧЕТА ЧЕСТНЫХ РЕЙТИНГОВ САЙТОВ ====================
 function calculateSiteRatings() {
+    if (typeof reviews === 'undefined') return [];
+    
     const siteMap = {};
     
-    // Собираем статистику по сайтам
     reviews.forEach(review => {
         if (!siteMap[review.siteUrl]) {
             siteMap[review.siteUrl] = {
@@ -2652,7 +1837,7 @@ function calculateSiteRatings() {
             };
         }
         
-        const isAuthorReview = isGitHubPagesAuthor(review) || 
+        const isAuthorReview = (typeof isGitHubPagesAuthor !== 'undefined' && isGitHubPagesAuthor(review)) || 
                               review.comment.includes('мой сайт') || 
                               review.comment.includes('я автор');
         
@@ -2673,44 +1858,38 @@ function calculateSiteRatings() {
         });
     });
     
-    // Рассчитываем ЧЕСТНЫЙ рейтинг
     const sites = Object.values(siteMap)
         .filter(site => site.count >= 1)
         .map(site => {
             const avgRating = site.totalRating / site.count;
             
-            // 1. ШТРАФ ЗА АВТОРСКИЕ ОТЗЫВЫ (было)
-            const authorPenalty = calculateAuthorPenalty(site.authorReviews, site.regularReviews);
+            const authorPenalty = typeof calculateAuthorPenalty !== 'undefined' ? 
+                calculateAuthorPenalty(site.authorReviews, site.regularReviews) : 0;
             
-            // 2. ШТРАФ ЗА МАЛО ОТЗЫВОВ (НОВОЕ!)
             let lowReviewPenalty = 0;
             if (site.count === 1) lowReviewPenalty = 3.0;
             if (site.count === 2) lowReviewPenalty = 2.0;
             if (site.count === 3) lowReviewPenalty = 1.0;
             
-            // 3. БОНУС ЗА ПОПУЛЯРНОСТЬ (НОВОЕ!)
             let popularityBonus = 0;
             if (site.count >= 8) popularityBonus = 0.2;
             if (site.count >= 15) popularityBonus = 0.4;
             
-            // 4. ШТРАФ ЗА ПРОТИВОРЕЧИВОСТЬ (НОВОЕ!)
             let controversyPenalty = 0;
-            if (site.count >= 3) {
+            if (site.count >= 3 && typeof calculateStandardDeviation !== 'undefined') {
                 const ratings = site.reviews.map(r => r.rating);
                 const std = calculateStandardDeviation(ratings);
-                if (std > 1.5) controversyPenalty = 0.2; // Спорный сайт
-                if (std > 2.0) controversyPenalty = 0.4; // Очень спорный
+                if (std > 1.5) controversyPenalty = 0.2;
+                if (std > 2.0) controversyPenalty = 0.4;
             }
             
-            // 5. БОНУС ЗА СТАБИЛЬНОСТЬ (НОВОЕ!)
             let stabilityBonus = 0;
-            if (site.count >= 3) {
+            if (site.count >= 3 && typeof calculateStandardDeviation !== 'undefined') {
                 const ratings = site.reviews.map(r => r.rating);
                 const std = calculateStandardDeviation(ratings);
-                if (std < 0.8) stabilityBonus = 0.2; // Все ставят примерно одинаково
+                if (std < 0.8) stabilityBonus = 0.2;
             }
             
-            // ЧЕСТНЫЙ РЕЙТИНГ = средний рейтинг + бонусы - штрафы
             let honestRating = avgRating;
             honestRating += popularityBonus;
             honestRating += stabilityBonus;
@@ -2718,14 +1897,11 @@ function calculateSiteRatings() {
             honestRating -= lowReviewPenalty;
             honestRating -= controversyPenalty;
             
-            // Для визуала ОСТАВЛЯЕМ СТАРЫЙ formattedRating!
-            // Пользователи видят 4.8, но ТОП сортируется по honestRating
-            
             return {
                 ...site,
                 avgRating: avgRating,
-                formattedRating: avgRating.toFixed(1), // НЕ МЕНЯЕМ! Люди видят это
-                weightedScore: Math.max(honestRating, 0.1), // СОРТИРУЕМ ПО ЭТОМУ
+                formattedRating: avgRating.toFixed(1),
+                weightedScore: Math.max(honestRating, 0.1),
                 honestRating: Math.max(honestRating, 0.1),
                 authorPenalty: authorPenalty.toFixed(2),
                 lowReviewPenalty: lowReviewPenalty.toFixed(1),
@@ -2736,50 +1912,48 @@ function calculateSiteRatings() {
                 lastReview: site.reviews.sort((a, b) => new Date(b.date) - new Date(a.date))[0]?.date
             };
         })
-        // СОРТИРУЕМ ПО ЧЕСТНОМУ РЕЙТИНГУ!
         .sort((a, b) => b.honestRating - a.honestRating);
     
     return sites;
 }
 
-// ==================== ФУНКЦИЯ РАСЧЕТА ШТРАФА ЗА АВТОРСКИЕ ОТЗЫВЫ ====================
 function calculateAuthorPenalty(authorCount, regularCount) {
-    if (authorCount === 0) return 0; // Нет авторских - нет штрафа
+    if (authorCount === 0) return 0;
     
     const total = authorCount + regularCount;
     const authorRatio = authorCount / total;
     
-    // Штрафная формула: чем больше % авторских отзывов, тем больше штраф
-    // Максимальный штраф при 100% авторских отзывов: 2.0 балла
     let penalty = 0;
     
-    if (authorRatio >= 0.5) { // 50%+ авторских - серьёзный штраф
-        penalty = 1.5 + (authorRatio * 1.0); // 1.5-2.5 балла
-    } else if (authorRatio >= 0.25) { // 25-50% авторских
-        penalty = 0.5 + (authorRatio * 2.0); // 0.5-1.5 балла
-    } else if (authorRatio > 0) { // <25% авторских
-        penalty = authorRatio * 2.0; // 0-0.5 балла
+    if (authorRatio >= 0.5) {
+        penalty = 1.5 + (authorRatio * 1.0);
+    } else if (authorRatio >= 0.25) {
+        penalty = 0.5 + (authorRatio * 2.0);
+    } else if (authorRatio > 0) {
+        penalty = authorRatio * 2.0;
     }
     
-    // Дополнительный штраф если мало обычных отзывов
     if (regularCount === 0) {
-        penalty += 1.0; // +1 балл если ВСЕ отзывы авторские
+        penalty += 1.0;
     }
     
     return penalty;
 }
 
-// ==================== ОБНОВЛЁННАЯ ФУНКЦИЯ СОЗДАНИЯ КАРТОЧКИ РЕЙТИНГА САЙТА ====================
+function calculateStandardDeviation(numbers) {
+    const mean = numbers.reduce((sum, num) => sum + num, 0) / numbers.length;
+    const variance = numbers.reduce((sum, num) => sum + Math.pow(num - mean, 2), 0) / numbers.length;
+    return Math.sqrt(variance);
+}
+
 function createSiteRankingCard(site, position) {
     const card = document.createElement('div');
     card.className = 'ranking-card glass-effect';
     
-    // Добавляем класс для топ-3
     if (position <= 3) {
         card.classList.add(`top-${position}`);
     }
     
-    // Определяем иконку для позиции
     let rankIcon = '';
     if (position === 1) {
         rankIcon = '<i class="fas fa-crown" style="color: #FFD700;"></i>';
@@ -2791,16 +1965,12 @@ function createSiteRankingCard(site, position) {
         rankIcon = `<span style="color: var(--secondary-color);">${position}</span>`;
     }
     
-    // Извлекаем домен для отображения
     let domain = site.url;
     try {
         const url = new URL(site.url);
         domain = url.hostname.replace('www.', '');
-    } catch (e) {
-        // Оставляем как есть
-    }
+    } catch (e) {}
     
-    // Создаем звезды для рейтинга
     let starsHTML = '';
     const fullStars = Math.floor(site.avgRating);
     const hasHalfStar = site.avgRating % 1 >= 0.5;
@@ -2815,7 +1985,6 @@ function createSiteRankingCard(site, position) {
         }
     }
     
-    // Формируем карточку
     card.innerHTML = `
         <div style="display: flex; align-items: center; width: 100%;">
             <div class="ranking-position">
@@ -2858,12 +2027,12 @@ function createSiteRankingCard(site, position) {
     return card;
 }
 
-// ==================== ОБНОВЛЁННАЯ ФУНКЦИЯ ДЛЯ ОТОБРАЖЕНИЯ ТОП-ПОЛЬЗОВАТЕЛЕЙ ====================
 function displayTopUsers() {
     const topUsersContainer = document.getElementById('top-users-container');
     if (!topUsersContainer) return;
     
-    // Получаем данные о пользователях
+    if (typeof calculateUserRatings === 'undefined') return;
+    
     const userStats = calculateUserRatings();
     
     if (userStats.length === 0) {
@@ -2871,27 +2040,20 @@ function displayTopUsers() {
         return;
     }
     
-    // Обновляем количество пользователей
     document.getElementById('users-count').textContent = `${Math.min(userStats.length, 10)} пользователей`;
-    
-    // Ограничиваем 10 топ-пользователями
     const topUsers = userStats.slice(0, 10);
     
-    // Очищаем контейнер
     topUsersContainer.innerHTML = '';
     
-    // Создаем карточки
     topUsers.forEach((user, index) => {
         const userCard = createUserRankingCard(user, index + 1);
         topUsersContainer.appendChild(userCard);
     });
 }
 
-// ==================== НОВАЯ ФУНКЦИЯ ДЛЯ РАСЧЕТА РЕЙТИНГОВ ПОЛЬЗОВАТЕЛЕЙ ====================
 function calculateUserRatings() {
     const userMap = {};
     
-    // Собираем статистику по пользователям
     reviews.forEach(review => {
         const userKey = review.email || review.name;
         const displayNickname = getDisplayNickname(review);
@@ -2912,7 +2074,7 @@ function calculateUserRatings() {
             };
         }
         
-        const isAuthorReview = isGitHubPagesAuthor(review) || 
+        const isAuthorReview = (typeof isGitHubPagesAuthor !== 'undefined' && isGitHubPagesAuthor(review)) || 
                               review.comment.includes('мой сайт') || 
                               review.comment.includes('я автор');
         
@@ -2937,49 +2099,40 @@ function calculateUserRatings() {
         }
     });
     
-    // Рассчитываем метрики для каждого пользователя
     const users = Object.values(userMap)
         .filter(user => user.count >= 1)
         .map(user => {
             const avgUserRating = user.totalRating / user.count;
             
-            // Консистентность оценок
             const ratings = user.reviews.map(r => r.rating);
             const mean = avgUserRating;
             const variance = ratings.reduce((sum, rating) => sum + Math.pow(rating - mean, 2), 0) / ratings.length;
             const consistency = 5 - Math.sqrt(variance);
             
-            // ШТРАФ ЗА АВТОРСКИЕ ОТЗЫВЫ
-            const authorPenalty = calculateAuthorPenalty(user.authorReviews, user.regularReviews);
+            const authorPenalty = typeof calculateAuthorPenalty !== 'undefined' ? 
+                calculateAuthorPenalty(user.authorReviews, user.regularReviews) : 0;
             
-            // БАЗОВЫЕ БАЛЛЫ (активность + консистентность + разнообразие)
             const activityScore = Math.min(user.count / 10, 1) * 2;
             const consistencyScore = consistency;
             const diversityScore = Math.min(user.sitesReviewed.size / 5, 1);
             
-            // ========== НОВЫЕ БОНУСЫ ЗА КАЧЕСТВО ==========
             let qualityBonus = 0;
-            
-            // 1. Бонус за развёрнутые отзывы (>100 символов)
             const longReviews = user.reviews.filter(r => r.comment.length > 100).length;
             qualityBonus += longReviews * 0.2;
             
-            // 2. Бонус за верификацию
             const verifiedCount = user.reviews.filter(r => r.verified === true).length;
             if (verifiedCount > 0) {
                 qualityBonus += (verifiedCount / user.count) * 0.5;
             }
             
-            // 3. Бонус за разнообразие ОЦЕНОК (не только 5 или только 1)
             const uniqueRatings = new Set(user.reviews.map(r => r.rating)).size;
             if (uniqueRatings >= 3 && user.count >= 3) {
-                qualityBonus += 0.15; // Умеет ставить разные оценки
+                qualityBonus += 0.15;
             }
             if (uniqueRatings >= 4) {
-                qualityBonus += 0.1; // Ещё +0.1
+                qualityBonus += 0.1;
             }
             
-            // 4. Бонус за полезность (отзывы без конфликтов)
             const cleanReviews = user.reviews.filter(r => 
                 !r.comment.includes('груб') && 
                 !r.comment.includes('глуп') && 
@@ -2988,22 +2141,17 @@ function calculateUserRatings() {
             ).length;
             qualityBonus += (cleanReviews / user.count) * 0.1;
             
-            // ========== НОВЫЕ ШТРАФЫ ==========
             let qualityPenalty = 0;
-            
-            // 1. Штраф за слишком короткие отзывы (<20 символов)
             const shortReviews = user.reviews.filter(r => r.comment.length < 20).length;
             qualityPenalty += shortReviews * 0.12;
             
-            // 2. Штраф за "однообразные" оценки (все 5 или все 1)
             if (uniqueRatings <= 1 && user.count >= 3) {
-                qualityPenalty += 0.3; // Ставит только 5 или только 1
+                qualityPenalty += 0.3;
             }
             if (uniqueRatings <= 2 && user.count >= 5) {
-                qualityPenalty += 0.1; // Только два варианта оценок
+                qualityPenalty += 0.1;
             }
             
-            // 3. Штраф за неактивность (>30 дней без отзывов)
             if (user.reviews.length > 0) {
                 const lastDate = new Date(user.reviews.sort((a, b) => new Date(b.date) - new Date(a.date))[0].date);
                 const daysSinceLast = (new Date() - lastDate) / (1000 * 60 * 60 * 24);
@@ -3012,7 +2160,6 @@ function calculateUserRatings() {
                 }
             }
             
-            // ИТОГОВЫЙ СЧЁТ = база + бонусы - штрафы
             let userScore = activityScore + consistencyScore + diversityScore;
             userScore = userScore - authorPenalty + qualityBonus - qualityPenalty;
             userScore = Math.max(userScore, 0.1);
@@ -3020,35 +2167,32 @@ function calculateUserRatings() {
             return {
                 ...user,
                 avgUserRating: avgUserRating,
-                formattedAvgRating: avgUserRating.toFixed(1), // НЕ МЕНЯЕМ!
+                formattedAvgRating: avgUserRating.toFixed(1),
                 consistency: consistency,
                 consistencyFormatted: consistency.toFixed(1),
                 sitesCount: user.sitesReviewed.size,
-                userScore: userScore, // СОРТИРУЕМ ПО ЭТОМУ!
+                userScore: userScore,
                 authorPenalty: authorPenalty,
                 qualityBonus: qualityBonus.toFixed(2),
                 qualityPenalty: qualityPenalty.toFixed(2),
                 authorPercentage: user.count > 0 ? (user.authorReviews / user.count * 100).toFixed(0) : 0,
-                lastReview: user.reviews.sort((a, b) => new Date(b.date) - new Date(a.date))[0]?.date
+                lastReview: user.reviews.sort((a, b) => new Date(b.date) - new Date(a.date))[0]?.date,
+                isVerified: user.reviews.some(r => r.verified)
             };
         })
-        // СОРТИРУЕМ ПО ИТОГОВОМУ СЧЁТУ (качество + активность)
         .sort((a, b) => b.userScore - a.userScore);
     
     return users;
 }
 
-// ==================== ОБНОВЛЁННАЯ ФУНКЦИЯ СОЗДАНИЯ КАРТОЧКИ РЕЙТИНГА ПОЛЬЗОВАТЕЛЯ ====================
 function createUserRankingCard(user, position) {
     const card = document.createElement('div');
     card.className = 'ranking-card glass-effect';
     
-    // Добавляем класс для топ-3
     if (position <= 3) {
         card.classList.add(`top-${position}`);
     }
     
-    // Определяем иконку для позиции
     let rankIcon = '';
     if (position === 1) {
         rankIcon = '<i class="fas fa-crown" style="color: #FFD700;"></i>';
@@ -3060,7 +2204,6 @@ function createUserRankingCard(user, position) {
         rankIcon = `<span style="color: var(--secondary-color);">${position}</span>`;
     }
     
-    // Определяем тип пользователя
     let userType = '';
     let typeColor = '#3498db';
     
@@ -3078,7 +2221,6 @@ function createUserRankingCard(user, position) {
         typeColor = '#e74c3c';
     }
     
-    // Определяем стиль оценок
     let ratingStyle = '';
     if (user.avgUserRating >= 4.5) {
         ratingStyle = 'Добряк';
@@ -3092,7 +2234,6 @@ function createUserRankingCard(user, position) {
         ratingStyle = 'Строгий';
     }
     
-    // Формируем карточку
     card.innerHTML = `
         <div style="display: flex; align-items: center; width: 100%;">
             <div class="ranking-position">
@@ -3138,9 +2279,7 @@ function createUserRankingCard(user, position) {
     return card;
 }
 
-// Обработка кнопки "Назад" в браузере
 window.addEventListener('popstate', function(event) {
-    // Если вышли из профиля, переключаем на главную
     if (!window.location.hash || !window.location.hash.startsWith('#profile/')) {
         const currentPage = document.querySelector('.page.active');
         if (currentPage && currentPage.id === 'profile-page') {
@@ -3149,107 +2288,95 @@ window.addEventListener('popstate', function(event) {
     }
 });
 
-// Регистрация Service Worker для PWA
+// ==================== PWA ====================
 if ('serviceWorker' in navigator) {
-  window.addEventListener('load', function() {
-    navigator.serviceWorker.register('service-worker.js')
-      .then(function(registration) {
-        console.log('ServiceWorker registration successful with scope: ', registration.scope);
-        
-        // Показываем уведомление об установке PWA
-        checkPWAInstallPrompt();
-      })
-      .catch(function(error) {
-        console.log('ServiceWorker registration failed: ', error);
-      });
-  });
+    window.addEventListener('load', function() {
+        navigator.serviceWorker.register('service-worker.js')
+            .then(function(registration) {
+                console.log('ServiceWorker registration successful with scope: ', registration.scope);
+                checkPWAInstallPrompt();
+            })
+            .catch(function(error) {
+                console.log('ServiceWorker registration failed: ', error);
+            });
+    });
 }
 
-// Проверка и предложение установки PWA
 function checkPWAInstallPrompt() {
-  let deferredPrompt;
-  const installButton = document.createElement('button');
-  
-  window.addEventListener('beforeinstallprompt', (e) => {
-    // Предотвращаем автоматическое отображение подсказки
-    e.preventDefault();
-    deferredPrompt = e;
+    let deferredPrompt;
+    const installButton = document.createElement('button');
     
-    // Показываем свою кнопку установки
-    showInstallButton();
-  });
-  
-  function showInstallButton() {
-    installButton.innerHTML = '<i class="fas fa-download"></i> Установить приложение';
-    installButton.style.cssText = `
-      position: fixed;
-      bottom: 80px;
-      right: 20px;
-      background: linear-gradient(135deg, var(--primary-color), var(--primary-dark));
-      color: white;
-      border: none;
-      padding: 12px 20px;
-      border-radius: 25px;
-      font-weight: 600;
-      cursor: pointer;
-      box-shadow: 0 4px 15px rgba(52, 152, 219, 0.4);
-      z-index: 9999;
-      display: flex;
-      align-items: center;
-      gap: 8px;
-      transition: all 0.3s ease;
-    `;
-    
-    installButton.addEventListener('mouseenter', () => {
-      installButton.style.transform = 'translateY(-2px)';
-      installButton.style.boxShadow = '0 6px 20px rgba(52, 152, 219, 0.5)';
+    window.addEventListener('beforeinstallprompt', (e) => {
+        e.preventDefault();
+        deferredPrompt = e;
+        showInstallButton();
     });
     
-    installButton.addEventListener('mouseleave', () => {
-      installButton.style.transform = 'translateY(0)';
-      installButton.style.boxShadow = '0 4px 15px rgba(52, 152, 219, 0.4)';
-    });
-    
-    installButton.addEventListener('click', () => {
-      hideInstallButton();
-      deferredPrompt.prompt();
-      
-      deferredPrompt.userChoice.then((choiceResult) => {
-        if (choiceResult.outcome === 'accepted') {
-          console.log('User accepted the install prompt');
-        } else {
-          console.log('User dismissed the install prompt');
-        }
-        deferredPrompt = null;
-      });
-    });
-    
-    document.body.appendChild(installButton);
-  }
-  
-  function hideInstallButton() {
-    if (installButton.parentNode) {
-      installButton.parentNode.removeChild(installButton);
+    function showInstallButton() {
+        installButton.innerHTML = '<i class="fas fa-download"></i> Установить приложение';
+        installButton.style.cssText = `
+            position: fixed;
+            bottom: 80px;
+            right: 20px;
+            background: linear-gradient(135deg, var(--primary-color), var(--primary-dark));
+            color: white;
+            border: none;
+            padding: 12px 20px;
+            border-radius: 25px;
+            font-weight: 600;
+            cursor: pointer;
+            box-shadow: 0 4px 15px rgba(52, 152, 219, 0.4);
+            z-index: 9999;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            transition: all 0.3s ease;
+        `;
+        
+        installButton.addEventListener('mouseenter', () => {
+            installButton.style.transform = 'translateY(-2px)';
+            installButton.style.boxShadow = '0 6px 20px rgba(52, 152, 219, 0.5)';
+        });
+        
+        installButton.addEventListener('mouseleave', () => {
+            installButton.style.transform = 'translateY(0)';
+            installButton.style.boxShadow = '0 4px 15px rgba(52, 152, 219, 0.4)';
+        });
+        
+        installButton.addEventListener('click', () => {
+            hideInstallButton();
+            deferredPrompt.prompt();
+            
+            deferredPrompt.userChoice.then((choiceResult) => {
+                if (choiceResult.outcome === 'accepted') {
+                    console.log('User accepted the install prompt');
+                } else {
+                    console.log('User dismissed the install prompt');
+                }
+                deferredPrompt = null;
+            });
+        });
+        
+        document.body.appendChild(installButton);
     }
-  }
-  
-  // Скрываем кнопку после установки
-  window.addEventListener('appinstalled', () => {
-    console.log('PWA was installed');
-    hideInstallButton();
-  });
+    
+    function hideInstallButton() {
+        if (installButton.parentNode) {
+            installButton.parentNode.removeChild(installButton);
+        }
+    }
+    
+    window.addEventListener('appinstalled', () => {
+        console.log('PWA was installed');
+        hideInstallButton();
+    });
 }
-
-
 
 // ==================== СТАТИСТИКА ПО ВРЕМЕНИ ====================
-
-// Функция анализа активности по времени
 function analyzeTimeStats() {
     const timeStatsContainer = document.getElementById('time-stats');
     if (!timeStatsContainer) return;
     
-    // Анализируем время из отзывов
     const timeStats = {
         byHour: Array(24).fill(0),
         byDay: Array(7).fill(0),
@@ -3262,36 +2389,26 @@ function analyzeTimeStats() {
     reviews.forEach(review => {
         try {
             const date = new Date(review.date);
-            
-            // По часам
             const hour = date.getHours();
             timeStats.byHour[hour]++;
             
-            // По дням недели (0-воскресенье, 1-понедельник...)
             const day = date.getDay();
             timeStats.byDay[day]++;
             
-            // По месяцам
             const month = date.getMonth();
             timeStats.byMonth[month]++;
-        } catch (e) {
-            console.warn('Ошибка парсинга даты:', e);
-        }
+        } catch (e) {}
     });
     
-    // Находим пиковые значения
     timeStats.peakHour = timeStats.byHour.indexOf(Math.max(...timeStats.byHour));
     timeStats.peakDay = timeStats.byDay.indexOf(Math.max(...timeStats.byDay));
     
-    // Отображаем статистику
     displayTimeStats(timeStats);
 }
 
-// Отображение статистики
 function displayTimeStats(stats) {
     const container = document.getElementById('time-stats');
 
-    // Проверка на мало данных
     if (stats.totalReviews < 2) {
         container.innerHTML = `
             <div style="text-align: center; padding: 40px;">
@@ -3323,12 +2440,10 @@ function displayTimeStats(stats) {
     
     const daysOfWeek = ['Воскресенье', 'Понедельник', 'Вторник', 'Среда', 'Четверг', 'Пятница', 'Суббота'];
     
-    // Находим первый и последний отзывы
     const dates = reviews.map(r => new Date(r.date)).sort((a, b) => a - b);
     const firstDate = dates[0];
     const lastDate = dates[dates.length - 1];
     
-    // Форматируем даты
     const formatDate = (date) => {
         return date.toLocaleDateString('ru-RU', {
             day: 'numeric',
@@ -3337,10 +2452,8 @@ function displayTimeStats(stats) {
         });
     };
     
-    // Находим первый отзыв
     const firstReview = [...reviews].sort((a, b) => new Date(a.date) - new Date(b.date))[0];
     
-    // Находим самый активный день
     const dayCount = {};
     reviews.forEach(review => {
         const date = new Date(review.date);
@@ -3358,7 +2471,6 @@ function displayTimeStats(stats) {
         }
     });
     
-    // Форматируем самый активный день
     const maxDay = new Date(maxDayDate);
     const formattedMaxDay = maxDay.toLocaleDateString('ru-RU', {
         day: 'numeric',
@@ -3366,7 +2478,6 @@ function displayTimeStats(stats) {
         year: 'numeric'
     });
     
-    // Самое активное время
     let maxHourCount = 0;
     let maxHour = 0;
     
@@ -3396,10 +2507,8 @@ function displayTimeStats(stats) {
     const maxRangeIndex = timeRangeCounts.indexOf(Math.max(...timeRangeCounts));
     const popularTimeRange = hourRanges[maxRangeIndex].name;
     
-    // Средняя длина отзыва
     const avgLength = Math.round(reviews.reduce((sum, r) => sum + r.comment.length, 0) / reviews.length);
     
-    // Самый популярный рейтинг
     const ratingCounts = {5: 0, 4: 0, 3: 0, 2: 0, 1: 0};
     reviews.forEach(r => ratingCounts[r.rating]++);
     let mostPopularRating = 5;
@@ -3415,7 +2524,6 @@ function displayTimeStats(stats) {
         <div style="margin-bottom: 20px;">
             <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 20px;">
                 
-                <!-- Первый отзыв -->
                 <div class="glass-effect" style="padding: 20px; border-radius: 12px; border-left: 4px solid #3498db;">
                     <div style="display: flex; align-items: center; gap: 15px; margin-bottom: 10px;">
                         <div style="font-size: 2rem; color: #3498db;">
@@ -3440,7 +2548,6 @@ function displayTimeStats(stats) {
                     </div>
                 </div>
                 
-                <!-- Самый активный день -->
                 <div class="glass-effect" style="padding: 20px; border-radius: 12px; border-left: 4px solid #e67e22;">
                     <div style="display: flex; align-items: center; gap: 15px; margin-bottom: 10px;">
                         <div style="font-size: 2rem; color: #e67e22;">
@@ -3459,7 +2566,6 @@ function displayTimeStats(stats) {
                     </div>
                 </div>
                 
-                <!-- Самое популярное время -->
                 <div class="glass-effect" style="padding: 20px; border-radius: 12px; border-left: 4px solid #9b59b6;">
                     <div style="display: flex; align-items: center; gap: 15px; margin-bottom: 10px;">
                         <div style="font-size: 2rem; color: #9b59b6;">
@@ -3478,7 +2584,6 @@ function displayTimeStats(stats) {
                     </div>
                 </div>
                 
-                <!-- День недели -->
                 <div class="glass-effect" style="padding: 20px; border-radius: 12px; border-left: 4px solid #27ae60;">
                     <div style="display: flex; align-items: center; gap: 15px; margin-bottom: 10px;">
                         <div style="font-size: 2rem; color: #27ae60;">
@@ -3497,7 +2602,6 @@ function displayTimeStats(stats) {
                     </div>
                 </div>
                 
-                <!-- Общая статистика -->
                 <div class="glass-effect" style="padding: 20px; border-radius: 12px; border-left: 4px solid #34495e;">
                     <div style="display: flex; align-items: center; gap: 15px; margin-bottom: 10px;">
                         <div style="font-size: 2rem; color: #34495e;">
@@ -3547,8 +2651,7 @@ function displayTimeStats(stats) {
     `;
 }
 
-// ==================== ВИКТОРИНА "УГАДАЙ САЙТ" ====================
-
+// ==================== ВИКТОРИНА ====================
 let quizState = {
     currentQuestion: 0,
     score: 0,
@@ -3558,43 +2661,35 @@ let quizState = {
     gameActive: false
 };
 
-// Инициализация викторины при загрузке
 function initQuiz() {
-    document.getElementById('quiz-highscore').textContent = quizState.highScore;
+    const highScoreEl = document.getElementById('quiz-highscore');
+    if (highScoreEl) highScoreEl.textContent = quizState.highScore;
     
-    // Обработчики кнопок
     document.getElementById('start-quiz-btn')?.addEventListener('click', startQuiz);
     document.getElementById('next-question-btn')?.addEventListener('click', nextQuestion);
     document.getElementById('restart-quiz-btn')?.addEventListener('click', restartQuiz);
     
-    // Генерируем вопросы из отзывов
     generateQuizQuestions();
 }
 
-// Генерация вопросов для викторины
 function generateQuizQuestions() {
+    if (typeof getSiteCategory === 'undefined' || typeof getSiteGroup === 'undefined') return;
+    
     quizState.questions = [];
     
-    // Выбираем случайные отзывы для вопросов
     const shuffledReviews = [...reviews].sort(() => Math.random() - 0.5);
     
     for (let i = 0; i < Math.min(quizState.totalQuestions, shuffledReviews.length); i++) {
         const review = shuffledReviews[i];
         
-        // ОПРЕДЕЛЯЕМ КАТЕГОРИЮ НА ЛЕТУ!
         const correctCategory = getSiteCategory(review);
         
-        // === УМНЫЙ ПОДБОР ВАРИАНТОВ ===
         let wrongOptions = [];
-        
-        // 1. Определяем группу сайта
         const siteGroup = getSiteGroup(review.siteName);
         
-        // 2. Собираем потенциальные варианты
         let candidateSites = [];
         
         if (siteGroup) {
-            // Если есть группа — берём из той же группы
             candidateSites = reviews
                 .filter(r => r.siteUrl !== review.siteUrl && getSiteGroup(r.siteName) === siteGroup)
                 .map(r => ({ 
@@ -3607,7 +2702,6 @@ function generateQuizQuestions() {
                 );
         }
         
-        // 3. Если в группе мало вариантов — добираем из той же категории
         if (candidateSites.length < 3) {
             const sameCategorySites = reviews
                 .filter(r => r.siteUrl !== review.siteUrl && getSiteCategory(r) === correctCategory)
@@ -3620,7 +2714,6 @@ function generateQuizQuestions() {
                     index === self.findIndex(t => t.url === value.url)
                 );
             
-            // Добавляем уникальные
             sameCategorySites.forEach(site => {
                 if (!candidateSites.find(c => c.url === site.url)) {
                     candidateSites.push(site);
@@ -3628,7 +2721,6 @@ function generateQuizQuestions() {
             });
         }
         
-        // 4. ВСЁ ЕЩЁ МАЛО? Берём любые сайты (кроме правильного)
         if (candidateSites.length < 3) {
             const anySites = reviews
                 .filter(r => r.siteUrl !== review.siteUrl)
@@ -3648,12 +2740,10 @@ function generateQuizQuestions() {
             });
         }
         
-        // 5. Берём 3 случайных варианта
         wrongOptions = candidateSites
             .sort(() => Math.random() - 0.5)
             .slice(0, 3);
         
-        // 6. ОСОБЫЙ РЕЖИМ: Алёна получает триггер-варианты 😈
         if (review.name === 'Алёна' && wrongOptions.length < 3) {
             const triggerSites = [
                 {
@@ -3675,7 +2765,6 @@ function generateQuizQuestions() {
             });
         }
         
-        // Создаем правильный вариант с ЕГО КАТЕГОРИЕЙ
         const correctOption = {
             name: review.siteName,
             url: review.siteUrl,
@@ -3683,12 +2772,11 @@ function generateQuizQuestions() {
             isCorrect: true
         };
         
-        // Смешиваем варианты
         const allOptions = [...wrongOptions, correctOption]
             .sort(() => Math.random() - 0.5)
             .map((opt, idx) => ({
                 ...opt,
-                letter: String.fromCharCode(65 + idx) // A, B, C, D
+                letter: String.fromCharCode(65 + idx)
             }));
         
         quizState.questions.push({
@@ -3702,18 +2790,16 @@ function generateQuizQuestions() {
     }
 }
 
-// Функция для определения группы сайта
 function getSiteGroup(siteName) {
+    if (!siteName) return null;
     const name = siteName.toLowerCase();
     
-    // Яндекс группа
     if (name.includes('яндекс') || name.includes('yandex') || 
         name.includes('книги') || name.includes('музыка') || 
         name.includes('игры') || name.includes('games')) {
         return 'Яндекс';
     }
     
-    // Видео/Стримы
     if (name.includes('youtube') || name.includes('ютуб') ||
         name.includes('rutube') || name.includes('рутьюб') ||
         name.includes('twitch') || name.includes('твич') ||
@@ -3721,31 +2807,26 @@ function getSiteGroup(siteName) {
         return 'Видео/Стримы';
     }
     
-    // Соцсети
     if (name.includes('итд') || name.includes('telegram') || 
         name.includes('телеграм')) {
         return 'Соцсети';
     }
     
-    // Нейросети
     if (name.includes('deepseek') || name.includes('character.ai') || 
         name.includes('chat')) {
         return 'Нейросети';
     }
     
-    // Инструменты
     if (name.includes('taiprompts') || name.includes('promptflame') ||
         name.includes('miro') || name.includes('movavi')) {
         return 'Инструменты';
     }
     
-    // Игры/Маркет
     if (name.includes('launcher') || name.includes('funpay') || 
         name.includes('tlauncher')) {
         return 'Игры/Маркет';
     }
     
-    // Образование
     if (name.includes('duolingo') || name.includes('дуолинго')) {
         return 'Образование';
     }
@@ -3753,8 +2834,8 @@ function getSiteGroup(siteName) {
     return null;
 }
 
-// Функция: определение категории сайта по отзыву
 function getSiteCategory(review) {
+    if (!review) return 'Другое';
     const text = (review.siteName + ' ' + review.comment).toLowerCase();
     
     if ((text.includes('youtube') || text.includes('ютуб') || text.includes('rutube') || text.includes('рутьюб') || text.includes('видео') || text.includes('видеохостинг')) 
@@ -3763,46 +2844,38 @@ function getSiteCategory(review) {
          return 'Видеохостинг';
     }
 
-    
-    // Стриминг
     if (text.includes('twitch') || text.includes('твич') ||
         text.includes('kick') || text.includes('стрим')) {
         return 'Стриминг';
     }
     
-    // Соцсети
     if (text.includes('итд') || text.includes('соцсет') ||
         text.includes('telegram')) {
         return 'Соцсеть';
     }
     
-    // Инструменты / Генераторы
     if (text.includes('taiprompts') || text.includes('промпт') ||
         text.includes('генер') || text.includes('miro') ||
         text.includes('инструм')) {
         return 'Инструменты';
     }
     
-    // Нейросети
     if (text.includes('deepseek') || text.includes('character.ai') ||
         text.includes('нейросет') || text.includes('нейрон')) {
         return 'Нейросеть';
     }
     
-    // Образование
     if (text.includes('duolingo') || text.includes('дуолинго') ||
         text.includes('шахмат') || text.includes('урок')) {
         return 'Образование';
     }
     
-    // Игры
     if (text.includes('launcher') || text.includes('tlauncher') ||
         text.includes('игр') || text.includes('гейм') ||
         text.includes('яндекс.игры')) {
         return 'Игры';
     }
     
-    // Маркетплейсы
     if (text.includes('funpay') || text.includes('покуп') ||
         text.includes('продав') || text.includes('комисс')) {
         return 'Маркетплейс';
@@ -3811,7 +2884,6 @@ function getSiteCategory(review) {
     return 'Другое';
 }
 
-// Начать викторину
 function startQuiz() {
     quizState.currentQuestion = 0;
     quizState.score = 0;
@@ -3819,23 +2891,16 @@ function startQuiz() {
     
     updateScore();
     
-    // Показать игровую область
     document.getElementById('quiz-start-screen').style.display = 'none';
     document.getElementById('quiz-game-area').style.display = 'block';
     
-    // Показать первый вопрос
     showQuestion();
 }
 
-// Показать вопрос
 function showQuestion() {
     const questionData = quizState.questions[quizState.currentQuestion];
     if (!questionData) return;
     
-    // Обновляем прогресс
-    const progress = ((quizState.currentQuestion + 1) / quizState.totalQuestions) * 100;
-    
-    // Показываем вопрос
     document.getElementById('quiz-question').innerHTML = `
         <div style="margin-bottom: 10px; color: #666; font-size: 0.9rem;">
             <i class="fas fa-user"></i> ${questionData.reviewer}
@@ -3843,7 +2908,6 @@ function showQuestion() {
         <div>"${questionData.review}"</div>
     `;
     
-    // Показываем варианты ответов
     const optionsContainer = document.getElementById('quiz-options');
     optionsContainer.innerHTML = '';
     
@@ -3862,18 +2926,15 @@ function showQuestion() {
         optionsContainer.appendChild(optionElement);
     });
     
-    // Скрыть кнопку "Следующий вопрос" и фидбек
     document.getElementById('next-question-btn').style.display = 'none';
     document.getElementById('quiz-feedback').style.display = 'none';
     
-    // Разблокировать варианты ответов
     document.querySelectorAll('.quiz-option').forEach(opt => {
         opt.style.pointerEvents = 'auto';
         opt.style.opacity = '1';
     });
 }
 
-// Выбор ответа
 function selectAnswer(selectedElement) {
     if (!quizState.gameActive) return;
     
@@ -3881,20 +2942,16 @@ function selectAnswer(selectedElement) {
     const correctUrl = quizState.questions[quizState.currentQuestion].correctUrl;
     const correctCategory = quizState.questions[quizState.currentQuestion].correctCategory;
     
-    // Получаем категорию выбранного варианта
     const selectedOption = quizState.questions[quizState.currentQuestion].options.find(
         opt => opt.url === selectedElement.dataset.url
     );
     const selectedCategory = selectedOption?.category || '';
     
-    // Проверяем категорию
     const isCategoryCorrect = selectedCategory === correctCategory;
     
-    // Блокируем все варианты
     document.querySelectorAll('.quiz-option').forEach(opt => {
         opt.style.pointerEvents = 'none';
         
-        // Подсвечиваем правильный/неправильный
         if (opt.dataset.url === correctUrl) {
             opt.classList.add('correct');
         } else if (opt === selectedElement && !isCorrect) {
@@ -3902,7 +2959,6 @@ function selectAnswer(selectedElement) {
         }
     });
     
-    // Обновляем счёт (САЙТ + КАТЕГОРИЯ!)
     let points = 0;
     let feedbackText = '';
     
@@ -3921,7 +2977,6 @@ function selectAnswer(selectedElement) {
         updateScore();
     }
     
-    // Показываем фидбек
     const feedbackElement = document.getElementById('quiz-feedback');
     feedbackElement.style.display = 'block';
     feedbackElement.className = points >= 15 ? 'correct' : (points > 0 ? 'correct' : 'wrong');
@@ -3936,11 +2991,9 @@ function selectAnswer(selectedElement) {
         </div>
     `;
     
-    // Показываем кнопку "Следующий вопрос"
     document.getElementById('next-question-btn').style.display = 'block';
 }
 
-// Следующий вопрос
 function nextQuestion() {
     quizState.currentQuestion++;
     
@@ -3951,18 +3004,15 @@ function nextQuestion() {
     }
 }
 
-// Завершить викторину
 function finishQuiz() {
     quizState.gameActive = false;
     
-    // Обновляем рекорд
     if (quizState.score > quizState.highScore) {
         quizState.highScore = quizState.score;
         localStorage.setItem('quizHighScore', quizState.highScore);
         document.getElementById('quiz-highscore').textContent = quizState.highScore;
     }
     
-    // Показываем результаты
     document.getElementById('quiz-question').innerHTML = `
         <div style="text-align: center; padding: 20px;">
             <i class="fas fa-trophy" style="font-size: 3rem; color: #FFD700; margin-bottom: 20px;"></i>
@@ -3977,34 +3027,25 @@ function finishQuiz() {
         </div>
     `;
     
-    // Очищаем варианты ответов
     document.getElementById('quiz-options').innerHTML = '';
     document.getElementById('quiz-feedback').style.display = 'none';
     document.getElementById('next-question-btn').style.display = 'none';
 }
 
-// Начать заново
 function restartQuiz() {
-    // Генерируем новые вопросы
     generateQuizQuestions();
-    
-    // Возвращаемся к стартовому экрану
     document.getElementById('quiz-start-screen').style.display = 'block';
     document.getElementById('quiz-game-area').style.display = 'none';
 }
 
-// Обновить счёт
 function updateScore() {
     document.getElementById('current-score').textContent = quizState.score;
 }
 
-// ==================== СИСТЕМА АВТОРИЗАЦИИ ЧЕРЕЗ GOOGLE ====================
-
-// Функция для показа уведомлений
+// ==================== АВТОРИЗАЦИЯ ====================
 function showNotification(message, type = 'info') {
     console.log(`[${type}] ${message}`);
     
-    // Создаем простое уведомление
     const notification = document.createElement('div');
     notification.style.cssText = `
         position: fixed;
@@ -4024,9 +3065,7 @@ function showNotification(message, type = 'info') {
     setTimeout(() => notification.remove(), 3000);
 }
 
-// Загружаем Google API
 function loadGoogleAPI() {
-    // Проверяем, не загружен ли уже скрипт
     if (document.querySelector('script[src="https://accounts.google.com/gsi/client"]')) {
         console.log('Google API уже загружен');
         return;
@@ -4044,30 +3083,23 @@ function loadGoogleAPI() {
     document.head.appendChild(script);
 }
 
-// Обработчик успешного входа через Google
 function handleGoogleSignIn(response) {
     console.log('✅ Google Sign-In успешен', response);
     
     try {
-        // Проверяем, что response содержит credential
         if (!response.credential) {
             throw new Error('Нет credential в ответе');
         }
         
-        // Декодируем JWT токен
         const base64Url = response.credential.split('.')[1];
         if (!base64Url) {
             throw new Error('Неверный формат JWT токена');
         }
         
-        // Заменяем символы для base64
         const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
-        
-        // Декодируем
         const payload = JSON.parse(atob(base64));
         console.log('✅ Данные пользователя:', payload);
         
-        // Сохраняем информацию о пользователе
         const userData = {
             name: payload.name || 'Пользователь Google',
             email: payload.email,
@@ -4077,42 +3109,30 @@ function handleGoogleSignIn(response) {
             loginTime: new Date().toISOString()
         };
         
-        // Сохраняем в localStorage
         localStorage.setItem('siteReview_user', JSON.stringify(userData));
-        
-        // Показываем сайт
         showSiteAfterLogin();
-        
-        // Показываем уведомление
         showNotification(`Добро пожаловать, ${userData.name}!`, 'success');
         
     } catch (error) {
         console.error('❌ Ошибка при обработке входа:', error);
-        console.error('Проблемный response:', response);
         showNotification('Ошибка входа. Попробуйте еще раз.', 'error');
     }
 }
 
-// Показать сайт после входа
 function showSiteAfterLogin() {
     console.log('Показываем сайт после входа');
     
     const overlay = document.getElementById('login-overlay');
     const mainContent = document.getElementById('main-content');
     
-    if (!overlay || !mainContent) {
-        console.error('Элементы не найдены!', {overlay, mainContent});
-        return;
-    }
+    if (!overlay || !mainContent) return;
     
-    // Прячем оверлей
     overlay.style.opacity = '0';
     
     setTimeout(() => {
         overlay.style.display = 'none';
         mainContent.style.display = 'block';
         
-        // Перезагружаем отзывы, чтобы обновить ссылки
         if (typeof loadReviews === 'function') {
             loadReviews();
         }
@@ -4121,7 +3141,6 @@ function showSiteAfterLogin() {
     }, 500);
 }
 
-// Проверка авторизации при загрузке
 function checkAuth() {
     console.log('Проверка авторизации...');
     
@@ -4129,18 +3148,13 @@ function checkAuth() {
     const overlay = document.getElementById('login-overlay');
     const mainContent = document.getElementById('main-content');
     
-    if (!overlay || !mainContent) {
-        console.error('Элементы оверлея не найдены!');
-        return;
-    }
+    if (!overlay || !mainContent) return;
     
     if (savedUser) {
-        // Пользователь уже авторизован
         console.log('🔄 Сессия восстановлена:', JSON.parse(savedUser).email);
         overlay.style.display = 'none';
         mainContent.style.display = 'block';
     } else {
-        // Не авторизован - показываем оверлей
         console.log('❌ Пользователь не авторизован');
         overlay.style.display = 'flex';
         overlay.style.opacity = '1';
@@ -4148,7 +3162,6 @@ function checkAuth() {
     }
 }
 
-// Демо-вход (если Google не работает)
 function simulateLogin() {
     console.log('Демо-вход');
     
@@ -4166,7 +3179,6 @@ function simulateLogin() {
     showNotification('Добро пожаловать, Демо Пользователь!', 'success');
 }
 
-// Защита страниц (перехват переходов)
 function protectNavigation() {
     const originalSwitchToPage = window.switchToPage;
     if (originalSwitchToPage) {
@@ -4174,24 +3186,20 @@ function protectNavigation() {
             const isLoggedIn = localStorage.getItem('siteReview_user');
             
             if (!isLoggedIn) {
-                // Если не авторизован - показываем оверлей
                 document.getElementById('login-overlay').style.display = 'flex';
                 document.getElementById('main-content').style.display = 'none';
                 showNotification('Необходимо войти через Google', 'info');
                 return;
             }
             
-            // Если авторизован - выполняем оригинальную функцию
             originalSwitchToPage(pageId, userId);
         };
     }
 }
 
-// Инициализация при загрузке
 document.addEventListener('DOMContentLoaded', function() {
     console.log('DOM загружен, инициализация авторизации...');
     
-    // Даем время на загрузку Google API
     setTimeout(() => {
         loadGoogleAPI();
     }, 100);
@@ -4199,7 +3207,6 @@ document.addEventListener('DOMContentLoaded', function() {
     checkAuth();
     protectNavigation();
     
-    // Добавляем защиту на все ссылки
     setTimeout(() => {
         document.querySelectorAll('a[href]').forEach(link => {
             link.addEventListener('click', function(e) {
@@ -4214,18 +3221,15 @@ document.addEventListener('DOMContentLoaded', function() {
     }, 500);
 });
 
-// Делаем функции глобальными
 window.handleGoogleSignIn = handleGoogleSignIn;
 window.simulateLogin = simulateLogin;
 
-// ==================== САЙТЫ, НА КОТОРЫЕ ЛУЧШЕ НЕ ЗАХОДИТЬ ====================
-
-// Функция для отображения сайтов из красной зоны
+// ==================== САЙТЫ ДЛЯ ИЗБЕГАНИЯ ====================
 function displaySitesToAvoid() {
     const container = document.getElementById('sites-to-avoid');
     if (!container) return;
     
-    const avoidSites = getSitesToAvoid();
+    const avoidSites = typeof getSitesToAvoid !== 'undefined' ? getSitesToAvoid() : [];
     
     if (avoidSites.length === 0) {
         container.innerHTML = '<p style="color: #27ae60; text-align: center;">✨ Пока всё чисто! Никто не попал в чёрный список</p>';
@@ -4236,10 +3240,9 @@ function displaySitesToAvoid() {
     
     avoidSites.forEach(site => {
         const siteElement = document.createElement('div');
-        siteElement.className = 'site-needing-review'; // Тот же класс, что у "нужны отзывы"
-        siteElement.style.borderColor = '#e74c3c'; // Красная обводка
+        siteElement.className = 'site-needing-review';
+        siteElement.style.borderColor = '#e74c3c';
         
-        // Определяем иконку опасности
         let dangerIcon = '';
         if (site.avgRating < 2.0) {
             dangerIcon = '<i class="fas fa-skull" style="color: #e74c3c; margin-right: 8px;"></i>';
@@ -4249,30 +3252,28 @@ function displaySitesToAvoid() {
             dangerIcon = '<i class="fas fa-exclamation-circle" style="color: #e74c3c; margin-right: 8px;"></i>';
         }
         
-        // Формируем HTML в том же стиле, что и "нужны отзывы"
         siteElement.innerHTML = `
             <span style="margin-right: 8px; color: #666;">${dangerIcon}</span>
             <span class="site-name" style="color: #e74c3c;">${site.name}</span>
             <span class="site-info" style="background: rgba(231, 76, 60, 0.1); color: #e74c3c;">
-                ${site.reason}
+                ${site.reason || 'проблемный сайт'}
             </span>
         `;
         
-        // При клике показываем детали
         siteElement.addEventListener('click', () => {
             const negativeReviews = reviews.filter(r => 
                 r.siteUrl === site.url && r.rating <= 2
             );
             
             if (negativeReviews.length > 0) {
-                let message = `🚫 ${site.name}\nРейтинг: ${site.formattedRating}/5\n\n`;
+                let message = `🚫 ${site.name}\nРейтинг: ${site.formattedRating || site.avgRating?.toFixed(1) || '?'}/5\n\n`;
                 message += negativeReviews.map(r => 
                     `${'★'.repeat(r.rating)}${'☆'.repeat(5-r.rating)} - ${r.name}: ${r.comment}`
                 ).join('\n\n');
                 
                 alert(message);
             } else {
-                alert(`🚫 ${site.name}\nРейтинг: ${site.formattedRating}/5\n\nПричина: ${site.reason}`);
+                alert(`🚫 ${site.name}\nРейтинг: ${site.formattedRating || site.avgRating?.toFixed(1) || '?'}/5\n\nПричина: ${site.reason || 'негативные отзывы'}`);
             }
         });
         
