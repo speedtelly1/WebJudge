@@ -1361,17 +1361,18 @@ function handleProfileHash() {
         }
 
         // Загрузка и отображение отзывов
-        function loadReviews() {
-            displayFeaturedReviews();
-            displayAllReviews(reviews);
-            displaySitesNeedingReviews(); // Добавьте эту строку
-            displayRecommendedSites(); // Добавьте эту строку
-            displaySitesToAvoid(); // 👈 ДОБАВИТЬ ЭТУ СТРОКУ
-           // Добавляем ссылки на профили после загрузки отзывов
-           setTimeout(() => {
-               updateReviewCardsWithLinks();
-           }, 100);
-        }
+// Загрузка и отображение отзывов (ОБНОВЛЕННАЯ)
+function loadReviews() {
+    displayFeaturedReviews(); // Это теперь будет показывать рекомендации
+    displayAllReviews(reviews);
+    displaySitesNeedingReviews();
+    displayRecommendedSites();
+    displaySitesToAvoid();
+    
+    setTimeout(() => {
+        updateReviewCardsWithLinks();
+    }, 100);
+}
 
 // Функция для отображения сайтов, которым нужны отзывы
 function displaySitesNeedingReviews() {
@@ -1496,22 +1497,62 @@ function displayRecommendedSites() {
 
 // Также добавьте вызов при смене страниц, если нужно обновлять данные:
 
-// 5. Отображение избранных отзывов (обновлено для консистентности)
+// ОБНОВЛЕННАЯ функция для главной страницы
 function displayFeaturedReviews() {
-    if (!featuredReviewsContainer) return;
+    const container = document.getElementById('featured-reviews');
+    if (!container) return;
     
-    const sortedReviews = [...reviews].sort((a, b) => new Date(b.date) - new Date(a.date));
-    const featured = sortedReviews.slice(0, 3);
+    // Получаем персонализированные рекомендации
+    const recommended = getPersonalizedReviews(6);
     
-    featuredReviewsContainer.innerHTML = '';
+    container.innerHTML = '';
     
-    if (featured.length === 0) {
-        featuredReviewsContainer.innerHTML = '<div class="no-results"><i class="fas fa-comment-slash"></i><h3>Отзывов пока нет</h3><p>Будьте первым, кто оставит отзыв!</p></div>';
+    if (recommended.length === 0) {
+        container.innerHTML = '<div class="no-results"><i class="fas fa-comment-slash"></i><h3>Отзывов пока нет</h3><p>Будьте первым, кто оставит отзыв!</p></div>';
         return;
     }
     
-    featured.forEach(review => {
-        featuredReviewsContainer.appendChild(createReviewCard(review));
+    // Добавляем заголовок в зависимости от авторизации
+    const user = localStorage.getItem('siteReview_user');
+    const header = document.createElement('div');
+    header.style.cssText = `
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        margin-bottom: 20px;
+        grid-column: 1 / -1;
+    `;
+    
+    if (user) {
+        header.innerHTML = `
+            <i class="fas fa-magic" style="color: #9b59b6; font-size: 1.2rem;"></i>
+            <h3 style="margin: 0; color: var(--secondary-color);">Рекомендовано для вас</h3>
+            <span style="
+                background: #9b59b6;
+                color: white;
+                padding: 2px 8px;
+                border-radius: 12px;
+                font-size: 0.7rem;
+            ">Персонально</span>
+        `;
+    } else {
+        header.innerHTML = `
+            <i class="fas fa-fire" style="color: #e67e22; font-size: 1.2rem;"></i>
+            <h3 style="margin: 0; color: var(--secondary-color);">Популярные отзывы</h3>
+            <span style="
+                background: #e67e22;
+                color: white;
+                padding: 2px 8px;
+                border-radius: 12px;
+                font-size: 0.7rem;
+            ">Топ недели</span>
+        `;
+    }
+    
+    container.appendChild(header);
+    
+    recommended.forEach(review => {
+        container.appendChild(createReviewCard(review));
     });
 }
 
@@ -1596,116 +1637,197 @@ function displayAllReviews(reviewsArray) {
             return `${String(hour).padStart(2, '0')}:${String(minute).padStart(2, '0')}`;
         }
 
-        // Создание карточки отзыва
-        function createReviewCard(review) {
-            const card = document.createElement('div');
-            card.className = 'review-card glass-effect';
+// Создание карточки отзыва (ОБНОВЛЕННАЯ)
+function createReviewCard(review) {
+    const card = document.createElement('div');
+    card.className = 'review-card glass-effect';
 
-            card.setAttribute('data-review-id', review.id);
+    card.setAttribute('data-review-id', review.id);
 
-            // Добавляем класс для критических отзывов
-            if (review.rating <= 2) {
-                card.classList.add('critical');
-            }
-            
-            // Форматирование даты
-            const date = new Date(review.date);
-            const formattedDate = date.toLocaleDateString('ru-RU', {
-                year: 'numeric',
-                month: 'long',
-                day: 'numeric'
-            });
+    // Добавляем класс для критических отзывов
+    if (review.rating <= 2) {
+        card.classList.add('critical');
+    }
+    
+    // Форматирование даты
+    const date = new Date(review.date);
+    const formattedDate = date.toLocaleDateString('ru-RU', {
+        year: 'numeric',
+        month: 'long',
+        day: 'numeric'
+    });
 
-            // Добавляем время
-            let formattedTime = '';
-            if (review.date.includes('T')) {
-                const timeParts = review.date.split('T')[1];
-                formattedTime = timeParts.substring(0, 5);
-            } else {
-                // Если времени нет, добавляем случайное
-                formattedTime = generateRandomTime();
-            }
-            
-            // Создание звезд рейтинга
-            let starsHTML = '';
-            for (let i = 1; i <= 5; i++) {
-                if (i <= review.rating) {
-                    starsHTML += '<i class="fas fa-star star filled"></i>';
-                } else {
-                    starsHTML += '<i class="far fa-star star"></i>';
-                }
-            }
-            
-            // Извлечение домена из URL для отображения
-            let domain = review.siteUrl;
-            try {
-                const url = new URL(review.siteUrl);
-                domain = url.hostname.replace('www.', '');
-            } catch (e) {
-                // Если URL некорректный, оставляем как есть
-            }
-
-            const displayNickname = getDisplayNickname(review);
-                    
-            card.innerHTML = `
-                <div class="review-header">
-                    <div class="reviewer-info">
-            <div style="display: flex; align-items: center; gap: 8px;">
-                <h3 style="margin: 0;">${review.name}</h3>
-                ${review.verified ? '<i class="fas fa-check-circle verified-badge"></i>' : ''}
-            </div>
-            <div class="reviewer-username">
-                <i class="fas fa-at"></i> ${displayNickname}
-            </div>
-                    </div>
-                    <div class="rating-value">${review.rating}.0</div>
-                </div>
-                
-                <div class="review-site">
-                    <i class="fas fa-link"></i> 
-                    <a href="${review.siteUrl}" target="_blank" rel="noopener">${review.siteName} (${domain})</a>
-                </div>
-                
-                <div class="rating">
-                    <div class="stars">${starsHTML}</div>
-                </div>
-                
-                <div class="review-text">${review.comment}</div>
-                
-                <div class="review-date">${formattedDate} • ${formattedTime}</div>
-            `;
-
-            // Добавляем предупреждения
-            addWarningLabels(card, review);
-
-            // Добавляем категории как теги
-            const reviewCategories = getReviewCategories(review);
-            if (reviewCategories.length > 0) {
-                const tagsHtml = reviewCategories.map(cat => 
-                    `<span class="category-tag" style="
-                        display: inline-block;
-                        background: ${getCategoryColor(cat)}15;
-                        color: ${getCategoryColor(cat)};
-                        padding: 3px 10px;
-                        border-radius: 12px;
-                        font-size: 0.75rem;
-                        margin-right: 5px;
-                        border: 1px solid ${getCategoryColor(cat)}30;
-                    ">${cat}</span>`
-                ).join('');
-                
-                // Вставляем теги после названия сайта
-                const tagsDiv = `<div class="review-tags" style="margin: 8px 0 12px 0;">${tagsHtml}</div>`;
-                
-                // Модифицируем HTML карточки
-                const reviewTextDiv = card.querySelector('.review-text');
-                if (reviewTextDiv) {
-                    reviewTextDiv.insertAdjacentHTML('beforebegin', tagsDiv);
-                }
-            }
-            
-            return card;
+    // Добавляем время
+    let formattedTime = '';
+    if (review.date.includes('T')) {
+        const timeParts = review.date.split('T')[1];
+        formattedTime = timeParts.substring(0, 5);
+    } else {
+        // Если времени нет, добавляем случайное
+        formattedTime = generateRandomTime();
+    }
+    
+    // Создание звезд рейтинга
+    let starsHTML = '';
+    for (let i = 1; i <= 5; i++) {
+        if (i <= review.rating) {
+            starsHTML += '<i class="fas fa-star star filled"></i>';
+        } else {
+            starsHTML += '<i class="far fa-star star"></i>';
         }
+    }
+    
+    // Извлечение домена из URL для отображения
+    let domain = review.siteUrl;
+    try {
+        const url = new URL(review.siteUrl);
+        domain = url.hostname.replace('www.', '');
+    } catch (e) {
+        // Если URL некорректный, оставляем как есть
+    }
+
+    const displayNickname = getDisplayNickname(review);
+    
+    // Получаем статистику лайков (если функция существует)
+    let likeStats = { likes: 0, dislikes: 0 };
+    let userVote = null;
+    
+    if (typeof likesStorage !== 'undefined') {
+        likeStats = likesStorage.getReviewStats(review.id);
+        const userLikes = likesStorage.getUserLikes();
+        userVote = userLikes[review.id];
+    }
+            
+    card.innerHTML = `
+        <div class="review-header">
+            <div class="reviewer-info">
+                <div style="display: flex; align-items: center; gap: 8px;">
+                    <h3 style="margin: 0;">${review.name}</h3>
+                    ${review.verified ? '<i class="fas fa-check-circle verified-badge"></i>' : ''}
+                </div>
+                <div class="reviewer-username">
+                    <i class="fas fa-at"></i> ${displayNickname}
+                </div>
+            </div>
+            <div class="rating-value">${review.rating}.0</div>
+        </div>
+        
+        <div class="review-site">
+            <i class="fas fa-link"></i> 
+            <a href="${review.siteUrl}" target="_blank" rel="noopener">${review.siteName} (${domain})</a>
+        </div>
+        
+        <div class="rating">
+            <div class="stars">${starsHTML}</div>
+        </div>
+        
+        <div class="review-text">${review.comment}</div>
+        
+        <!-- ЛАЙКИ И ДИЗЛАЙКИ -->
+        <div class="review-actions" style="
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            margin: 15px 0 10px;
+            padding-top: 10px;
+            border-top: 1px solid rgba(0,0,0,0.05);
+        ">
+            <button class="like-btn ${userVote === 'like' ? 'active' : ''}" data-review-id="${review.id}" data-type="like" style="
+                background: none;
+                border: none;
+                display: flex;
+                align-items: center;
+                gap: 5px;
+                cursor: pointer;
+                color: ${userVote === 'like' ? '#27ae60' : '#666'};
+                font-size: 0.9rem;
+                transition: all 0.2s;
+            ">
+                <i class="fas fa-thumbs-up"></i>
+                <span class="likes-count">${likeStats.likes}</span>
+            </button>
+            
+            <button class="dislike-btn ${userVote === 'dislike' ? 'active' : ''}" data-review-id="${review.id}" data-type="dislike" style="
+                background: none;
+                border: none;
+                display: flex;
+                align-items: center;
+                gap: 5px;
+                cursor: pointer;
+                color: ${userVote === 'dislike' ? '#e74c3c' : '#666'};
+                font-size: 0.9rem;
+                transition: all 0.2s;
+            ">
+                <i class="fas fa-thumbs-down"></i>
+                <span class="dislikes-count">${likeStats.dislikes}</span>
+            </button>
+            
+            <button class="similar-btn" data-review-id="${review.id}" style="
+                margin-left: auto;
+                background: none;
+                border: none;
+                color: #3498db;
+                cursor: pointer;
+                font-size: 0.85rem;
+                display: flex;
+                align-items: center;
+                gap: 5px;
+            ">
+                <i class="fas fa-project-diagram"></i> Похожие
+            </button>
+        </div>
+        
+        <div class="review-date">${formattedDate} • ${formattedTime}</div>
+    `;
+
+    // Добавляем предупреждения
+    addWarningLabels(card, review);
+
+    // Добавляем категории как теги
+    const reviewCategories = getReviewCategories(review);
+    if (reviewCategories.length > 0) {
+        const tagsHtml = reviewCategories.map(cat => 
+            `<span class="category-tag" style="
+                display: inline-block;
+                background: ${getCategoryColor(cat)}15;
+                color: ${getCategoryColor(cat)};
+                padding: 3px 10px;
+                border-radius: 12px;
+                font-size: 0.75rem;
+                margin-right: 5px;
+                border: 1px solid ${getCategoryColor(cat)}30;
+            ">${cat}</span>`
+        ).join('');
+        
+        // Вставляем теги после названия сайта
+        const tagsDiv = `<div class="review-tags" style="margin: 8px 0 12px 0;">${tagsHtml}</div>`;
+        
+        // Модифицируем HTML карточки
+        const reviewTextDiv = card.querySelector('.review-text');
+        if (reviewTextDiv) {
+            reviewTextDiv.insertAdjacentHTML('beforebegin', tagsDiv);
+        }
+    }
+    
+    // Добавляем обработчики для лайков и похожих
+    setTimeout(() => {
+        const likeBtn = card.querySelector('.like-btn');
+        const dislikeBtn = card.querySelector('.dislike-btn');
+        const similarBtn = card.querySelector('.similar-btn');
+        
+        if (likeBtn && typeof handleLikeClick !== 'undefined') {
+            likeBtn.addEventListener('click', (e) => handleLikeClick(e, card));
+        }
+        if (dislikeBtn && typeof handleLikeClick !== 'undefined') {
+            dislikeBtn.addEventListener('click', (e) => handleLikeClick(e, card));
+        }
+        if (similarBtn && typeof showSimilarReviews !== 'undefined') {
+            similarBtn.addEventListener('click', () => showSimilarReviews(review.id));
+        }
+    }, 0);
+    
+    return card;
+}
 
 // ==================== ФУНКЦИЯ ДЛЯ ОПРЕДЕЛЕНИЯ АВТОРОВ GITHUB PAGES ====================
 
