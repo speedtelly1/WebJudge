@@ -1067,6 +1067,197 @@ function getSitesToAvoid() {
     return sites;
 }
 
+// ==================== СИСТЕМА ЛАЙКОВ ====================
+
+// Хранилище лайков (в localStorage)
+const likesStorage = {
+    // Получить все лайки текущего пользователя
+    getUserLikes: function() {
+        const user = JSON.parse(localStorage.getItem('siteReview_user') || '{}');
+        if (!user.email) return {};
+        
+        const key = `likes_${user.email}`;
+        return JSON.parse(localStorage.getItem(key) || '{}');
+    },
+    
+    // Поставить лайк/дизлайк
+    toggleLike: function(reviewId, type) {
+        const user = JSON.parse(localStorage.getItem('siteReview_user') || '{}');
+        if (!user.email) {
+            alert('Войдите, чтобы ставить оценки');
+            return null;
+        }
+        
+        const key = `likes_${user.email}`;
+        const userLikes = JSON.parse(localStorage.getItem(key) || '{}');
+        
+        // Если уже есть такой же лайк - удаляем (toggle off)
+        if (userLikes[reviewId] === type) {
+            delete userLikes[reviewId];
+        } else {
+            userLikes[reviewId] = type; // 'like' или 'dislike'
+        }
+        
+        localStorage.setItem(key, JSON.stringify(userLikes));
+        
+        // Обновляем глобальную статистику лайков
+        updateGlobalLikes(reviewId, type, userLikes[reviewId] ? 'added' : 'removed');
+        
+        return userLikes;
+    },
+    
+    // Получить статистику лайков для отзыва
+    getReviewStats: function(reviewId) {
+        const globalStats = JSON.parse(localStorage.getItem('likes_global') || '{}');
+        return globalStats[reviewId] || { likes: 0, dislikes: 0 };
+    }
+};
+
+// Обновление глобальной статистики
+function updateGlobalLikes(reviewId, type, action) {
+    const globalStats = JSON.parse(localStorage.getItem('likes_global') || '{}');
+    
+    if (!globalStats[reviewId]) {
+        globalStats[reviewId] = { likes: 0, dislikes: 0 };
+    }
+    
+    if (action === 'added') {
+        globalStats[reviewId][type === 'like' ? 'likes' : 'dislikes']++;
+    } else {
+        globalStats[reviewId][type === 'like' ? 'likes' : 'dislikes']--;
+    }
+    
+    localStorage.setItem('likes_global', JSON.stringify(globalStats));
+}
+
+// ==================== УМНЫЕ РЕКОМЕНДАЦИИ ====================
+
+// Получить рекомендации для пользователя
+function getPersonalizedReviews(limit = 6) {
+    const user = JSON.parse(localStorage.getItem('siteReview_user') || '{}');
+    if (!user.email) {
+        // Если пользователь не авторизован - показываем просто популярные
+        return getPopularReviews(limit);
+    }
+    
+    const userLikes = likesStorage.getUserLikes();
+    const likedReviewIds = Object.keys(userLikes).filter(id => userLikes[id] === 'like');
+    
+    // Если пользователь ничего не лайкал - показываем популярные
+    if (likedReviewIds.length === 0) {
+        return getPopularReviews(limit);
+    }
+    
+    // Собираем информацию о том, что нравится пользователю
+    const likedReviews = reviews.filter(r => likedReviewIds.includes(r.id.toString()));
+    
+    // Какие авторы нравятся
+    const favoriteAuthors = {};
+    // Какие сайты нравятся
+    const favoriteSites = {};
+    // Какие теги нравятся
+    const favoriteTags = {};
+    
+    likedReviews.forEach(review => {
+        favoriteAuthors[review.name] = (favoriteAuthors[review.name] || 0) + 1;
+        favoriteSites[review.siteName] = (favoriteSites[review.siteName] || 0) + 1;
+        
+        const tags = getReviewCategories(review);
+        tags.forEach(tag => {
+            favoriteTags[tag] = (favoriteTags[tag] || 0) + 1;
+        });
+    });
+    
+    // Сортируем по популярности
+    const topAuthors = Object.keys(favoriteAuthors).sort((a,b) => favoriteAuthors[b] - favoriteAuthors[a]);
+    const topSites = Object.keys(favoriteSites).sort((a,b) => favoriteSites[b] - favoriteSites[a]);
+    const topTags = Object.keys(favoriteTags).sort((a,b) => favoriteTags[b] - favoriteTags[a]);
+    
+    // Оцениваем каждый отзыв (кроме уже лайкнутых)
+    const scoredReviews = reviews
+        .filter(r => !likedReviewIds.includes(r.id.toString()))
+        .map(review => {
+            let score = 0;
+            
+            // Бонус за автора
+            if (topAuthors.includes(review.name)) {
+                score += 3;
+            }
+            
+            // Бонус за сайт
+            if (topSites.includes(review.siteName)) {
+                score += 2;
+            }
+            
+            // Бонус за теги
+            const tags = getReviewCategories(review);
+            tags.forEach(tag => {
+                if (topTags.includes(tag)) {
+                    score += 1;
+                }
+            });
+            
+            // Бонус за популярность (лайки других)
+            const stats = likesStorage.getReviewStats(review.id);
+            score += stats.likes * 0.5;
+            
+            // Штраф за дизлайки
+            score -= stats.dislikes * 0.3;
+            
+            return { review, score };
+        })
+        .sort((a, b) => b.score - a.score)
+        .slice(0, limit)
+        .map(item => item.review);
+    
+    return scoredReviews;
+}
+
+// Получить популярные отзывы (для неавторизованных)
+function getPopularReviews(limit = 6) {
+    const globalStats = JSON.parse(localStorage.getItem('likes_global') || '{}');
+    
+    return [...reviews]
+        .map(review => ({
+            review,
+            popularity: (globalStats[review.id]?.likes || 0) * 2 - (globalStats[review.id]?.dislikes || 0)
+        }))
+        .sort((a, b) => b.popularity - a.popularity)
+        .slice(0, limit)
+        .map(item => item.review);
+}
+
+// Получить похожие отзывы (на основе текущего)
+function getSimilarReviews(reviewId, limit = 3) {
+    const currentReview = reviews.find(r => r.id === reviewId);
+    if (!currentReview) return [];
+    
+    const currentTags = getReviewCategories(currentReview);
+    
+    return reviews
+        .filter(r => r.id !== reviewId)
+        .map(review => {
+            let score = 0;
+            const tags = getReviewCategories(review);
+            
+            // Похожесть по тегам
+            tags.forEach(tag => {
+                if (currentTags.includes(tag)) score += 2;
+            });
+            
+            // Тот же автор
+            if (review.name === currentReview.name) score += 3;
+            
+            // Тот же сайт
+            if (review.siteName === currentReview.siteName) score += 4;
+            
+            return { review, score };
+        })
+        .sort((a, b) => b.score - a.score)
+        .slice(0, limit)
+        .map(item => item.review);
+}
+
 /*!
  * ============================================================
  * SiteReview - Система оценки веб-сайтов
