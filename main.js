@@ -1366,6 +1366,7 @@ function handleProfileHash() {
             displayAllReviews(reviews);
             displaySitesNeedingReviews(); // Добавьте эту строку
             displayRecommendedSites(); // Добавьте эту строку
+            displaySitesToAvoid(); // 👈 ДОБАВИТЬ ЭТУ СТРОКУ
            // Добавляем ссылки на профили после загрузки отзывов
            setTimeout(() => {
                updateReviewCardsWithLinks();
@@ -4099,6 +4100,68 @@ document.addEventListener('DOMContentLoaded', function() {
 // Делаем функции глобальными
 window.handleGoogleSignIn = handleGoogleSignIn;
 window.simulateLogin = simulateLogin;
+
+// ==================== САЙТЫ, НА КОТОРЫЕ ЛУЧШЕ НЕ ЗАХОДИТЬ ====================
+
+// Функция для отображения сайтов из красной зоны
+function displaySitesToAvoid() {
+    const container = document.getElementById('sites-to-avoid');
+    if (!container) return;
+    
+    const avoidSites = getSitesToAvoid();
+    
+    if (avoidSites.length === 0) {
+        container.innerHTML = '<p style="color: #27ae60; text-align: center;">✨ Пока всё чисто! Никто не попал в чёрный список</p>';
+        return;
+    }
+    
+    container.innerHTML = '';
+    
+    avoidSites.forEach(site => {
+        const siteElement = document.createElement('div');
+        siteElement.className = 'site-needing-review'; // Тот же класс, что у "нужны отзывы"
+        siteElement.style.borderColor = '#e74c3c'; // Красная обводка
+        
+        // Определяем иконку опасности
+        let dangerIcon = '';
+        if (site.avgRating < 2.0) {
+            dangerIcon = '<i class="fas fa-skull" style="color: #e74c3c; margin-right: 8px;"></i>';
+        } else if (site.avgRating < 2.5) {
+            dangerIcon = '<i class="fas fa-exclamation-triangle" style="color: #e74c3c; margin-right: 8px;"></i>';
+        } else {
+            dangerIcon = '<i class="fas fa-exclamation-circle" style="color: #e74c3c; margin-right: 8px;"></i>';
+        }
+        
+        // Формируем HTML в том же стиле, что и "нужны отзывы"
+        siteElement.innerHTML = `
+            <span style="margin-right: 8px; color: #666;">${dangerIcon}</span>
+            <span class="site-name" style="color: #e74c3c;">${site.name}</span>
+            <span class="site-info" style="background: rgba(231, 76, 60, 0.1); color: #e74c3c;">
+                ${site.reason}
+            </span>
+        `;
+        
+        // При клике показываем детали
+        siteElement.addEventListener('click', () => {
+            const negativeReviews = reviews.filter(r => 
+                r.siteUrl === site.url && r.rating <= 2
+            );
+            
+            if (negativeReviews.length > 0) {
+                let message = `🚫 ${site.name}\nРейтинг: ${site.formattedRating}/5\n\n`;
+                message += negativeReviews.map(r => 
+                    `${'★'.repeat(r.rating)}${'☆'.repeat(5-r.rating)} - ${r.name}: ${r.comment}`
+                ).join('\n\n');
+                
+                alert(message);
+            } else {
+                alert(`🚫 ${site.name}\nРейтинг: ${site.formattedRating}/5\n\nПричина: ${site.reason}`);
+            }
+        });
+        
+        container.appendChild(siteElement);
+    });
+}
 
 /*!
  * ============================================================
