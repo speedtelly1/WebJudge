@@ -850,16 +850,16 @@ function displayFeaturedReviews() {
     const container = document.getElementById('featured-reviews');
     if (!container) return;
     
-    const recommended = typeof getPersonalizedReviews !== 'undefined' ? getPersonalizedReviews(3) : getPopularReviews(3);
+    // Показываем просто последние отзывы (3 штуки)
+    const latestReviews = [...reviews].sort((a, b) => new Date(b.date) - new Date(a.date)).slice(0, 3);
     
     container.innerHTML = '';
     
-    if (recommended.length === 0) {
+    if (latestReviews.length === 0) {
         container.innerHTML = '<div class="no-results"><i class="fas fa-comment-slash"></i><h3>Отзывов пока нет</h3><p>Будьте первым, кто оставит отзыв!</p></div>';
         return;
     }
     
-    const user = localStorage.getItem('siteReview_user');
     const header = document.createElement('div');
     header.style.cssText = `
         display: flex;
@@ -869,35 +869,14 @@ function displayFeaturedReviews() {
         grid-column: 1 / -1;
     `;
     
-    if (user) {
-        header.innerHTML = `
-            <i class="fas fa-magic" style="color: #9b59b6; font-size: 1.2rem;"></i>
-            <h3 style="margin: 0; color: var(--secondary-color);">Может вам понравится</h3>
-            <span style="
-                background: #9b59b6;
-                color: white;
-                padding: 2px 8px;
-                border-radius: 12px;
-                font-size: 0.7rem;
-            ">Персонально</span>
-        `;
-    } else {
-        header.innerHTML = `
-            <i class="fas fa-fire" style="color: #e67e22; font-size: 1.2rem;"></i>
-            <h3 style="margin: 0; color: var(--secondary-color);">Популярные отзывы</h3>
-            <span style="
-                background: #e67e22;
-                color: white;
-                padding: 2px 8px;
-                border-radius: 12px;
-                font-size: 0.7rem;
-            ">Топ недели</span>
-        `;
-    }
+    header.innerHTML = `
+        <i class="fas fa-clock" style="color: #3498db; font-size: 1.2rem;"></i>
+        <h3 style="margin: 0; color: var(--secondary-color);">Последние отзывы</h3>
+    `;
     
     container.appendChild(header);
     
-    recommended.forEach(review => {
+    latestReviews.forEach(review => {
         container.appendChild(createReviewCard(review));
     });
 }
@@ -923,10 +902,6 @@ function displayAllReviews(reviewsArray) {
     setTimeout(() => {
         updateReviewCardsWithLinks();
     }, 100);
-}
-
-function getPopularReviews(limit = 3) {
-    return [...reviews].sort((a, b) => new Date(b.date) - new Date(a.date)).slice(0, limit);
 }
 
 // ==================== КАТЕГОРИИ ====================
@@ -1019,19 +994,6 @@ function createReviewCard(review) {
     } catch (e) {}
 
     const displayNickname = getDisplayNickname(review);
-    
-    let likeStats = { likes: 0, dislikes: 0 };
-    let userVote = null;
-    
-    if (typeof likesStorage !== 'undefined' && likesStorage) {
-        try {
-            likeStats = likesStorage.getReviewStats ? likesStorage.getReviewStats(review.id) : { likes: 0, dislikes: 0 };
-            const userLikes = likesStorage.getUserLikes ? likesStorage.getUserLikes() : {};
-            userVote = userLikes[review.id];
-        } catch (e) {
-            console.warn('Ошибка получения лайков:', e);
-        }
-    }
             
     card.innerHTML = `
         <div class="review-header">
@@ -1057,59 +1019,6 @@ function createReviewCard(review) {
         </div>
         
         <div class="review-text">${review.comment}</div>
-        
-        <div class="review-actions" style="
-            display: flex;
-            align-items: center;
-            gap: 15px;
-            margin: 15px 0 10px;
-            padding-top: 10px;
-            border-top: 1px solid rgba(0,0,0,0.05);
-        ">
-            <button class="like-btn ${userVote === 'like' ? 'active' : ''}" data-review-id="${review.id}" data-type="like" style="
-                background: none;
-                border: none;
-                display: flex;
-                align-items: center;
-                gap: 5px;
-                cursor: pointer;
-                color: ${userVote === 'like' ? '#27ae60' : '#666'};
-                font-size: 0.9rem;
-                transition: all 0.2s;
-            ">
-                <i class="fas fa-thumbs-up"></i>
-                <span class="likes-count">${likeStats.likes}</span>
-            </button>
-            
-            <button class="dislike-btn ${userVote === 'dislike' ? 'active' : ''}" data-review-id="${review.id}" data-type="dislike" style="
-                background: none;
-                border: none;
-                display: flex;
-                align-items: center;
-                gap: 5px;
-                cursor: pointer;
-                color: ${userVote === 'dislike' ? '#e74c3c' : '#666'};
-                font-size: 0.9rem;
-                transition: all 0.2s;
-            ">
-                <i class="fas fa-thumbs-down"></i>
-                <span class="dislikes-count">${likeStats.dislikes}</span>
-            </button>
-            
-            <button class="similar-btn" data-review-id="${review.id}" style="
-                margin-left: auto;
-                background: none;
-                border: none;
-                color: #3498db;
-                cursor: pointer;
-                font-size: 0.85rem;
-                display: flex;
-                align-items: center;
-                gap: 5px;
-            ">
-                <i class="fas fa-project-diagram"></i> Похожие
-            </button>
-        </div>
         
         <div class="review-date">${formattedDate} • ${formattedTime}</div>
     `;
@@ -1137,51 +1046,6 @@ function createReviewCard(review) {
             reviewTextDiv.insertAdjacentHTML('beforebegin', tagsDiv);
         }
     }
-    
-    setTimeout(() => {
-        const likeBtn = card.querySelector('.like-btn');
-        const dislikeBtn = card.querySelector('.dislike-btn');
-        const similarBtn = card.querySelector('.similar-btn');
-        
-        if (likeBtn) {
-            likeBtn.addEventListener('click', (e) => {
-                e.preventDefault();
-                e.stopPropagation();
-                if (typeof handleLikeClick !== 'undefined') {
-                    handleLikeClick(e, card);
-                } else {
-                    console.warn('Функция handleLikeClick не найдена');
-                    alert('Функция лайков временно недоступна');
-                }
-            });
-        }
-        
-        if (dislikeBtn) {
-            dislikeBtn.addEventListener('click', (e) => {
-                e.preventDefault();
-                e.stopPropagation();
-                if (typeof handleLikeClick !== 'undefined') {
-                    handleLikeClick(e, card);
-                } else {
-                    console.warn('Функция handleLikeClick не найдена');
-                    alert('Функция дизлайков временно недоступна');
-                }
-            });
-        }
-        
-        if (similarBtn) {
-            similarBtn.addEventListener('click', (e) => {
-                e.preventDefault();
-                e.stopPropagation();
-                if (typeof showSimilarReviews !== 'undefined') {
-                    showSimilarReviews(review.id);
-                } else {
-                    console.warn('Функция showSimilarReviews не найдена');
-                    alert('Функция похожих отзывов временно недоступна');
-                }
-            });
-        }
-    }, 0);
     
     return card;
 }
@@ -1419,7 +1283,8 @@ function performAdvancedSearch() {
             matchesPositive = review.rating >= 4;
         }
         
-        return matchesSearch && matchesRating && matchesAuthor && matchesSite && matchesVerified && matchesCritical && matchesPositive;
+        return matchesSearch && matchesRating && matchesAuthor && 
+               matchesSite && matchesVerified && matchesCritical && matchesPositive;
     });
     
     filteredReviews = filteredReviews.sort((a, b) => {
