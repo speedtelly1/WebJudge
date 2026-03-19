@@ -1006,6 +1006,67 @@ function getNeedsReason(count, days, rating) {
     return reasons.join(' • ');
 }
 
+// ==================== САЙТЫ, НА КОТОРЫЕ ЛУЧШЕ НЕ ЗАХОДИТЬ ====================
+
+// Функция для получения сайтов из красной зоны
+function getSitesToAvoid() {
+    const siteMap = {};
+    
+    // Собираем статистику по сайтам
+    reviews.forEach(review => {
+        if (!siteMap[review.siteUrl]) {
+            siteMap[review.siteUrl] = {
+                url: review.siteUrl,
+                name: review.siteName,
+                totalRating: 0,
+                count: 0,
+                oneStarCount: 0,
+                twoStarCount: 0,
+                negativeComments: []
+            };
+        }
+        
+        siteMap[review.siteUrl].totalRating += review.rating;
+        siteMap[review.siteUrl].count++;
+        
+        if (review.rating === 1) siteMap[review.siteUrl].oneStarCount++;
+        if (review.rating === 2) siteMap[review.siteUrl].twoStarCount++;
+    });
+    
+    // Рассчитываем рейтинг "опасности"
+    const sites = Object.values(siteMap)
+        .filter(site => site.count >= 1) // Хотя бы 1 отзыв
+        .map(site => {
+            const avgRating = site.totalRating / site.count;
+            const negativePercentage = ((site.oneStarCount + site.twoStarCount) / site.count) * 100;
+            
+            // Формируем причину
+            let reason = [];
+            if (avgRating < 2.0) reason.push('катастрофически низкий');
+            else if (avgRating < 2.5) reason.push('очень низкий');
+            else if (avgRating < 3.0) reason.push('ниже среднего');
+            
+            if (negativePercentage > 80) reason.push('99% негатива');
+            else if (negativePercentage > 60) reason.push('большинство негативных');
+            else if (negativePercentage > 40) reason.push('много негатива');
+            
+            if (site.oneStarCount > 0) reason.push(`${site.oneStarCount} ★☆☆☆☆`);
+            
+            return {
+                ...site,
+                avgRating,
+                formattedRating: avgRating.toFixed(1),
+                negativePercentage,
+                reason: reason.join(' • ') || 'проблемный сайт'
+            };
+        })
+        .filter(site => site.avgRating < 3.0 || site.negativePercentage > 40) // Только проблемные
+        .sort((a, b) => a.avgRating - b.avgRating) // Сначала самые низкие
+        .slice(0, 5); // Топ-5 худших
+    
+    return sites;
+}
+
 /*!
  * ============================================================
  * SiteReview - Система оценки веб-сайтов
