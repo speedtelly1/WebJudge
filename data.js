@@ -972,9 +972,9 @@ function getSitesNeedingReviews() {
         })
         // ❌ ИСКЛЮЧАЕМ РЕКОМЕНДОВАННЫЕ САЙТЫ
         .filter(site => !recommendedSites.includes(site.url))
-        // 🎯 БЕРЁМ 5 ХУДШИХ (САМЫЙ ВЫСОКИЙ ПРИОРИТЕТ)
+        // 🎯 БЕРЁМ 3 ХУДШИХ (САМЫЙ ВЫСОКИЙ ПРИОРИТЕТ)
         .sort((a, b) => b.priority - a.priority)
-        .slice(0, 5);
+        .slice(0, 3);
     
     return sites;
 }
@@ -1062,7 +1062,7 @@ function getSitesToAvoid() {
         })
         .filter(site => site.avgRating < 3.0 || site.negativePercentage > 40) // Только проблемные
         .sort((a, b) => a.avgRating - b.avgRating) // Сначала самые низкие
-        .slice(0, 5); // Топ-5 худших
+        .slice(0, 3); // Топ-3 худших
     
     return sites;
 }
