@@ -1133,7 +1133,7 @@ function updateGlobalLikes(reviewId, type, action) {
 // ==================== УМНЫЕ РЕКОМЕНДАЦИИ ====================
 
 // Получить рекомендации для пользователя
-function getPersonalizedReviews(limit = 6) {
+function getPersonalizedReviews(limit = 3) {
     const user = JSON.parse(localStorage.getItem('siteReview_user') || '{}');
     if (!user.email) {
         // Если пользователь не авторизован - показываем просто популярные
