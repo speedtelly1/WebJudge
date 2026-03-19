@@ -584,7 +584,7 @@ function showReferrerStats() {
         console.log('\n🌐 Топ домены:');
         Object.entries(stats.byDomain)
             .sort((a,b) => b[1] - a[1])
-            .slice(0, 5)
+            .slice(0, 3)
             .forEach(([domain, count]) => {
                 console.log(`   ${domain}: ${count}`);
             });
