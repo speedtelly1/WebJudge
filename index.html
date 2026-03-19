@@ -137,31 +137,47 @@
                     <h2 class="section-title">Добро пожаловать на SiteReview</h2>
                     <p style="margin-bottom: 20px; line-height: 1.7;">Платформа для публикации и просмотра отзывов на различные веб-сайты. Здесь вы можете поделиться своим опытом использования разных ресурсов и помочь другим пользователям выбрать лучшие сайты. Все отзывы оставлены реальными пользователями после использования.</p>
 
-                    <!-- Рекомендованные сайты -->
-                    <div class="recommended-sites glass-effect" style="padding: 20px; margin-top: 30px;">
-                        <h4 style="margin-bottom: 15px; color: #27ae60;">
-                            <i class="fas fa-thumbs-up"></i> Рекомендованные сайты
-                        </h4>
-                        <div id="recommended-sites" style="display: flex; flex-wrap: wrap; gap: 10px;">
-                            <div class="loading-spinner" style="width: 20px; height: 20px; margin: 10px auto;"></div>
-                        </div>
-                        <p style="margin-top: 10px; font-size: 0.9rem; color: #666;">
-                            Сайты с высоким рейтингом и несколькими подтверждающими отзывами
-                        </p>
-                    </div>
+<!-- Рекомендованные сайты (уже есть) -->
+<div class="recommended-sites glass-effect" style="padding: 20px; margin-top: 30px;">
+    <h4 style="margin-bottom: 15px; color: #27ae60;">
+        <i class="fas fa-thumbs-up"></i> Рекомендованные сайты
+    </h4>
+    <div id="recommended-sites" style="display: flex; flex-wrap: wrap; gap: 10px;">
+        <div class="loading-spinner" style="width: 20px; height: 20px; margin: 10px auto;"></div>
+    </div>
+    <p style="margin-top: 10px; font-size: 0.9rem; color: #666;">
+        Сайты с высоким рейтингом и несколькими подтверждающими отзывами
+    </p>
+</div>
 
-                    <!-- Сайты, которым нужны отзывы -->
-                    <div class="expected-sites glass-effect" style="padding: 20px; margin-top: 30px;">
-                        <h4 style="margin-bottom: 15px; color: var(--secondary-color);">
-                            <i class="fas fa-hourglass-half"></i> Сайты, которым нужны отзывы
-                        </h4>
-                        <div id="sites-needing-reviews" style="display: flex; flex-wrap: wrap; gap: 10px;">
-                            <div class="loading-spinner" style="width: 20px; height: 20px; margin: 10px auto;"></div>
-                        </div>
-                        <p style="margin-top: 10px; font-size: 0.9rem; color: #666;">
-                            Эти сайты имеют мало отзывов или давно не получали новых оценок
-                        </p>
-                    </div>
+<!-- ===== ВСТАВИТЬ ЭТОТ БЛОК ПОСЛЕ РЕКОМЕНДОВАННЫХ ===== -->
+<!-- Сайты, на которые лучше не заходить -->
+<div class="danger-sites glass-effect" style="padding: 20px; margin-top: 30px;">
+    <h4 style="margin-bottom: 15px; color: #e74c3c;">
+        <i class="fas fa-skull-crossbones"></i> Сайты, на которые лучше не заходить
+    </h4>
+    <div id="sites-to-avoid" style="display: flex; flex-wrap: wrap; gap: 10px;">
+        <div class="loading-spinner" style="width: 20px; height: 20px; margin: 10px auto;"></div>
+    </div>
+    <p style="margin-top: 10px; font-size: 0.9rem; color: #666;">
+        <i class="fas fa-exclamation-triangle" style="color: #e74c3c;"></i> 
+        Сайты с самым низким рейтингом и негативными отзывами
+    </p>
+</div>
+<!-- ===== КОНЕЦ ВСТАВКИ ===== -->
+
+<!-- Сайты, которым нужны отзывы (уже есть) -->
+<div class="expected-sites glass-effect" style="padding: 20px; margin-top: 30px;">
+    <h4 style="margin-bottom: 15px; color: var(--secondary-color);">
+        <i class="fas fa-hourglass-half"></i> Сайты, которым нужны отзывы
+    </h4>
+    <div id="sites-needing-reviews" style="display: flex; flex-wrap: wrap; gap: 10px;">
+        <div class="loading-spinner" style="width: 20px; height: 20px; margin: 10px auto;"></div>
+    </div>
+    <p style="margin-top: 10px; font-size: 0.9rem; color: #666;">
+        Эти сайты имеют мало отзывов или давно не получали новых оценок
+    </p>
+</div>
                     
                 </div>
      
