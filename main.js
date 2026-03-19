@@ -365,7 +365,8 @@ function categorizeSource(domain) {
  //   }
     
     // Внутренний переход
-    if (domain.includes('sitereview.github.io', 'speedtelly1.github.io')) {
+    // Внутренний переход
+    if (domain.includes('sitereview.github.io') || domain.includes('speedtelly1.github.io')) {
         return 'internal';
     }
     
@@ -869,10 +870,9 @@ function extractUsername(email) {
                switchToPage('home');
            }
            setTimeout(() => {
-               initAutoSync(); // хмм
-               startAutoUpdateCheck();
-           }, 3000); // Через 3 секунды после загрузки
-        });
+               // Функции временно отключены
+               console.log('Автосинхронизация отключена');
+           }, 3000);
 
 // ==================== ФУНКЦИИ ДЛЯ РАБОТЫ С ПРОФИЛЯМИ ====================
 
@@ -1688,15 +1688,20 @@ function createReviewCard(review) {
 
     const displayNickname = getDisplayNickname(review);
     
-    // Получаем статистику лайков (если функция существует)
-    let likeStats = { likes: 0, dislikes: 0 };
-    let userVote = null;
-    
-    if (typeof likesStorage !== 'undefined') {
-        likeStats = likesStorage.getReviewStats(review.id);
-        const userLikes = likesStorage.getUserLikes();
+// Получаем статистику лайков
+let likeStats = { likes: 0, dislikes: 0 };
+let userVote = null;
+
+// Проверяем, что likesStorage существует и это объект
+if (typeof likesStorage !== 'undefined' && likesStorage) {
+    try {
+        likeStats = likesStorage.getReviewStats ? likesStorage.getReviewStats(review.id) : { likes: 0, dislikes: 0 };
+        const userLikes = likesStorage.getUserLikes ? likesStorage.getUserLikes() : {};
         userVote = userLikes[review.id];
+    } catch (e) {
+        console.warn('Ошибка получения лайков:', e);
     }
+}
             
     card.innerHTML = `
         <div class="review-header">
@@ -1809,22 +1814,51 @@ function createReviewCard(review) {
         }
     }
     
-    // Добавляем обработчики для лайков и похожих
-    setTimeout(() => {
-        const likeBtn = card.querySelector('.like-btn');
-        const dislikeBtn = card.querySelector('.dislike-btn');
-        const similarBtn = card.querySelector('.similar-btn');
-        
-        if (likeBtn && typeof handleLikeClick !== 'undefined') {
-            likeBtn.addEventListener('click', (e) => handleLikeClick(e, card));
-        }
-        if (dislikeBtn && typeof handleLikeClick !== 'undefined') {
-            dislikeBtn.addEventListener('click', (e) => handleLikeClick(e, card));
-        }
-        if (similarBtn && typeof showSimilarReviews !== 'undefined') {
-            similarBtn.addEventListener('click', () => showSimilarReviews(review.id));
-        }
-    }, 0);
+// Добавляем обработчики для лайков и похожих
+setTimeout(() => {
+    const likeBtn = card.querySelector('.like-btn');
+    const dislikeBtn = card.querySelector('.dislike-btn');
+    const similarBtn = card.querySelector('.similar-btn');
+    
+    if (likeBtn) {
+        likeBtn.addEventListener('click', (e) => {
+            e.preventDefault();
+            e.stopPropagation();
+            if (typeof handleLikeClick !== 'undefined') {
+                handleLikeClick(e, card);
+            } else {
+                console.warn('Функция handleLikeClick не найдена');
+                alert('Функция лайков временно недоступна');
+            }
+        });
+    }
+    
+    if (dislikeBtn) {
+        dislikeBtn.addEventListener('click', (e) => {
+            e.preventDefault();
+            e.stopPropagation();
+            if (typeof handleLikeClick !== 'undefined') {
+                handleLikeClick(e, card);
+            } else {
+                console.warn('Функция handleLikeClick не найдена');
+                alert('Функция дизлайков временно недоступна');
+            }
+        });
+    }
+    
+    if (similarBtn) {
+        similarBtn.addEventListener('click', (e) => {
+            e.preventDefault();
+            e.stopPropagation();
+            if (typeof showSimilarReviews !== 'undefined') {
+                showSimilarReviews(review.id);
+            } else {
+                console.warn('Функция showSimilarReviews не найдена');
+                alert('Функция похожих отзывов временно недоступна');
+            }
+        });
+    }
+}, 0);
     
     return card;
 }
@@ -2220,45 +2254,6 @@ function resetAllFilters() {
 // Обновить фильтры при добавлении новых отзывов
 function updateSearchFilters() {
     populateFilterOptions();
-}
-
-// 3. Выполнение поиска (обновлено)
-function performSearch() {
-    const searchTerm = searchInput.value.toLowerCase().trim();
-    
-    if (searchTerm === '') {
-        displayAllReviews(reviews); // Теперь это уже сортированные отзывы
-        const resultsCountEl = document.getElementById('search-results-count');
-        if (resultsCountEl) resultsCountEl.remove();
-        return;
-    }
-    
-    try {
-        const filteredReviews = reviews.filter(review => {
-            const displayNickname = getDisplayNickname(review).toLowerCase();
-            
-            return (
-                review.name.toLowerCase().includes(searchTerm) ||
-                displayNickname.includes(searchTerm) ||
-                (review.email && review.email.toLowerCase().includes(searchTerm)) ||
-                review.siteName.toLowerCase().includes(searchTerm) ||
-                review.siteUrl.toLowerCase().includes(searchTerm) ||
-                review.comment.toLowerCase().includes(searchTerm)
-            );
-        });
-        
-        // Сортируем результаты поиска по новизне
-        const sortedSearchResults = [...filteredReviews].sort((a, b) => {
-            return new Date(b.date) - new Date(a.date);
-        });
-        
-        displayAllReviews(sortedSearchResults);
-        updateSearchResultsCount(filteredReviews.length, searchTerm);
-        
-    } catch (error) {
-        console.error('Ошибка при поиске:', error);
-        displayAllReviews(reviews);
-    }
 }
 
 // Функция для обновления счетчика результатов поиска
