@@ -869,7 +869,7 @@ function extractUsername(email) {
                switchToPage('home');
            }
            setTimeout(() => {
-               initAutoSync();
+               initAutoSync(); // хмм
                startAutoUpdateCheck();
            }, 3000); // Через 3 секунды после загрузки
         });
