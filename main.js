@@ -847,7 +847,11 @@ function handleProfileHash() {
 
 // ==================== ПОДСКАЗКИ САЙТОВ ====================
 function suggestSite(siteName, siteUrl) {
-    alert(`Предлагаем оценить: ${siteName}\n\nURL: ${siteUrl}\n\nПри переходе в форму, вставьте этот URL в поле "URL сайта"`);
+    showModal(
+        `Предлагаем оценить: ${siteName}<br><br>URL: ${siteUrl}<br><br>При переходе в форму, вставьте этот URL в поле "URL сайта"`,
+        'Предложение',
+        { showCancel: false }
+    );
 }
 
 // ==================== ПРОГРЕСС-БАР ====================
@@ -898,6 +902,14 @@ function displaySitesNeedingReviews() {
         siteElement.addEventListener('click', () => {
             suggestSite(site.name, site.url);
         });
+
+        siteElement.addEventListener('click', () => {
+            showModal(
+                `Сайт: ${site.name}<br>URL: ${site.url}<br><br>Почему нужны отзывы:<br>${site.needsReviewsReason}`,
+                'Нужны отзывы',
+                { showCancel: false }
+            );
+         });
         
         container.appendChild(siteElement);
     });
@@ -3113,6 +3125,7 @@ function showSiteAfterLogin() {
             loadReviews();
         }
         
+        showToast('Добро пожаловать!', 'success');
         console.log('Сайт открыт, пользователь авторизован');
     }, 500);
 }
@@ -3242,14 +3255,17 @@ function displaySitesToAvoid() {
             );
             
             if (negativeReviews.length > 0) {
-                let message = `🚫 ${site.name}\nРейтинг: ${site.formattedRating || site.avgRating?.toFixed(1) || '?'}/5\n\n`;
+                let message = `<strong>Рейтинг: ${site.formattedRating || site.avgRating?.toFixed(1) || '?'}/5</strong><br><br>`;
                 message += negativeReviews.map(r => 
-                    `${'★'.repeat(r.rating)}${'☆'.repeat(5-r.rating)} - ${r.name}: ${r.comment}`
-                ).join('\n\n');
+                    `<div style="margin-bottom: 10px; padding-bottom: 10px; border-bottom: 1px solid #eee;">
+                        <strong>${'★'.repeat(r.rating)}${'☆'.repeat(5-r.rating)}</strong> — ${r.name}<br>
+                        <span style="color: #666;">${r.comment}</span>
+                    </div>`
+                ).join('');
                 
-                alert(message);
+                showModal(message, `🚫 ${site.name}`, { showCancel: false });
             } else {
-                alert(`🚫 ${site.name}\nРейтинг: ${site.formattedRating || site.avgRating?.toFixed(1) || '?'}/5\n\nПричина: ${site.reason || 'негативные отзывы'}`);
+                showModal(`Рейтинг: ${site.formattedRating || site.avgRating?.toFixed(1) || '?'}/5<br><br>Причина: ${site.reason || 'негативные отзывы'}`, `🚫 ${site.name}`, { showCancel: false });
             }
         });
         
