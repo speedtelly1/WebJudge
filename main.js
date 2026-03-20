@@ -992,11 +992,6 @@ function displayFeaturedReviews() {
         grid-column: 1 / -1;
     `;
     
-    header.innerHTML = `
-        <i class="fas fa-clock" style="color: #3498db; font-size: 1.2rem;"></i>
-        <h3 style="margin: 0; color: var(--secondary-color);">Последние отзывы</h3>
-    `;
-    
     container.appendChild(header);
     
     latestReviews.forEach(review => {
