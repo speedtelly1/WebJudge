@@ -1,3 +1,114 @@
+// ==================== МОДАЛЬНЫЕ ОКНА И ТОСТЫ ====================
+
+// Показать тост-уведомление
+function showToast(message, type = 'info', duration = 3000) {
+    const container = document.getElementById('toast-container');
+    if (!container) return;
+    
+    const icons = {
+        success: 'fa-check-circle',
+        error: 'fa-exclamation-circle',
+        warning: 'fa-exclamation-triangle',
+        info: 'fa-info-circle'
+    };
+    
+    const toast = document.createElement('div');
+    toast.className = `toast ${type}`;
+    toast.innerHTML = `
+        <i class="fas ${icons[type] || icons.info}"></i>
+        <span style="flex: 1;">${message}</span>
+        <button class="toast-close">×</button>
+    `;
+    
+    container.appendChild(toast);
+    
+    const closeBtn = toast.querySelector('.toast-close');
+    closeBtn.addEventListener('click', () => {
+        toast.style.animation = 'toastSlideOut 0.3s ease forwards';
+        setTimeout(() => toast.remove(), 300);
+    });
+    
+    setTimeout(() => {
+        if (toast.parentNode) {
+            toast.style.animation = 'toastSlideOut 0.3s ease forwards';
+            setTimeout(() => toast.remove(), 300);
+        }
+    }, duration);
+}
+
+// Показать модальное окно
+function showModal(message, title = 'Уведомление', options = {}) {
+    return new Promise((resolve) => {
+        const overlay = document.getElementById('modal-overlay');
+        const modalTitle = document.getElementById('modal-title');
+        const modalMessage = document.getElementById('modal-message');
+        const confirmBtn = document.getElementById('modal-confirm');
+        const cancelBtn = document.getElementById('modal-cancel');
+        const closeBtn = document.getElementById('modal-close');
+        
+        if (!overlay) return resolve(false);
+        
+        modalTitle.textContent = title;
+        modalMessage.innerHTML = message;
+        
+        // Настройка кнопок
+        if (options.showCancel) {
+            cancelBtn.style.display = 'block';
+            confirmBtn.textContent = options.confirmText || 'OK';
+            cancelBtn.textContent = options.cancelText || 'Отмена';
+        } else {
+            cancelBtn.style.display = 'none';
+            confirmBtn.textContent = 'OK';
+        }
+        
+        overlay.style.display = 'flex';
+        
+        const closeModal = (result) => {
+            overlay.style.display = 'none';
+            resolve(result);
+        };
+        
+        // Обработчики
+        const confirmHandler = () => closeModal(true);
+        const cancelHandler = () => closeModal(false);
+        const closeHandler = () => closeModal(false);
+        
+        confirmBtn.onclick = confirmHandler;
+        cancelBtn.onclick = cancelHandler;
+        closeBtn.onclick = closeHandler;
+        
+        // Клик вне окна
+        overlay.onclick = (e) => {
+            if (e.target === overlay) closeModal(false);
+        };
+        
+        // Очистка после закрытия
+        const cleanup = () => {
+            confirmBtn.onclick = null;
+            cancelBtn.onclick = null;
+            closeBtn.onclick = null;
+            overlay.onclick = null;
+        };
+        
+        // Сохраняем cleanup для вызова после resolve
+        const originalResolve = resolve;
+        window.resolveModal = (result) => {
+            cleanup();
+            originalResolve(result);
+        };
+    });
+}
+
+// Переопределяем alert
+window.alert = function(message) {
+    showModal(message, 'Уведомление', { showCancel: false });
+};
+
+// Переопределяем confirm
+window.confirm = function(message) {
+    return showModal(message, 'Подтверждение', { showCancel: true });
+};
+
 // ==================== СИСТЕМА ЛОГИРОВАНИЯ ====================
 const LOG_STYLES = {
     info: 'background: #3498db; color: white; padding: 2px 6px; border-radius: 3px; font-weight: bold;',
