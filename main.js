@@ -1058,7 +1058,6 @@ function getCategoryColor(category) {
         'Магазины': '#e74c3c',
         'Критические': '#f39c12',
         'Позитивные': '#1abc9c',
-        'Авторские': '#1abc9c',
         'Все': '#95a5a6'
     };
     return colors[category] || '#95a5a6';
@@ -1224,22 +1223,13 @@ function addWarningLabels(cardElement, review) {
         });
     }
     
-    const negativeWords = ['плохой', 'ужасный', 'кошмар', 'не советую', 'избегайте', 'мусор', 'говно', 'дерьмо', 'отстой'];
+    const negativeWords = ['плохой', 'ужасный', 'кошмар', 'не советую', 'избегайте', 'мусор', 'говно', 'дерьмо', 'отстой', 'дурак', 'идиот', 'тупой', 'грубый', 'глупый', 'грубым', 'глупым', 'тупым', 'глуп', 'туп', 'лох'];
     const hasNegative = negativeWords.some(word => review.comment.toLowerCase().includes(word));
     if (hasNegative && review.rating <= 3) {
         warnings.push({
             text: 'Резко негативный',
             icon: 'fas fa-fire',
             color: '#f39c12'
-        });
-    }
-    
-    const isAuthor = review.comment.includes('мой сайт') || review.comment.includes('я автор') || isGitHubPagesAuthor(review);
-    if (isAuthor && review.rating >= 4) {
-        warnings.push({
-            text: 'Автор оцениваемого сайта',
-            icon: 'fas fa-user-edit',
-            color: '#3CB371'
         });
     }
 
@@ -1249,16 +1239,6 @@ function addWarningLabels(cardElement, review) {
             text: 'Автор SiteReview',
             icon: 'fas fa-user-edit',
             color: '#1E90FF'
-        });
-    }
-    
-    const personalAttacks = ['дурак', 'идиот', 'тупой', 'грубый', 'глупый', 'грубым', 'глупым', 'тупым', 'глуп', 'туп', 'лох'];
-    const hasPersonal = personalAttacks.some(word => review.comment.toLowerCase().includes(word));
-    if (hasPersonal) {
-        warnings.push({
-            text: 'Личный конфликт',
-            icon: 'fas fa-user-times',
-            color: '#9b59b6'
         });
     }
     
