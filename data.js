@@ -799,6 +799,17 @@ const reviews = [
         comment: "В принципе хороший сайт, OS, выглядит красиво, но половина функций не работает, поэтому нет.",
         date: "2026-03-27T14:32:00",
         verified: true
+    },
+    {
+        id: 73,
+        name: "Тимоша",
+        nickname: "timsib",
+        email: "timi.sibi.maxi2010@gmail.com",
+        siteUrl: "https://moozoom.netlify.app/",
+        siteName: "Moozoom",
+        rating: 5,
+        comment: "Хорошая соцсеть, жаль что нет реального бекенда, и особенность в том, что нельзя сменить эмодзи после входа (эмодзи ставится вместо авы)",
+        date: "2026-03-27T14:38:00"
     }
 ];
 
