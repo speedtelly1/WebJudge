@@ -810,6 +810,18 @@ const reviews = [
         rating: 5,
         comment: "Хорошая соцсеть, жаль что нет реального бекенда, и особенность в том, что нельзя сменить эмодзи после входа (эмодзи ставится вместо авы)",
         date: "2026-03-27T14:38:00"
+    },
+    {
+        id: 74,
+        name: "Константин",
+        email: "timosha.sibilev@gmail.com",
+        nickname: "speedtelly1",
+        siteUrl: "https://www.mos.ru/",
+        siteName: "Mos.ru",
+        rating: 5,
+        comment: "Хороший сайт, свои функции выполняет, чего ещё от него нужно?",
+        date: "2026-03-27T17:14:00",
+        verified: true
     }
 ];
 
