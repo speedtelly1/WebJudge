@@ -826,22 +826,10 @@ const categories = {
         review.siteName.includes(name) || review.comment.includes('инструм') || review.comment.includes('серв')
     ),
     'Магазины': (review) => ['FunPay', 'Steam', 'Epic Games'].some(name =>
-        review.siteName.includes(name) || review.comment.includes('купи') || review.comment.includes('покуп')
+        review.siteName.includes(name) || review.comment.includes('купит') || review.comment.includes('покуп')
     ),
     'Критические': (review) => review.rating <= 2,
     'Негативные': (review) => review.rating == 2,
-    'Авторские': (review) => {
-        // Определяем, является ли отзыв авторским
-        const isAuthor = review.comment.includes('мой сайт') || 
-                         review.comment.includes('я автор') ||
-                         // Конкретный случай: Тимофей о TAIPrompts
-                         (review.name === 'Тимофей' && 
-                         review.email === 'roll3ogurec0@gmail.com' && 
-                         review.siteName === 'TAIPrompts');
-        
-        // Только если это автор И рейтинг высокий
-        return isAuthor && review.rating >= 4;
-    },
     'Позитивные': (review) => review.rating >= 4,
     'Нейтральные': (review) => review.rating == 3
 };
