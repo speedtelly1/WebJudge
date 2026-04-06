@@ -822,6 +822,17 @@ const reviews = [
         comment: "Хороший сайт, свои функции выполняет, чего ещё от него нужно?",
         date: "2026-03-27T17:14:00",
         verified: true
+    },
+    {
+        id: 75,
+        name: "Даша",
+        nickname: "dashulya2014",
+        email: "dashulya2014yt@gmail.com",
+        siteUrl: "https://max.ru/",
+        siteName: "MAX",
+        rating: 3,
+        comment: "Всем привет! Я чупакабра! Макс впринцепе хороший, надёжный, но телега лучше.",
+        date: "2026-04-06T09:16:00"
     }
 ];
 
