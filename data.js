@@ -105,7 +105,7 @@ const reviews = [
         id: 10,
         name: "Тимоша",
         email: "timi.sibi.maxi2010@gmail.com",
-        nickname: "timsib",
+        nickname: "timbrayrot",
         siteUrl: "https://yandex.ru/games/",
         siteName: "Яндекс.Игры",
         rating: 5,
@@ -115,7 +115,7 @@ const reviews = [
     {
         id: 11,
         name: "Тимоша",
-        nickname: "timsib",
+        nickname: "timbrayrot",
         email: "timi.sibi.maxi2010@gmail.com",
         siteUrl: "https://miro.com/app/dashboard/",
         siteName: "Miro",
@@ -137,7 +137,7 @@ const reviews = [
     {
         id: 13,
         name: "Тимоша",
-        nickname: "timsib",
+        nickname: "timbrayrot",
         email: "timi.sibi.maxi2010@gmail.com",
         siteUrl: "https://www.duolingo.com/",
         siteName: "Duolingo",
@@ -148,7 +148,7 @@ const reviews = [
     {
         id: 14,
         name: "Тимоша",
-        nickname: "timsib",
+        nickname: "timbrayrot",
         email: "timi.sibi.maxi2010@gmail.com",
         siteUrl: "https://www.kinopoisk.ru/",
         siteName: "Кинопоиск",
@@ -214,7 +214,7 @@ const reviews = [
     {
         id: 20,
         name: "Тимоша",
-        nickname: "timsib",
+        nickname: "timbrayrot",
         email: "timi.sibi.maxi2010@gmail.com",
         siteUrl: "https://timoshamoscow.github.io/taiprompts.github.io/",
         siteName: "TAIPrompts",
@@ -225,7 +225,7 @@ const reviews = [
     {
         id: 21,
         name: "Тимоша",
-        nickname: "timsib",
+        nickname: "timbrayrot",
         email: "timi.sibi.maxi2010@gmail.com",
         siteUrl: "https://speedtelly1.github.io/sitereview.github.io/",
         siteName: "SiteReview",
@@ -579,7 +579,7 @@ const reviews = [
     {
         id: 53,
         name: "Тимоша",
-        nickname: "timsib",
+        nickname: "timbrayrot",
         email: "timi.sibi.maxi2010@gmail.com",
         siteUrl: "https://akkumulator950-bit.github.io/promptflame.github.io/",
         siteName: "PromptFlame",
@@ -736,7 +736,7 @@ const reviews = [
     {
         id: 67,
         name: "Тимоша",
-        nickname: "timsib",
+        nickname: "timbrayrot",
         email: "timi.sibi.maxi2010@gmail.com",
         siteUrl: "https://yandex.ru/images/",
         siteName: "Яндекс.Картинки",
@@ -747,7 +747,7 @@ const reviews = [
     {
         id: 68,
         name: "Тимоша",
-        nickname: "timsib",
+        nickname: "timbrayrot",
         email: "timi.sibi.maxi2010@gmail.com",
         siteUrl: "https://www.canva.com/",
         siteName: "Canva",
@@ -758,7 +758,7 @@ const reviews = [
     {
         id: 69,
         name: "Тимоша",
-        nickname: "timsib",
+        nickname: "timbrayrot",
         email: "timi.sibi.maxi2010@gmail.com",
         siteUrl: "https://turbologo.ru/",
         siteName: "Turbologo",
@@ -803,7 +803,7 @@ const reviews = [
     {
         id: 73,
         name: "Тимоша",
-        nickname: "timsib",
+        nickname: "timbrayrot",
         email: "timi.sibi.maxi2010@gmail.com",
         siteUrl: "https://moozoom.netlify.app/",
         siteName: "Moozoom",
@@ -833,6 +833,17 @@ const reviews = [
         rating: 3,
         comment: "Всем привет! Я чупакабра! Макс впринцепе хороший, надёжный, но телега лучше.",
         date: "2026-04-06T09:16:00"
+    },
+    {
+        id: 76,
+        name: "Тимоша",
+        nickname: "timbrayrot",
+        email: "timi.sibi.maxi2010@gmail.com",
+        siteUrl: "https://suno.com/",
+        siteName: "Suno",
+        rating: 5,
+        comment: "Суно имба! Очень качественные песни генерит, буду ждать улучшений",
+        date: "2026-04-07T18:06:00"
     }
 ];
 
