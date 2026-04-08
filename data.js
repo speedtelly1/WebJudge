@@ -894,8 +894,8 @@ const reviews = [
         name: "Даша",
         nickname: "dashulya2014",
         email: "dashulya2014yt@gmail.com",
-        siteUrl: "SiteReview",
-        siteName: "https://speedtelly1.github.io/sitereview.github.io/",
+        siteUrl: "https://speedtelly1.github.io/sitereview.github.io/",
+        siteName: "SiteReview",
         rating: 3,
         comment: "Норм",
         date: "2026-04-08T19:43:00"
