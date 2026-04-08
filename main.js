@@ -2267,7 +2267,7 @@ function calculateUserRatings() {
 
             // ========== НОВОЕ: СКРЫТОЕ КАЧЕСТВО ОТЗЫВОВ ==========
             const avgReviewQuality = calculateUserQualityScore(user.reviews);
-            userScore += avgReviewQuality / 5; // Добавляем бонус/штраф от -3 до +3
+            userScore += avgReviewQuality / 10; // Добавляем бонус/штраф от -3 до +3
             userScore = Math.max(userScore, 0.1);
             
             return {
