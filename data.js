@@ -844,6 +844,50 @@ const reviews = [
         rating: 5,
         comment: "Суно имба! Очень качественные песни генерит, буду ждать улучшений",
         date: "2026-04-07T18:06:00"
+    },
+    {
+        id: 77,
+        name: "Даша",
+        nickname: "dashulya2014",
+        email: "dashulya2014yt@gmail.com",
+        siteUrl: "https://www.youtube.com/",
+        siteName: "YouTube",
+        rating: 5,
+        comment: "Очень понравился. 5 звёзд. Поистине замечательный сайт",
+        date: "2026-04-08T19:28:00"
+    },
+    {
+        id: 78,
+        name: "Даша",
+        nickname: "dashulya2014",
+        email: "dashulya2014yt@gmail.com",
+        siteUrl: "https://www.deepseek.com/",
+        siteName: "DeepSeek",
+        rating: 5,
+        comment: "Мне не очень понравилось.",
+        date: "2026-04-08T19:30:00"
+    },
+    {
+        id: 79,
+        name: "Даша",
+        nickname: "dashulya2014",
+        email: "dashulya2014yt@gmail.com",
+        siteUrl: "https://timoshamoscow.github.io/taiprompts.github.io/",
+        siteName: "TAIPrompts",
+        rating: 5,
+        comment: "Прикольный :)",
+        date: "2026-04-08T19:31:00"
+    },
+    {
+        id: 80,
+        name: "Даша",
+        nickname: "dashulya2014",
+        email: "dashulya2014yt@gmail.com",
+        siteUrl: "https://web.telegram.org",
+        siteName: "Telegram Web",
+        rating: 2,
+        comment: "Очень хороший",
+        date: "2026-04-08T19:32:00"
     }
 ];
 
