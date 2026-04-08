@@ -3331,6 +3331,69 @@ document.addEventListener('DOMContentLoaded', function() {
 window.handleGoogleSignIn = handleGoogleSignIn;
 window.simulateLogin = simulateLogin;
 
+// ==================== ЗАЩИТА ВСЕГО САЙТА ====================
+
+// Получаем токен при загрузке страницы
+async function getRecaptchaToken() {
+    if (typeof grecaptcha === 'undefined') {
+        console.warn('reCAPTCHA не загружена');
+        return null;
+    }
+    
+    try {
+        const token = await grecaptcha.execute('6LfSgK0sAAAAAOKPapPqW2ufYOmAu2Xr44kmDeh2', { action: 'homepage' });
+        return token;
+    } catch (e) {
+        console.error('Ошибка reCAPTCHA:', e);
+        return null;
+    }
+}
+
+// Проверяем каждый важный запрос
+async function protectAction(actionName) {
+    const token = await getRecaptchaToken();
+    if (!token) {
+        showToast('Пожалуйста, подождите загрузки защиты...', 'warning');
+        return false;
+    }
+    
+    // Здесь можно отправить токен на сервер для проверки
+    console.log(`✅ Действие "${actionName}" защищено, токен:`, token);
+    return true;
+}
+
+// Защищаем добавление отзыва
+const originalAddReview = window.addReview;
+window.addReview = async function(newReview) {
+    const isProtected = await protectAction('add_review');
+    if (!isProtected) return;
+    
+    return originalAddReview.apply(this, arguments);
+};
+
+// Защищаем поиск
+const originalPerformAdvancedSearch = window.performAdvancedSearch;
+window.performAdvancedSearch = async function() {
+    await protectAction('search');
+    return originalPerformAdvancedSearch.apply(this, arguments);
+};
+
+// Защищаем переходы по профилям
+const originalSwitchToPage = window.switchToPage;
+window.switchToPage = async function(pageId, userId) {
+    await protectAction('navigate');
+    return originalSwitchToPage.apply(this, arguments);
+};
+
+// Защищаем лайки (если есть)
+if (typeof likesStorage !== 'undefined') {
+    const originalToggleLike = likesStorage.toggleLike;
+    likesStorage.toggleLike = async function(reviewId, type) {
+        await protectAction('like');
+        return originalToggleLike.apply(this, arguments);
+    };
+}
+
 // ==================== САЙТЫ ДЛЯ ИЗБЕГАНИЯ ====================
 function displaySitesToAvoid() {
     const container = document.getElementById('sites-to-avoid');
