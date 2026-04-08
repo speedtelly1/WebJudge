@@ -2039,6 +2039,96 @@ function createSiteRankingCard(site, position) {
     return card;
 }
 
+// ==================== СКРЫТАЯ СИСТЕМА КАЧЕСТВА ОТЗЫВОВ ====================
+
+// Функция расчёта качества отзыва (штрафы и бонусы)
+function calculateReviewQuality(review) {
+    let qualityScore = 0;
+    const text = review.comment;
+    const length = text.length;
+    
+    // === БОНУСЫ ===
+    
+    // 1. Бонус за идеальную длину (50-300 символов)
+    if (length >= 50 && length <= 300) {
+        qualityScore += 5;
+    }
+    // 2. Бонус за нормальную длину (30-49 или 301-500)
+    else if (length >= 30 && length < 50) {
+        qualityScore += 2;
+    }
+    else if (length > 300 && length <= 500) {
+        qualityScore += 2;
+    }
+    
+    // 3. Бонус за информативность (цифры, конкретика)
+    const hasSpecifics = /[0-9]|минут|час|день|рубл|процент|функц|возможн|скорост|качеств|дизайн|интерфейс|навигац|поддержк|обновл|цен|бесплатн|платн/.test(text.toLowerCase());
+    if (hasSpecifics) {
+        qualityScore += 3;
+    }
+    
+    // 4. Бонус за наличие вопроса (дискуссия)
+    if (text.includes('?')) {
+        qualityScore += 1;
+    }
+    
+    // === ШТРАФЫ ===
+    
+    // 1. Штраф за слишком короткий отзыв
+    if (length < 20) {
+        qualityScore -= 3;
+    }
+    if (length < 10) {
+        qualityScore -= 5;
+    }
+    
+    // 2. Штраф за слишком длинный отзыв (водянистый)
+    if (length > 500) {
+        qualityScore -= 3;
+    }
+    
+    // 3. Штраф за противоречивый отзыв
+    const positiveWords = ['хорош', 'отличн', 'крут', 'имба', 'топ', 'супер', 'прекрасн', 'замечательн', 'нравит', 'люблю', 'прикольн'];
+    const negativeWords = ['плохой', 'ужасный', 'кошмар', 'не советую', 'избегайте', 'мусор', 'отстой', 'бесит', 'сломан', 'не работает', 'не понравил'];
+    
+    const hasPositive = positiveWords.some(word => text.toLowerCase().includes(word));
+    const hasNegative = negativeWords.some(word => text.toLowerCase().includes(word));
+    
+    const isControversial = (review.rating >= 4 && hasNegative && !hasPositive) ||
+                           (review.rating <= 2 && hasPositive && !hasNegative) ||
+                           (review.rating === 5 && text.includes('не понравил')) ||
+                           (review.rating === 1 && (text.includes('очень хорош') || text.includes('отличн')));
+    
+    if (isControversial) {
+        qualityScore -= 4;
+    }
+    
+    // 4. Штраф за пустой/бессмысленный отзыв
+    if (length === 0 || text.trim() === '' || /^(норм|ок|хорошо|плохо|спс|окей|👍|👎|😊|😡)+$/i.test(text.trim())) {
+        qualityScore -= 10;
+    }
+    
+    // 5. Штраф за перебор с эмодзи (>5)
+    const emojiCount = (text.match(/[\u{1F600}-\u{1F6FF}]/gu) || []).length;
+    if (emojiCount > 5) {
+        qualityScore -= 1;
+    }
+    
+    return Math.max(-15, Math.min(15, qualityScore)); // Ограничиваем от -15 до +15
+}
+
+// Функция для получения среднего качества отзывов пользователя
+function calculateUserQualityScore(userReviews) {
+    if (userReviews.length === 0) return 0;
+    
+    let totalQuality = 0;
+    userReviews.forEach(review => {
+        totalQuality += calculateReviewQuality(review);
+    });
+    
+    return totalQuality / userReviews.length;
+}
+
 function displayTopUsers() {
     const topUsersContainer = document.getElementById('top-users-container');
     if (!topUsersContainer) return;
@@ -2174,6 +2264,10 @@ function calculateUserRatings() {
             
             let userScore = activityScore + consistencyScore + diversityScore;
             userScore = userScore - authorPenalty + qualityBonus - qualityPenalty;
+
+            // ========== НОВОЕ: СКРЫТОЕ КАЧЕСТВО ОТЗЫВОВ ==========
+            const avgReviewQuality = calculateUserQualityScore(user.reviews);
+            userScore += avgReviewQuality / 5; // Добавляем бонус/штраф от -3 до +3
             userScore = Math.max(userScore, 0.1);
             
             return {
