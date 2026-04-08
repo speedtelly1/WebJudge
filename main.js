@@ -1211,10 +1211,11 @@ function isGitHubPagesAuthor(review) {
     }
 }
 
-// ==================== ПРЕДУПРЕЖДЕНИЯ ====================
+// ==================== ПРЕДУПРЕЖДЕНИЯ И ТЕГИ ====================
 function addWarningLabels(cardElement, review) {
     const warnings = [];
     
+    // 1. Низкий рейтинг
     if (review.rating <= 2) {
         warnings.push({
             text: 'Низкий рейтинг',
@@ -1223,6 +1224,7 @@ function addWarningLabels(cardElement, review) {
         });
     }
     
+    // 2. Резко негативный
     const negativeWords = ['плохой', 'ужасный', 'кошмар', 'не советую', 'избегайте', 'мусор', 'говно', 'дерьмо', 'отстой', 'дурак', 'идиот', 'тупой', 'грубый', 'глупый', 'грубым', 'глупым', 'тупым', 'глуп', 'туп', 'лох'];
     const hasNegative = negativeWords.some(word => review.comment.toLowerCase().includes(word));
     if (hasNegative && review.rating <= 3) {
@@ -1233,6 +1235,7 @@ function addWarningLabels(cardElement, review) {
         });
     }
 
+    // 3. Автор SiteReview
     const isOwner = review.name === 'Константин' && review.email === 'timosha.sibilev@gmail.com';
     if (isOwner) {
         warnings.push({
@@ -1242,6 +1245,52 @@ function addWarningLabels(cardElement, review) {
         });
     }
     
+    // 4. Противоречивый (оценка не соответствует тексту)
+    const text = review.comment.toLowerCase();
+    const positiveWords = ['хорош', 'отличн', 'крут', 'имба', 'топ', 'супер', 'прекрасн', 'замечательн', 'нравит', 'люблю', 'прикольн'];
+    const hasPositive = positiveWords.some(word => text.includes(word));
+    const hasNegativeText = negativeWords.some(word => text.includes(word));
+    
+    // 5★ с негативом или 1-2★ с позитивом
+    if ((review.rating >= 4 && hasNegativeText && !hasPositive) ||
+        (review.rating <= 2 && hasPositive && !hasNegativeText) ||
+        (review.rating === 5 && text.includes('не понравил')) ||
+        (review.rating === 1 && (text.includes('очень хорош') || text.includes('отличн')))) {
+        warnings.push({
+            text: 'Противоречивый',
+            icon: 'fas fa-question-circle',
+            color: '#9b59b6'
+        });
+    }
+    
+    // 5. Слишком длинный (>300 символов)
+    if (review.comment.length > 300) {
+        warnings.push({
+            text: 'Слишком длинный',
+            icon: 'fas fa-paragraph',
+            color: '#e67e22'
+        });
+    }
+    
+    // 6. Слишком короткий (<20 символов)
+    if (review.comment.length < 20 && review.comment.length > 0) {
+        warnings.push({
+            text: 'Слишком короткий',
+            icon: 'fas fa-shortcode',
+            color: '#f39c12'
+        });
+    }
+    
+    // 7. Пустой отзыв
+    if (review.comment.length === 0 || review.comment.trim() === '') {
+        warnings.push({
+            text: 'Только оценка',
+            icon: 'fas fa-blank',
+            color: '#95a5a6'
+        });
+    }
+    
+    // Отображаем все теги
     if (warnings.length > 0) {
         const warningContainer = document.createElement('div');
         warningContainer.className = 'warning-container';
