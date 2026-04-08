@@ -888,6 +888,39 @@ const reviews = [
         rating: 2,
         comment: "Очень хороший",
         date: "2026-04-08T19:32:00"
+    },
+    {
+        id: 81,
+        name: "Даша",
+        nickname: "dashulya2014",
+        email: "dashulya2014yt@gmail.com",
+        siteUrl: "SiteReview",
+        siteName: "https://speedtelly1.github.io/sitereview.github.io/",
+        rating: 3,
+        comment: "Норм",
+        date: "2026-04-08T19:43:00"
+    },
+    {
+        id: 82,
+        name: "Даша",
+        nickname: "dashulya2014",
+        email: "dashulya2014yt@gmail.com",
+        siteUrl: "https://gdz-raketa.ru/",
+        siteName: "ГДЗ",
+        rating: 4,
+        comment: "захватите этих людишек!",
+        date: "2026-04-08T19:44:00"
+    },
+    {
+        id: 83,
+        name: "Даша",
+        nickname: "dashulya2014",
+        email: "dashulya2014yt@gmail.com",
+        siteUrl: "https://www.kinopoisk.ru/",
+        siteName: "Кинопоиск",
+        rating: 3,
+        comment: "Очень понравился. 5 звёзд. Поистине замечательный сайт. Прикольный :) Норм, очень хороший, но потом Мне не очень понравилось. захватите этих людишек!",
+        date: "2026-04-08T19:45:00"
     }
 ];
 
