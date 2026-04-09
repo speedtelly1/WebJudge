@@ -921,6 +921,28 @@ const reviews = [
         rating: 3,
         comment: "Очень понравился. 5 звёзд. Поистине замечательный сайт. Прикольный :) Норм, очень хороший, но потом Мне не очень понравилось. захватите этих людишек!",
         date: "2026-04-08T19:45:00"
+    },
+    {
+        id: 84,
+        name: "Тимоша",
+        nickname: "timbrayrot",
+        email: "timi.sibi.maxi2010@gmail.com",
+        siteUrl: "https://web.telegram.org",
+        siteName: "Telegram Web",
+        rating: 5,
+        comment: "Имба, если нет аккаунта ТГ (Я веб версией считаю предпросмотр каналов, групп, постов по ссылкам)",
+        date: "2026-04-09T11:12:00"
+    },
+    {
+        id: 85,
+        name: "Тимоша",
+        nickname: "timbrayrot",
+        email: "timi.sibi.maxi2010@gmail.com",
+        siteUrl: "https://kick.com",
+        siteName: "KICK",
+        rating: 4,
+        comment: "Хороший сайт, красивый. По красивее твича будет даже",
+        date: "2026-04-09T11:13:00"
     }
 ];
 
