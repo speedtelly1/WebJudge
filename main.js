@@ -3391,6 +3391,25 @@ function displaySitesToAvoid() {
     });
 }
 
+// ==================== КРАСИВОЕ КОПИРОВАНИЕ ====================
+
+document.addEventListener('copy', function(e) {
+    const selection = window.getSelection();
+    let copiedText = selection.toString();
+    
+    if (copiedText.length > 0) {
+        // Добавляем ссылку на сайт в конце скопированного текста
+        const source = `\n\n——\nИсточник: SiteReview | https://speedtelly1.github.io/sitereview.github.io`;
+        
+        // Создаём HTML-версию для буфера
+        const htmlContent = `<div style="font-family: sans-serif;">${copiedText.replace(/\n/g, '<br>')}${source.replace(/\n/g, '<br>')}</div>`;
+        
+        e.clipboardData.setData('text/plain', copiedText + source);
+        e.clipboardData.setData('text/html', htmlContent);
+        e.preventDefault();
+    }
+});
+
 /*!
  * ============================================================
  * SiteReview - Система оценки веб-сайтов
