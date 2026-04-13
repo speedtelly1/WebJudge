@@ -1301,3 +1301,99 @@ main {
         font-size: 1.8rem;
     }
 }
+
+/* ==================== КРАСИВОЕ КОПИРОВАНИЕ ==================== */
+
+@media print {
+    /* Скрываем всё лишнее при печати/копировании */
+    .bottom-banner,
+    .quiz-btn,
+    .category-btn,
+    .search-box,
+    .search-section,
+    .nav-links,
+    .recommended-sites,
+    .danger-sites,
+    .expected-sites,
+    .stats-container,
+    .two-columns-container,
+    .quiz-container,
+    .warning-container,
+    .review-actions,
+    .category-tag,
+    .verified-badge,
+    .warning-badge,
+    .top-badge,
+    .ranking-header,
+    .ranking-count,
+    button:not(.no-print),
+    iframe,
+    #toast-container,
+    #modal-overlay,
+    footer,
+    .features,
+    .tech-info {
+        display: none !important;
+    }
+    
+    /* Основные стили для печати */
+    body {
+        background: white;
+        padding: 0;
+        margin: 0;
+    }
+    
+    .container {
+        max-width: 100%;
+        margin: 0;
+        padding: 20px;
+    }
+    
+    .review-card {
+        break-inside: avoid;
+        page-break-inside: avoid;
+        border: 1px solid #ddd;
+        margin-bottom: 20px;
+        padding: 15px;
+        box-shadow: none;
+    }
+    
+    .review-card:hover {
+        transform: none;
+        box-shadow: none;
+    }
+    
+    .review-header {
+        border-bottom: 1px solid #ddd;
+    }
+    
+    .review-site a {
+        color: black;
+        text-decoration: none;
+    }
+    
+    .star.filled {
+        color: black;
+    }
+    
+    .rating-value {
+        background: none;
+        border: 1px solid #ddd;
+    }
+    
+    a {
+        text-decoration: underline;
+        color: black;
+    }
+    
+    .glass-effect {
+        background: none;
+        backdrop-filter: none;
+        border: none;
+        box-shadow: none;
+    }
+    
+    .section-title {
+        border-bottom: 2px solid #333;
+    }
+}
