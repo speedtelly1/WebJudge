@@ -1,8 +1,8 @@
 {
-  "name": "SiteReview",
-  "short_name": "SiteReview",
+  "name": "WebJudge",
+  "short_name": "WebJudge",
   "description": "Платформа для публикации и просмотра отзывов на веб-сайты",
-  "start_url": "/sitereview.github.io/",
+  "start_url": "/WebJudge",
   "display": "standalone",
   "background_color": "#f5f7fa",
   "theme_color": "#3498db",
