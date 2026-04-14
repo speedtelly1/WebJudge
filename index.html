@@ -6,7 +6,7 @@
     <meta name="description" content="Платформа для публикации и просмотра отзывов на различные веб-сайты. Оставляйте оценки и делитесь мнениями о разных ресурсах.">
     <meta name="keywords" content="отзывы, оценка сайтов, рейтинг, веб-разработка, пользовательские отзывы">
     <meta name="google-site-verification" content="KF2kZf8Jtfsr-27-SUyD7Ff7ylkh_WkpQJFInI9n6b8" />
-    <title>SiteReview | Отзывы на веб-сайты</title>
+    <title>WebJudge | Отзывы на веб-сайты</title>
     <meta name="format-detection" content="telephone=no">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="stylesheet" href="main.css">
@@ -15,7 +15,7 @@
     <meta name="mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-    <meta name="apple-mobile-web-app-title" content="SiteReview">
+    <meta name="apple-mobile-web-app-title" content="WebJudge">
     <link rel="apple-touch-icon" href="iconi.png">
     <link rel="icon" sizes="192x192" href="iconi.png">
     <meta name="google-signin-client_id" content="22364952672-8mqiqmo14pgq3es9thb2bhon1eiqq522.apps.googleusercontent.com">
@@ -46,7 +46,7 @@
         ">
             <div style="margin-bottom: 30px;">
                 <i class="fas fa-shield-alt" style="font-size: 4rem; color: #667eea; margin-bottom: 20px;"></i>
-                <h1 style="color: #333; margin-bottom: 10px;">Site<span style="color: #667eea;">Review</span></h1>
+                <h1 style="color: #333; margin-bottom: 10px;">Web<span style="color: #667eea;">Judge</span></h1>
                 <p style="color: #666; margin-bottom: 20px;">Войдите через Google для доступа к отзывам</p>
             </div>
 
@@ -99,7 +99,7 @@
             <div class="logo">
                 <a></a>
                 <div>
-                    <h1>Site<span>Review</span></h1>
+                    <h1>Web<span>Judge</span></h1>
                 </div>
             </div>
             
@@ -136,7 +136,7 @@
             <!-- Главная страница -->
             <section id="home-page" class="page active">
                 <div class="glass-effect" style="padding: 30px;">
-                    <h2 class="section-title">Добро пожаловать на SiteReview</h2>
+                    <h2 class="section-title">Добро пожаловать на WebJudge</h2>
                     <p style="margin-bottom: 20px; line-height: 1.7;">Платформа для публикации и просмотра отзывов на различные веб-сайты. Здесь вы можете поделиться своим опытом использования разных ресурсов и помочь другим пользователям выбрать лучшие сайты. Все отзывы оставлены реальными пользователями после использования.</p>
 
 <!-- Рекомендованные сайты (уже есть) -->
@@ -473,7 +473,7 @@
             <section id="stats-page" class="page">
                 <div class="glass-effect" style="padding: 30px;">
                     <h2 class="section-title">Статистика отзывов</h2>
-                    <p style="margin-bottom: 25px;">Анализ всех отзывов, опубликованных на платформе SiteReview.</p>
+                    <p style="margin-bottom: 25px;">Анализ всех отзывов, опубликованных на платформе WebJudge.</p>
                     
                     <div class="stats-container">
                         <div class="stat-card glass-effect">
@@ -522,8 +522,8 @@
 <!-- О проекте -->
 <section id="about-page" class="page">
     <div class="about-content glass-effect">
-        <h2 class="section-title">О проекте SiteReview</h2>
-        <p>SiteReview — независимая платформа для публикации пользовательских отзывов о веб-сайтах. Основная цель проекта — помочь пользователям принимать взвешенные решения при выборе интернет-ресурсов, а также предоставить возможность делиться собственным опытом использования различных сервисов.</p>
+        <h2 class="section-title">О проекте WebJudge</h2>
+        <p>WebJudge — независимая платформа для публикации пользовательских отзывов о веб-сайтах. Основная цель проекта — помочь пользователям принимать взвешенные решения при выборе интернет-ресурсов, а также предоставить возможность делиться собственным опытом использования различных сервисов.</p>
         
         <p>Проект разработан с применением современных веб-технологий и соответствует актуальным стандартам качества. Перед публикацией каждый отзыв проходит процедуру проверки, что гарантирует достоверность представленной информации.</p>
 
@@ -667,7 +667,7 @@
       // Регистрация с проверкой обновлений
       async function registerServiceWorker() {
         try {
-          const registration = await navigator.serviceWorker.register('/sitereview.github.io/service-worker.js');
+          const registration = await navigator.serviceWorker.register('/WebJudge/service-worker.js');
           
           console.log('Service Worker registered:', registration.scope);
           
