@@ -172,8 +172,8 @@ const reviews = [
         name: "Тимофей",
         nickname: "timoshamoscow",
         email: "roll3ogurec0@gmail.com",
-        siteUrl: "https://speedtelly1.github.io/sitereview.github.io",
-        siteName: "SiteReview",
+        siteUrl: "https://speedtelly1.github.io/WebJudge",
+        siteName: "WebJudge",
         rating: 4,
         comment: "Ну что сказать? Хороший отзовик. Но есть подозрение, что отзывы на нем не все реальны",
         date: "2026-01-15T13:21:00"
@@ -227,8 +227,8 @@ const reviews = [
         name: "Тимоша",
         nickname: "timbrayrot",
         email: "timi.sibi.maxi2010@gmail.com",
-        siteUrl: "https://speedtelly1.github.io/sitereview.github.io",
-        siteName: "SiteReview",
+        siteUrl: "https://speedtelly1.github.io/WebJudge",
+        siteName: "WebJudge",
         rating: 4,
         comment: "Отзовик прикольный, но порой приходится ждать публикации неделями! Также, некорректные даты отзывов (Конечно, если это дата одобрения отзыва, тогда ок!). И добавьте хоть какие то правила публикации",
         date: "2026-02-02T14:11:00"
@@ -771,8 +771,8 @@ const reviews = [
         name: "Федати",
         email: "1234playergp@gmail.com",
         nickname: "1234playergp",
-        siteUrl: "https://speedtelly1.github.io/sitereview.github.io",
-        siteName: "SiteReview",
+        siteUrl: "https://speedtelly1.github.io/WebJudge",
+        siteName: "WebJudge",
         rating: 4,
         comment: "Хотел я уже писать плохой отзыв на этот сайт из-за того, что мне поставили имя Федор, хотя я Федати! Фе-Да-Ти! Но мне сменили на Федати, так что отзовик топовый, хотя и есть странные отзывы",
         date: "2026-03-17T11:23:00"
@@ -894,8 +894,8 @@ const reviews = [
         name: "Даша",
         nickname: "dashulya2014",
         email: "dashulya2014yt@gmail.com",
-        siteUrl: "https://speedtelly1.github.io/sitereview.github.io",
-        siteName: "SiteReview",
+        siteUrl: "https://speedtelly1.github.io/WebJudge",
+        siteName: "WebJudge",
         rating: 3,
         comment: "Норм",
         date: "2026-04-08T19:43:00"
@@ -1228,7 +1228,7 @@ function getSitesToAvoid() {
 const likesStorage = {
     // Получить все лайки текущего пользователя
     getUserLikes: function() {
-        const user = JSON.parse(localStorage.getItem('siteReview_user') || '{}');
+        const user = JSON.parse(localStorage.getItem('webjudge_user') || '{}');
         if (!user.email) return {};
         
         const key = `likes_${user.email}`;
@@ -1237,7 +1237,7 @@ const likesStorage = {
     
     // Поставить лайк/дизлайк
     toggleLike: function(reviewId, type) {
-        const user = JSON.parse(localStorage.getItem('siteReview_user') || '{}');
+        const user = JSON.parse(localStorage.getItem('webjudge_user') || '{}');
         if (!user.email) {
             alert('Войдите, чтобы ставить оценки');
             return null;
@@ -1289,7 +1289,7 @@ function updateGlobalLikes(reviewId, type, action) {
 
 // Получить рекомендации для пользователя
 function getPersonalizedReviews(limit = 3) {
-    const user = JSON.parse(localStorage.getItem('siteReview_user') || '{}');
+    const user = JSON.parse(localStorage.getItem('webjudge_user') || '{}');
     if (!user.email) {
         // Если пользователь не авторизован - показываем просто популярные
         return getPopularReviews(limit);
@@ -1415,12 +1415,12 @@ function getSimilarReviews(reviewId, limit = 3) {
 
 /*!
  * ============================================================
- * SiteReview - Система оценки веб-сайтов
+ * WebJudge - Система оценки веб-сайтов 
  * © 2026 Константин. Все права защищены.
  * 
  * ЛИЦЕНЗИЯ: ЗАПРЕЩЕНО любое использование, копирование, 
  * модификация или распространение без письменного разрешения.
  * 
- * Репозиторий: https://github.com/speedtelly1/sitereview.github.io
+ * Репозиторий: https://github.com/speedtelly1/WebJudge
  * ============================================================
  */
