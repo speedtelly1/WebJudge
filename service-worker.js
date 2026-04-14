@@ -1,26 +1,26 @@
 // service-worker.js
 // Автоматическое определение версии на основе даты сборки
-const CACHE_NAME = `sitereview-${new Date().toISOString().slice(0, 10).replace(/-/g, '')}-v${Date.now()}`;
+const CACHE_NAME = `WJ-${new Date().toISOString().slice(0, 10).replace(/-/g, '')}-v${Date.now()}`;
 
 // Функция для получения списка файлов для кэширования
 async function getCacheUrls() {
   // Базовые файлы, которые всегда должны быть в кэше
   const baseUrls = [
-    '/sitereview.github.io/',
-    '/sitereview.github.io/index.html',
-    '/sitereview.github.io/main.css',
-    '/sitereview.github.io/main.js',
-    '/sitereview.github.io/data.js',
-    '/sitereview.github.io/banner.js',
-    '/sitereview.github.io/iconi.png',
-    '/sitereview.github.io/manifest.json',
-    '/sitereview.github.io/reviews-seo.html',
-    '/sitereview.github.io/sitemap.xml'  
+    '/WebJudge/',
+    '/WebJudge/index.html',
+    '/WebJudge/main.css',
+    '/WebJudge/main.js',
+    '/WebJudge/data.js',
+    '/WebJudge/banner.js',
+    '/WebJudge/iconi.png',
+    '/WebJudge/manifest.json',
+    '/WebJudge/reviews-seo.html',
+    '/WebJudge/sitemap.xml'  
   ];
 
   try {
     // Пытаемся получить актуальный список файлов из сети
-    const response = await fetch('/sitereview.github.io/cache-manifest.json', {
+    const response = await fetch('/WebJudge/cache-manifest.json', {
       cache: 'no-store'
     });
     
@@ -35,12 +35,12 @@ async function getCacheUrls() {
   // Fallback - статический список
   return [
     ...baseUrls,
-    '/sitereview.github.io/main.css',
-    '/sitereview.github.io/main.js',
-    '/sitereview.github.io/data.js',
-    '/sitereview.github.io/banner.js',
-    '/sitereview.github.io/reviews-seo.html',
-    '/sitereview.github.io/sitemap.xml'
+    '/WebJudge/main.css',
+    '/WebJudge/main.js',
+    '/WebJudge/data.js',
+    '/WebJudge/banner.js',
+    '/WebJudge/reviews-seo.html',
+    '/WebJudge/sitemap.xml'
   ];
 }
 
@@ -94,7 +94,7 @@ self.addEventListener('activate', event => {
 // Стратегия кэширования: Stale-while-revalidate
 self.addEventListener('fetch', event => {
   // Игнорируем запросы не к нашему сайту
-  if (!event.request.url.includes('/sitereview.github.io/')) {
+  if (!event.request.url.includes('/WebJudge/')) {
     return;
   }
 
