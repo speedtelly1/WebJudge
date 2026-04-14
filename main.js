@@ -247,7 +247,7 @@ window.addEventListener('unhandledrejection', function(e) {
 
 // ==================== СТАРТОВОЕ ЛОГИРОВАНИЕ ====================
 
-logGroup('🚀 ИНИЦИАЛИЗАЦИЯ SITEREVIEW', () => {
+logGroup('🚀 ИНИЦИАЛИЗАЦИЯ', () => {
     log('info', `Версия ${new Date().toLocaleDateString('ru-RU')}`);
     log('info', `User Agent: ${navigator.userAgent}`);
     log('info', `Язык: ${navigator.language}`);
@@ -1242,11 +1242,11 @@ function addWarningLabels(cardElement, review) {
         });
     }
 
-    // 3. Автор SiteReview
+    // 3. Автор WebJudge 
     const isOwner = review.name === 'Константин' && review.email === 'timosha.sibilev@gmail.com';
     if (isOwner) {
         warnings.push({
-            text: 'Автор SiteReview',
+            text: 'Автор WebJudge',
             icon: 'fas fa-user-edit',
             color: '#1E90FF'
         });
@@ -3222,7 +3222,7 @@ function handleGoogleSignIn(response) {
             loginTime: new Date().toISOString()
         };
         
-        localStorage.setItem('siteReview_user', JSON.stringify(userData));
+        localStorage.setItem('webjudge_user', JSON.stringify(userData));
         showSiteAfterLogin();
         showNotification(`Добро пожаловать, ${userData.name}!`, 'success');
         
@@ -3258,7 +3258,7 @@ function showSiteAfterLogin() {
 function checkAuth() {
     console.log('Проверка авторизации...');
     
-    const savedUser = localStorage.getItem('siteReview_user');
+    const savedUser = localStorage.getItem('webjudge_user');
     const overlay = document.getElementById('login-overlay');
     const mainContent = document.getElementById('main-content');
     
@@ -3281,14 +3281,14 @@ function simulateLogin() {
     
     const demoUser = {
         name: 'Демо Пользователь',
-        email: 'demo@sitereview.ru',
+        email: 'demo@speedtelly.com',
         picture: 'https://www.gravatar.com/avatar/00000000000000000000000000000000?d=mp&f=y',
         sub: 'demo_' + Date.now(),
         email_verified: false,
         loginTime: new Date().toISOString()
     };
     
-    localStorage.setItem('siteReview_user', JSON.stringify(demoUser));
+    localStorage.setItem('webjudge_user', JSON.stringify(demoUser));
     showSiteAfterLogin();
     showNotification('Добро пожаловать, Демо Пользователь!', 'success');
 }
@@ -3297,7 +3297,7 @@ function protectNavigation() {
     const originalSwitchToPage = window.switchToPage;
     if (originalSwitchToPage) {
         window.switchToPage = function(pageId, userId = null) {
-            const isLoggedIn = localStorage.getItem('siteReview_user');
+            const isLoggedIn = localStorage.getItem('webjudge_user');
             
             if (!isLoggedIn) {
                 document.getElementById('login-overlay').style.display = 'flex';
@@ -3324,7 +3324,7 @@ document.addEventListener('DOMContentLoaded', function() {
     setTimeout(() => {
         document.querySelectorAll('a[href]').forEach(link => {
             link.addEventListener('click', function(e) {
-                const isLoggedIn = localStorage.getItem('siteReview_user');
+                const isLoggedIn = localStorage.getItem('webjudge_user');
                 if (!isLoggedIn && !this.href.includes('#')) {
                     e.preventDefault();
                     document.getElementById('login-overlay').style.display = 'flex';
@@ -3406,7 +3406,7 @@ document.addEventListener('copy', function(e) {
     
     if (copiedText.length > 0) {
         // Добавляем ссылку на сайт в конце скопированного текста
-        const source = `\n\n——\nИсточник: SiteReview | https://speedtelly1.github.io/sitereview.github.io`;
+        const source = `\n\n——\nИсточник: WebJudge | https://speedtelly1.github.io/WebJudge`;
         
         // Создаём HTML-версию для буфера
         const htmlContent = `<div style="font-family: sans-serif;">${copiedText.replace(/\n/g, '<br>')}${source.replace(/\n/g, '<br>')}</div>`;
@@ -3570,12 +3570,13 @@ function displayFacts() {
 
 /*!
  * ============================================================
- * SiteReview - Система оценки веб-сайтов
+ * WebJudge - Система оценки веб-сайтов 
  * © 2026 Константин. Все права защищены.
  * 
  * ЛИЦЕНЗИЯ: ЗАПРЕЩЕНО любое использование, копирование, 
  * модификация или распространение без письменного разрешения.
  * 
- * Репозиторий: https://github.com/speedtelly1/sitereview.github.io
+ * Репозиторий: https://github.com/speedtelly1/WebJudge
  * ============================================================
  */
+
