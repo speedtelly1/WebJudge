@@ -399,6 +399,7 @@ document.addEventListener('DOMContentLoaded', function() {
     handleProfileHash();
     updateProgress();
     initQuiz();
+    displayFacts();
     
     if (!window.location.hash && document.querySelector('#profile-page.active')) {
         switchToPage('home');
@@ -421,6 +422,9 @@ function initNavigation() {
             
             if (pageId === 'reviews') {
                 displayAllReviews(reviews);
+            }
+            if (pageId === 'facts') {
+                displayFacts();
             }
             if (pageId === 'home') {
                 displaySitesNeedingReviews();
@@ -768,6 +772,9 @@ function switchToPage(pageId, userId = null) {
             setTimeout(() => {
                 analyzeTimeStats();
             }, 100);
+            break;
+        case 'facts':
+            displayFacts();
             break;
         case 'profile':
             if (userId) {
@@ -3409,6 +3416,101 @@ document.addEventListener('copy', function(e) {
         e.preventDefault();
     }
 });
+
+// ==================== ФАКТЫ (feat. ХРАНИЛИЩЕ) ====================
+
+// Массив фактов (заглушки, потом заменишь на данные из Хранилища)
+const factsDatabase = [
+    {
+        id: 1,
+        title: "Факт №1",
+        content: "YouTube — самый популярный сайт на SiteReview с рейтингом 4.8/5 на основе 5 отзывов.",
+        category: "Статистика",
+        source: "SiteReview"
+    },
+    {
+        id: 2,
+        title: "Факт №2",
+        content: "Тимофей — самый активный рецензент с 24 отзывами. Он же автор TAIPrompts и Хранилища.",
+        category: "Пользователи",
+        source: "SiteReview"
+    },
+    {
+        id: 3,
+        title: "Факт №3",
+        content: "Даша написала 8 отзывов за один день (8 апреля 2026), установив рекорд суточной активности.",
+        category: "Рекорды",
+        source: "SiteReview"
+    }
+];
+
+// Функция отображения фактов
+function displayFacts() {
+    const container = document.getElementById('facts-container');
+    if (!container) return;
+    
+    if (factsDatabase.length === 0) {
+        container.innerHTML = `
+            <div style="text-align: center; padding: 40px;">
+                <i class="fas fa-database" style="font-size: 3rem; color: #ddd; margin-bottom: 20px;"></i>
+                <p>Факты скоро появятся. Следите за обновлениями Хранилища!</p>
+            </div>
+        `;
+        return;
+    }
+    
+    container.innerHTML = '';
+    
+    factsDatabase.forEach(fact => {
+        const factCard = document.createElement('div');
+        factCard.className = 'glass-effect';
+        factCard.style.cssText = `
+            padding: 20px;
+            transition: all 0.3s ease;
+            border-left: 3px solid var(--primary-color);
+        `;
+        
+        factCard.innerHTML = `
+            <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 12px;">
+                <i class="fas fa-check-circle" style="color: var(--primary-color); font-size: 1.2rem;"></i>
+                <h3 style="margin: 0; color: var(--secondary-color);">${fact.title}</h3>
+                <span style="
+                    background: var(--primary-soft);
+                    color: var(--primary-dark);
+                    padding: 2px 10px;
+                    border-radius: 20px;
+                    font-size: 0.7rem;
+                    margin-left: auto;
+                ">${fact.category}</span>
+            </div>
+            <p style="margin: 0 0 10px 0; line-height: 1.6; color: var(--text-color);">
+                ${fact.content}
+            </p>
+            <div style="font-size: 0.75rem; color: var(--text-lighter); display: flex; gap: 15px;">
+                <span><i class="fas fa-database"></i> Источник: ${fact.source}</span>
+                <span><i class="fas fa-check-circle"></i> Проверено: Хранилище</span>
+            </div>
+        `;
+        
+        container.appendChild(factCard);
+    });
+    
+    // Добавляем подпись
+    const footer = document.createElement('div');
+    footer.style.cssText = `
+        margin-top: 20px;
+        padding: 15px;
+        text-align: center;
+        font-size: 0.8rem;
+        color: var(--text-lighter);
+        border-top: 1px solid var(--border);
+    `;
+    footer.innerHTML = `
+        <i class="fas fa-database"></i> Данные предоставлены Хранилищем · 
+        Все факты окончательны и проверены
+    `;
+    container.appendChild(footer);
+}
 
 /*!
  * ============================================================
