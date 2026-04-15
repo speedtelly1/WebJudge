@@ -93,8 +93,8 @@ const reviews = [
     {
         id: 9,
         name: "Федати",
-        email: "1234playergp@gmail.com",
-        nickname: "1234playergp",
+        email: "1234player2dota0@gmail.com",
+        nickname: "1234playerdota2",
         siteUrl: "https://timoshamoscow.github.io/taiprompts.github.io",
         siteName: "TAIPrompts",
         rating: 2,
@@ -126,8 +126,8 @@ const reviews = [
     {
         id: 12,
         name: "Федати",
-        email: "1234playergp@gmail.com",
-        nickname: "1234playergp",
+        email: "1234player2dota0@gmail.com",
+        nickname: "1234playerdota2",
         siteUrl: "https://www.deepseek.com",
         siteName: "DeepSeek",
         rating: 5,
@@ -681,8 +681,8 @@ const reviews = [
     {
         id: 62,
         name: "Федати",
-        email: "1234playergp@gmail.com",
-        nickname: "1234playergp",
+        email: "1234player2dota0@gmail.com",
+        nickname: "1234playerdota2",
         siteUrl: "https://rutube.ru",
         siteName: "Rutube",
         rating: 4,
@@ -692,8 +692,8 @@ const reviews = [
     {
         id: 63,
         name: "Федати",
-        email: "1234playergp@gmail.com",
-        nickname: "1234playergp",
+        email: "1234player2dota0@gmail.com",
+        nickname: "1234playerdota2",
         siteUrl: "https://max.ru",
         siteName: "MAX",
         rating: 1,
@@ -725,8 +725,8 @@ const reviews = [
     {
         id: 66,
         name: "Федати",
-        email: "1234playergp@gmail.com",
-        nickname: "1234playergp",
+        email: "1234player2dota0@gmail.com",
+        nickname: "1234playerdota2",
         siteUrl: "https://xn--d1ah4a.com",
         siteName: "итд.com",
         rating: 3,
@@ -769,8 +769,8 @@ const reviews = [
     {
         id: 70,
         name: "Федати",
-        email: "1234playergp@gmail.com",
-        nickname: "1234playergp",
+        email: "1234player2dota0@gmail.com",
+        nickname: "1234playerdota2",
         siteUrl: "https://speedtelly1.github.io/WebJudge",
         siteName: "WebJudge",
         rating: 4,
@@ -943,6 +943,17 @@ const reviews = [
         rating: 4,
         comment: "Хороший сайт, красивый. По красивее твича будет даже",
         date: "2026-04-09T11:13:00"
+    },
+    {
+        id: 86,
+        name: "Федати",
+        email: "1234player2dota0@gmail.com",
+        nickname: "1234playerdota2",
+        siteUrl: "https://icetube-app.vercel.app",
+        siteName: "IceTube",
+        rating: 4,
+        comment: "Хорошая замена ютубу, но надо докрутить некоторые функции, рекомендации например сделать нормальные. Я кстати аккаунт сменил. И где мой SuteReview?! Что ещё за веб жук",
+        date: "2026-04-15T20:36:00"
     }
 ];
 
